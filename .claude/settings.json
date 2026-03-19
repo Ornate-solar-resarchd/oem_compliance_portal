@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls \"/Users/priyankrajput/Ornate/Claude 2 - OEM Portal/Claude 2 - OEM Portal/OEM - anushthaFatehPortal/frontend/app/\\(portal\\)/\")",
+      "Bash(mkdir -p \"/Users/priyankrajput/Ornate/Claude 2 - OEM Portal/Claude 2 - OEM Portal/OEM - anushthaFatehPortal/frontend/app/\\(portal\\)/rfq/[id]/compliance\")",
+      "Bash(mkdir -p \"/Users/priyankrajput/Ornate/Claude 2 - OEM Portal/Claude 2 - OEM Portal/OEM - anushthaFatehPortal/frontend/app/\\(portal\\)/rfq/[id]/diversify\")",
+      "Bash(python3:*)",
+      "Bash(/usr/bin/env -i /usr/bin/python3 /tmp/read_excel.py)",
+      "Read(//tmp/**)",
+      "Read(//private/tmp/**)",
+      "Bash(unzip -o \"/Users/priyankrajput/Ornate/Claude 2 - OEM Portal/Claude 2 - OEM Portal/03_EMS_SCADA_OEM_Compliance_Sheet.xlsx\" -d /tmp/xlsx_extracted/)"
+    ],
+    "additionalDirectories": [
+      "/Users/priyankrajput/Ornate/Claude 2 - OEM Portal/Claude 2 - OEM Portal/OEM - anushthaFatehPortal/frontend/app/(portal)/oems"
+    ]
+  }
+}

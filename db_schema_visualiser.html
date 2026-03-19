@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ornate Solar — Procurement DB Schema v3.8</title>
+  <link href="https://fonts.googleapis.com/css2?family=Chivo:wght@300;400;700;900&family=Chivo+Mono&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange: #F26B4E;
+      --dark: #2D2D2D;
+      --mid: #555;
+      --light: #F7F5F2;
+      --white: #FFFFFF;
+      --border: #E0DCD8;
+
+      --grp-proc:   #EBF4FF;
+      --grp-proc-b: #3A7BD5;
+      --grp-lc:     #E8F8F0;
+      --grp-lc-b:   #27AE60;
+      --grp-sc:     #F3ECF9;
+      --grp-sc-b:   #8E44AD;
+      --grp-user:   #FFF6EC;
+      --grp-user-b: #F26B4E;
+      --grp-cfg:    #F0F0F0;
+      --grp-cfg-b:  #777;
+    }
+
+    body {
+      font-family: 'Chivo', sans-serif;
+      background: var(--light);
+      color: var(--dark);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--dark);
+      color: var(--white);
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    header h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.02em; }
+    header h1 span { color: var(--orange); }
+    .header-meta { font-size: 12px; color: #aaa; font-weight: 300; text-align: right; line-height: 1.6; }
+
+    /* ── LEGEND ── */
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      padding: 14px 32px;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+    }
+    .legend-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 700; padding: 4px 10px;
+      border-radius: 4px; border-left: 4px solid;
+    }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      display: flex; gap: 0;
+      background: var(--orange);
+      color: var(--white);
+    }
+    .stat { flex: 1; text-align: center; padding: 10px 8px; border-right: 1px solid rgba(255,255,255,0.2); }
+    .stat:last-child { border-right: none; }
+    .stat-num { font-size: 22px; font-weight: 900; line-height: 1; }
+    .stat-lbl { font-size: 10px; font-weight: 300; opacity: 0.85; letter-spacing: 0.06em; text-transform: uppercase; margin-top: 2px; }
+
+    /* ── MAIN LAYOUT ── */
+    main { padding: 28px 24px; max-width: 1600px; margin: 0 auto; }
+
+    /* ── GROUP ── */
+    .group {
+      border-radius: 12px;
+      border: 2px solid;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+    .group-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px;
+    }
+    .group-title {
+      font-size: 13px; font-weight: 900; letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .group-badge {
+      font-size: 10px; font-weight: 700; padding: 2px 8px;
+      border-radius: 20px; color: var(--white);
+    }
+    .group-desc { font-size: 12px; font-weight: 300; color: var(--mid); margin-left: auto; }
+
+    .tables-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+    }
+
+    /* ── TABLE CARD ── */
+    .tcard {
+      background: var(--white);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      cursor: pointer;
+      transition: box-shadow 0.15s, transform 0.15s;
+    }
+    .tcard:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); transform: translateY(-1px); }
+    .tcard.expanded .tcard-body { display: block; }
+
+    .tcard-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 12px;
+      border-left: 4px solid;
+    }
+    .tcard-name {
+      font-family: 'Chivo Mono', monospace;
+      font-size: 12px; font-weight: 700; color: var(--dark);
+    }
+    .tcard-num { font-size: 10px; font-weight: 300; color: #999; }
+    .tcard-toggle { font-size: 10px; color: #aaa; user-select: none; }
+
+    .tcard-purpose {
+      padding: 6px 12px 8px;
+      font-size: 11px; color: var(--mid); font-weight: 300;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tcard-body { display: none; }
+
+    .tcard-section-title {
+      font-size: 9px; font-weight: 900; text-transform: uppercase;
+      letter-spacing: 0.1em; color: #aaa;
+      padding: 8px 12px 4px;
+    }
+
+    .col-list { padding: 0 12px 8px; }
+    .col-row {
+      display: flex; align-items: baseline; gap: 6px;
+      padding: 3px 0;
+      border-bottom: 1px solid #F5F5F5;
+      font-size: 11px;
+    }
+    .col-row:last-child { border-bottom: none; }
+    .col-name {
+      font-family: 'Chivo Mono', monospace;
+      font-weight: 700; color: var(--dark); flex: 0 0 auto;
+      min-width: 120px;
+    }
+    .col-type { color: #888; font-size: 10px; flex: 1; }
+    .col-tag {
+      font-size: 9px; padding: 1px 5px; border-radius: 3px;
+      font-weight: 700; flex: 0 0 auto;
+    }
+    .tag-pk  { background: #FFF0ED; color: var(--orange); }
+    .tag-fk  { background: #EBF4FF; color: var(--grp-proc-b); }
+    .tag-uniq { background: #F3ECF9; color: var(--grp-sc-b); }
+    .tag-idx  { background: #E8F8F0; color: var(--grp-lc-b); }
+
+    .fk-list { padding: 0 12px 10px; }
+    .fk-row {
+      font-size: 10px; color: var(--mid); padding: 2px 0;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .fk-arrow { color: var(--orange); font-weight: 700; }
+    .fk-target { font-family: 'Chivo Mono', monospace; font-weight: 700; color: var(--dark); }
+
+    /* ── STATUS FLOWS ── */
+    .flow-section { margin-top: 24px; }
+    .flow-title { font-size: 13px; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dark); margin-bottom: 14px; }
+    .flows-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
+    .flow-card {
+      background: var(--white); border-radius: 8px; border: 1px solid var(--border); padding: 14px;
+    }
+    .flow-card-title { font-size: 12px; font-weight: 700; margin-bottom: 8px; color: var(--dark); }
+    .flow-steps { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+    .flow-step {
+      font-size: 10px; font-weight: 700; padding: 3px 8px;
+      border-radius: 3px; background: var(--light); color: var(--mid);
+    }
+    .flow-step.start { background: #E8F8F0; color: var(--grp-lc-b); }
+    .flow-step.end   { background: #FFF0ED; color: var(--orange); }
+    .flow-step.alt   { background: #FEF9E7; color: #B7950B; }
+    .flow-sep { color: #aaa; font-size: 12px; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center; padding: 20px;
+      font-size: 11px; color: #aaa; border-top: 1px solid var(--border);
+      margin-top: 32px;
+    }
+
+    @media (max-width: 768px) {
+      header { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .tables-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Ornate Solar <span>Procurement Portal</span> — Database Schema</h1>
+  <div class="header-meta">PostgreSQL (Neon) · v3.8 · 2026-02-27<br>28 tables · 22+ indexes · Node.js/Express + React/Vite</div>
+</header>
+
+<!-- Stats -->
+<div class="stats-bar">
+  <div class="stat"><div class="stat-num">28</div><div class="stat-lbl">Tables</div></div>
+  <div class="stat"><div class="stat-num">22+</div><div class="stat-lbl">Indexes</div></div>
+  <div class="stat"><div class="stat-num">120+</div><div class="stat-lbl">API Endpoints</div></div>
+  <div class="stat"><div class="stat-num">9</div><div class="stat-lbl">User Roles</div></div>
+  <div class="stat"><div class="stat-num">5</div><div class="stat-lbl">PO Categories</div></div>
+  <div class="stat"><div class="stat-num">14</div><div class="stat-lbl">Route Files</div></div>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item" style="background:var(--grp-proc); border-color:var(--grp-proc-b); color:var(--grp-proc-b)">
+    <div class="legend-dot" style="background:var(--grp-proc-b)"></div> Procurement Core
+  </div>
+  <div class="legend-item" style="background:var(--grp-lc); border-color:var(--grp-lc-b); color:var(--grp-lc-b)">
+    <div class="legend-dot" style="background:var(--grp-lc-b)"></div> Trade Finance / LC
+  </div>
+  <div class="legend-item" style="background:var(--grp-sc); border-color:var(--grp-sc-b); color:var(--grp-sc-b)">
+    <div class="legend-dot" style="background:var(--grp-sc-b)"></div> Supply Chain
+  </div>
+  <div class="legend-item" style="background:var(--grp-user); border-color:var(--grp-user-b); color:var(--grp-user-b)">
+    <div class="legend-dot" style="background:var(--grp-user-b)"></div> Users &amp; Auth
+  </div>
+  <div class="legend-item" style="background:var(--grp-cfg); border-color:var(--grp-cfg-b); color:var(--grp-cfg-b)">
+    <div class="legend-dot" style="background:var(--grp-cfg-b)"></div> Config &amp; Metadata
+  </div>
+  <div style="margin-left:auto; font-size:11px; color:#999; align-self:center">Click any table to expand columns →</div>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════
+     GROUP 1 — PROCUREMENT CORE
+════════════════════════════════════════════════ -->
+<div class="group" style="background:var(--grp-proc); border-color:var(--grp-proc-b)">
+  <div class="group-header">
+    <div class="group-title" style="color:var(--grp-proc-b)">Procurement Core</div>
+    <div class="group-badge" style="background:var(--grp-proc-b)">6 tables</div>
+    <div class="group-desc">The central purchasing workflow: suppliers → POs → items → approvals → shipments → audit</div>
+  </div>
+  <div class="tables-grid">
+
+    <!-- suppliers -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-proc-b)">
+        <span class="tcard-name">suppliers</span>
+        <span class="tcard-num">#2</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">Supplier master — bank details, GST, PAN, category, rating</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">SERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">name</span><span class="col-type">TEXT NOT NULL</span></div>
+          <div class="col-row"><span class="col-name">code</span><span class="col-type">TEXT</span><span class="col-tag tag-uniq">UNIQUE</span></div>
+          <div class="col-row"><span class="col-name">gst_number</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">pan_number</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">currency</span><span class="col-type">TEXT DEFAULT 'INR'</span></div>
+          <div class="col-row"><span class="col-name">category</span><span class="col-type">TEXT DEFAULT 'GENERAL'</span></div>
+          <div class="col-row"><span class="col-name">rating</span><span class="col-type">INTEGER DEFAULT 0</span></div>
+          <div class="col-row"><span class="col-name">is_active</span><span class="col-type">BOOLEAN</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- purchase_orders -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-proc-b)">
+        <span class="tcard-name">purchase_orders</span>
+        <span class="tcard-num">#3</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">Core PO record. Format: OS-{CAT}-{FY}-{SEQ}. Categories: CAPEX | FINISHED_GOODS | RAW_MATERIAL | OPEX | CONSUMABLES</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">SERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">po_number</span><span class="col-type">TEXT UNIQUE</span><span class="col-tag tag-uniq">UNIQUE</span></div>
+          <div class="col-row"><span class="col-name">category</span><span class="col-type">TEXT NOT NULL</span></div>
+          <div class="col-row"><span class="col-name">supplier_id</span><span class="col-type">INTEGER</span><span class="col-tag tag-fk">FK → suppliers</span></div>
+          <div class="col-row"><span class="col-name">status</span><span class="col-type">TEXT DEFAULT 'DRAFT'</span><span class="col-tag tag-idx">IDX</span></div>
+          <div class="col-row"><span class="col-name">currency</span><span class="col-type">TEXT DEFAULT 'INR'</span></div>
+          <div class="col-row"><span class="col-name">subtotal</span><span class="col-type">NUMERIC(15,2)</span></div>
+          <div class="col-row"><span class="col-name">gst_amount</span><span class="col-type">NUMERIC(15,2)</span></div>
+          <div class="col-row"><span class="col-name">total_amount</span><span class="col-type">NUMERIC(15,2)</span></div>
+          <div class="col-row"><span class="col-name">incoterms</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">created_by</span><span class="col-type">TEXT (email)</span></div>
+          <div class="col-row"><span class="col-name">approved_by</span><span class="col-type">TEXT (email)</span></div>
+        </div>
+        <div class="tcard-section-title">Status Flow</div>
+        <div class="col-list" style="font-size:10px; color:var(--mid); padding-bottom:10px">
+          DRAFT → PENDING_APPROVAL → APPROVED → ORDERED → PARTIALLY_RECEIVED → RECEIVED → CLOSED<br>
+          <span style="color:var(--orange)">↳ REJECTED | CANCELLED (any pre-ORDERED step)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- po_items -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-proc-b)">
+        <span class="tcard-name">po_items</span>
+        <span class="tcard-num">#4</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">Line items for a PO. Cascade-deleted when PO is deleted.</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">SERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">po_id</span><span class="col-type">INTEGER CASCADE</span><span class="col-tag tag-fk">FK → purchase_orders</span></div>
+          <div class="col-row"><span class="col-name">line_number</span><span class="col-type">INTEGER</span></div>
+          <div class="col-row"><span class="col-name">description</span><span class="col-type">TEXT NOT NULL</span></div>
+          <div class="col-row"><span class="col-name">sku</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">hsn_code</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">quantity</span><span class="col-type">NUMERIC(12,3)</span></div>
+          <div class="col-row"><span class="col-name">unit_price</span><span class="col-type">NUMERIC(15,2)</span></div>
+          <div class="col-row"><span class="col-name">gst_rate</span><span class="col-type">NUMERIC(5,2) DEFAULT 18</span></div>
+          <div class="col-row"><span class="col-name">line_total</span><span class="col-type">NUMERIC(15,2)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- po_approvals -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-proc-b)">
+        <span class="tcard-name">po_approvals</span>
+        <span class="tcard-num">#5</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">One row per approval step per PO. SLA: HEAD=24h, CFO=48h, DIRECTOR=72h.</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">SERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">po_id</span><span class="col-type">INTEGER CASCADE</span><span class="col-tag tag-fk">FK → purchase_orders</span></div>
+          <div class="col-row"><span class="col-name">approver_role</span><span class="col-type">TEXT (PROC_HEAD|CFO|DIRECTOR)</span></div>
+          <div class="col-row"><span class="col-name">approver_email</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">status</span><span class="col-type">PENDING|APPROVED|REJECTED</span></div>
+          <div class="col-row"><span class="col-name">decided_at</span><span class="col-type">TIMESTAMP</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- po_shipments -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-proc-b)">
+        <span class="tcard-name">po_shipments</span>
+        <span class="tcard-num">#6</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">Shipment legs: vessel, ports, B/L, container, freight/insurance in USD.</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">SERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">po_id</span><span class="col-type">INTEGER CASCADE</span><span class="col-tag tag-fk">FK → purchase_orders</span></div>
+          <div class="col-row"><span class="col-name">carrier</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">bl_number</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">vessel_name</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">port_of_loading</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">port_of_discharge</span><span class="col-type">TEXT (Nhava Sheva/ICD TKD)</span></div>
+          <div class="col-row"><span class="col-name">eta</span><span class="col-type">DATE</span></div>
+          <div class="col-row"><span class="col-name">boe_number</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">freight_usd</span><span class="col-type">NUMERIC(12,2)</span></div>
+          <div class="col-row"><span class="col-name">documents_json</span><span class="col-type">JSONB</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- po_audit_log -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-proc-b)">
+        <span class="tcard-name">po_audit_log</span>
+        <span class="tcard-num">#7</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">Immutable event log. Every status change, approval, edit recorded here.</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">SERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">po_id</span><span class="col-type">INTEGER</span><span class="col-tag tag-fk">→ purchase_orders</span></div>
+          <div class="col-row"><span class="col-name">action</span><span class="col-type">TEXT NOT NULL</span></div>
+          <div class="col-row"><span class="col-name">actor</span><span class="col-type">TEXT (email)</span></div>
+          <div class="col-row"><span class="col-name">details</span><span class="col-type">JSONB (e.g. {from, to})</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     GROUP 2 — TRADE FINANCE / LC
+════════════════════════════════════════════════ -->
+<div class="group" style="background:var(--grp-lc); border-color:var(--grp-lc-b)">
+  <div class="group-header">
+    <div class="group-title" style="color:var(--grp-lc-b)">Trade Finance / Letter of Credit</div>
+    <div class="group-badge" style="background:var(--grp-lc-b)">7 tables</div>
+    <div class="group-desc">Full LC lifecycle: issuance → forex hedging → bank charges → amendments → CFO approval</div>
+  </div>
+  <div class="tables-grid">
+
+    <!-- lc_master -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-lc-b)">
+        <span class="tcard-name">lc_master</span>
+        <span class="tcard-num">#14</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">LC lifecycle record. APPLIED → ISSUED → AMENDED → NEGOTIATED → EXPIRED → CLOSED</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">SERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">lc_number</span><span class="col-type">TEXT UNIQUE</span><span class="col-tag tag-uniq">UNIQUE</span></div>
+          <div class="col-row"><span class="col-name">type</span><span class="col-type">IMPORT|EXPORT|STANDBY</span></div>
+          <div class="col-row"><span class="col-name">supplier_id</span><span class="col-type">INTEGER</span><span class="col-tag tag-fk">FK → suppliers</span></div>
+          <div class="col-row"><span class="col-name">po_id</span><span class="col-type">INTEGER</span><span class="col-tag tag-fk">FK → purchase_orders</span></div>
+          <div class="col-row"><span class="col-name">amount</span><span class="col-type">NUMERIC(15,2) NOT NULL</span></div>
+          <div class="col-row"><span class="col-name">currency</span><span class="col-type">TEXT DEFAULT 'USD'</span></div>
+          <div class="col-row"><span class="col-name">exchange_rate</span><span class="col-type">NUMERIC(10,4)</span></div>
+          <div class="col-row"><span class="col-name">expiry_date</span><span class="col-type">DATE</span></div>
+          <div class="col-row"><span class="col-name">issuing_bank</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">margin_pct</span><span class="col-type">NUMERIC(5,2)</span></div>
+          <div class="col-row"><span class="col-name">swift_messages_json</span><span class="col-type">JSONB</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- lc_documents -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-lc-b)">
+        <span class="tcard-name">lc_documents</span>
+        <span class="tcard-num">#11</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">LC inbox — email-parsed or manually uploaded trade finance documents (BL, Invoice, SWIFT, etc.)</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">SERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">file_name</span><span class="col-type">TEXT NOT NULL</span></div>
+          <div class="col-row"><span class="col-name">doc_type</span><span class="col-type">BL|INVOICE|PACKING_LIST|SWIFT|CERT|OTHER</span></div>
+          <div class="col-row"><span class="col-name">lc_number</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">status</span><span class="col-type">PENDING_REVIEW|APPROVED|REJECTED|RECLASSIFIED</span><span class="col-tag tag-idx">IDX</span></div>
+          <div class="col-row"><span class="col-name">extracted_data</span><span class="col-type">JSONB</span></div>
+          <div class="col-row"><span class="col-name">confidence</span><span class="col-type">JSONB (AI parse scores)</span></div>
+          <div class="col-row"><span class="col-name">source</span><span class="col-type">LOCAL_UPLOAD|EMAIL</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- lc_approvals -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-lc-b)">
+        <span class="tcard-name">lc_approvals</span>
+        <span class="tcard-num">#12</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">CFO sign-off queue for LC documents. Mirrors PO approval pattern.</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">SERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">document_id</span><span class="col-type">INTEGER CASCADE</span><span class="col-tag tag-fk">FK → lc_documents</span></div>
+          <div class="col-row"><span class="col-name">approver_role</span><span class="col-type">TEXT DEFAULT 'CFO'</span></div>
+          <div class="col-row"><span class="col-name">status</span><span class="col-type">PENDING_APPROVAL|APPROVED|REJECTED</span></div>
+          <div class="col-row"><span class="col-name">finance_notes</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">approved_at</span><span class="col-type">TIMESTAMP</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- lc_audit_log -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-lc-b)">
+        <span class="tcard-name">lc_audit_log</span>
+        <span class="tcard-num">#13</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">Immutable event log for all LC document actions. Mirrors po_audit_log.</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">SERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">document_id</span><span class="col-type">INTEGER</span></div>
+          <div class="col-row"><span class="col-name">approval_id</span><span class="col-type">INTEGER</span></div>
+          <div class="col-row"><span class="col-name">action</span><span class="col-type">TEXT NOT NULL</span></div>
+          <div class="col-row"><span class="col-name">actor</span><span class="col-type">TEXT (email)</span></div>
+          <div class="col-row"><span class="col-name">details</span><span class="col-type">JSONB</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- lc_forex_positions -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-lc-b)">
+        <span class="tcard-name">lc_forex_positions</span>
+        <span class="tcard-num">#15</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">Forward contracts and hedging positions against LC USD exposure. MTM P&amp;L tracked.</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">SERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">lc_id</span><span class="col-type">INTEGER SET NULL</span><span class="col-tag tag-fk">FK → lc_master</span></div>
+          <div class="col-row"><span class="col-name">type</span><span class="col-type">FORWARD|OPTION|SPOT</span></div>
+          <div class="col-row"><span class="col-name">currency_pair</span><span class="col-type">TEXT DEFAULT 'USD/INR'</span></div>
+          <div class="col-row"><span class="col-name">notional_amount</span><span class="col-type">NUMERIC(15,2) NOT NULL</span></div>
+          <div class="col-row"><span class="col-name">booked_rate</span><span class="col-type">NUMERIC(10,4) NOT NULL</span></div>
+          <div class="col-row"><span class="col-name">mtm_pnl</span><span class="col-type">NUMERIC(15,2)</span></div>
+          <div class="col-row"><span class="col-name">status</span><span class="col-type">OPEN|PART_UTILISED|FULLY_UTILISED|CANCELLED|MATURED</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- lc_bank_charges -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-lc-b)">
+        <span class="tcard-name">lc_bank_charges</span>
+        <span class="tcard-num">#16</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">All bank fees: LC issuance, amendment, SWIFT, discounting, usance charges.</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">SERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">lc_id</span><span class="col-type">INTEGER SET NULL</span><span class="col-tag tag-fk">FK → lc_master</span></div>
+          <div class="col-row"><span class="col-name">charge_type</span><span class="col-type">LC_ISSUANCE|AMENDMENT|SWIFT|DISCOUNTING|USANCE</span></div>
+          <div class="col-row"><span class="col-name">amount</span><span class="col-type">NUMERIC(15,2) NOT NULL</span></div>
+          <div class="col-row"><span class="col-name">gst_amount</span><span class="col-type">NUMERIC(15,2)</span></div>
+          <div class="col-row"><span class="col-name">total_amount</span><span class="col-type">NUMERIC(15,2)</span></div>
+          <div class="col-row"><span class="col-name">is_recoverable</span><span class="col-type">BOOLEAN</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- lc_amendments -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-lc-b)">
+        <span class="tcard-name">lc_amendments</span>
+        <span class="tcard-num">#27</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">Formal LC amendment workflow. DRAFT → PENDING_BANK → BANK_CONFIRMED → BENEFICIARY_ACK → COMPLETED</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">SERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">lc_id</span><span class="col-type">INTEGER CASCADE</span><span class="col-tag tag-fk">FK → lc_master</span></div>
+          <div class="col-row"><span class="col-name">amend_number</span><span class="col-type">TEXT NOT NULL</span></div>
+          <div class="col-row"><span class="col-name">amend_type</span><span class="col-type">TEXT NOT NULL</span></div>
+          <div class="col-row"><span class="col-name">description</span><span class="col-type">TEXT NOT NULL</span></div>
+          <div class="col-row"><span class="col-name">status</span><span class="col-type">DRAFT→COMPLETED|REJECTED</span></div>
+          <div class="col-row"><span class="col-name">fee_estimate</span><span class="col-type">NUMERIC(12,2)</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     GROUP 3 — SUPPLY CHAIN
+════════════════════════════════════════════════ -->
+<div class="group" style="background:var(--grp-sc); border-color:var(--grp-sc-b)">
+  <div class="group-header">
+    <div class="group-title" style="color:var(--grp-sc-b)">Supply Chain</div>
+    <div class="group-badge" style="background:var(--grp-sc-b)">6 tables</div>
+    <div class="group-desc">Contracts, T&amp;C clauses, customs clearance, goods receipt, document storage</div>
+  </div>
+  <div class="tables-grid">
+
+    <!-- contracts -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-sc-b)">
+        <span class="tcard-name">contracts</span>
+        <span class="tcard-num">#8</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">Supplier contracts &amp; AMCs. Gate: import/USD POs cannot be ORDERED until contract is EXECUTED.</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">SERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">contract_number</span><span class="col-type">TEXT UNIQUE</span><span class="col-tag tag-uniq">UNIQUE</span></div>
+          <div class="col-row"><span class="col-name">supplier_id</span><span class="col-type">INTEGER</span><span class="col-tag tag-fk">FK → suppliers</span></div>
+          <div class="col-row"><span class="col-name">po_id</span><span class="col-type">INTEGER</span><span class="col-tag tag-fk">FK → purchase_orders</span></div>
+          <div class="col-row"><span class="col-name">contract_type</span><span class="col-type">SUPPLY|AMC|RATE_AGREEMENT|IMPORT</span></div>
+          <div class="col-row"><span class="col-name">status</span><span class="col-type">DRAFT→EXECUTED|TERMINATED</span></div>
+          <div class="col-row"><span class="col-name">value</span><span class="col-type">NUMERIC(15,2)</span></div>
+          <div class="col-row"><span class="col-name">auto_renew</span><span class="col-type">BOOLEAN</span></div>
+          <div class="col-row"><span class="col-name">terms_json</span><span class="col-type">JSONB</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- contract_clauses (junction) -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-sc-b)">
+        <span class="tcard-name">contract_clauses</span>
+        <span class="tcard-num">junction</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">Many-to-many link: contracts ↔ tc_clauses. Each contract can have multiple reusable clauses.</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">SERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">contract_id</span><span class="col-type">INTEGER CASCADE</span><span class="col-tag tag-fk">FK → contracts</span></div>
+          <div class="col-row"><span class="col-name">clause_id</span><span class="col-type">INTEGER CASCADE</span><span class="col-tag tag-fk">FK → tc_clauses</span></div>
+          <div class="col-row"><span class="col-name">sort_order</span><span class="col-type">INTEGER</span></div>
+        </div>
+        <div class="tcard-section-title">Constraint</div>
+        <div class="col-list" style="font-size:10px;color:var(--mid);padding-bottom:8px">UNIQUE (contract_id, clause_id)</div>
+      </div>
+    </div>
+
+    <!-- tc_clauses -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-sc-b)">
+        <span class="tcard-name">tc_clauses</span>
+        <span class="tcard-num">#26</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">Reusable T&amp;C clause library. 15 default clauses seeded. Risk: Low | Medium | High.</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">SERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">category</span><span class="col-type">TEXT NOT NULL</span><span class="col-tag tag-idx">IDX</span></div>
+          <div class="col-row"><span class="col-name">title</span><span class="col-type">TEXT NOT NULL</span></div>
+          <div class="col-row"><span class="col-name">risk</span><span class="col-type">Low|Medium|High</span><span class="col-tag tag-idx">IDX</span></div>
+          <div class="col-row"><span class="col-name">tags</span><span class="col-type">JSONB (keyword array)</span></div>
+          <div class="col-row"><span class="col-name">text</span><span class="col-type">TEXT NOT NULL</span></div>
+          <div class="col-row"><span class="col-name">usage_count</span><span class="col-type">INTEGER</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- customs -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-sc-b)">
+        <span class="tcard-name">customs</span>
+        <span class="tcard-num">#9</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">Import clearance: BOE, duty calc, CHA, OOC date. Status: PENDING → DUTY_PAID → OOC → DELIVERED</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">SERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">shipment_id</span><span class="col-type">INTEGER</span><span class="col-tag tag-fk">FK → po_shipments</span></div>
+          <div class="col-row"><span class="col-name">po_id</span><span class="col-type">INTEGER</span><span class="col-tag tag-fk">FK → purchase_orders</span></div>
+          <div class="col-row"><span class="col-name">boe_number</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">assessable_value</span><span class="col-type">NUMERIC(15,2)</span></div>
+          <div class="col-row"><span class="col-name">basic_duty_rate</span><span class="col-type">NUMERIC(5,2)</span></div>
+          <div class="col-row"><span class="col-name">igst_rate</span><span class="col-type">NUMERIC(5,2) DEFAULT 18</span></div>
+          <div class="col-row"><span class="col-name">total_duty</span><span class="col-type">NUMERIC(15,2)</span></div>
+          <div class="col-row"><span class="col-name">exchange_rate</span><span class="col-type">NUMERIC(10,4)</span></div>
+          <div class="col-row"><span class="col-name">ooc_date</span><span class="col-type">DATE</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- inventory -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-sc-b)">
+        <span class="tcard-name">inventory</span>
+        <span class="tcard-num">#10</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">GRN (Goods Receipt Note) ledger. One row per receipt event. GRN-{YYYY}-{SEQ} format.</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">SERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">grn_number</span><span class="col-type">TEXT UNIQUE</span><span class="col-tag tag-uniq">UNIQUE</span></div>
+          <div class="col-row"><span class="col-name">po_id</span><span class="col-type">INTEGER</span><span class="col-tag tag-fk">FK → purchase_orders</span></div>
+          <div class="col-row"><span class="col-name">po_item_id</span><span class="col-type">INTEGER</span><span class="col-tag tag-fk">FK → po_items</span></div>
+          <div class="col-row"><span class="col-name">sku</span><span class="col-type">TEXT</span><span class="col-tag tag-idx">IDX</span></div>
+          <div class="col-row"><span class="col-name">quantity_received</span><span class="col-type">NUMERIC(12,3)</span></div>
+          <div class="col-row"><span class="col-name">quantity_accepted</span><span class="col-type">NUMERIC(12,3)</span></div>
+          <div class="col-row"><span class="col-name">inspection_status</span><span class="col-type">PENDING|ACCEPTED|REJECTED|PARTIAL</span></div>
+          <div class="col-row"><span class="col-name">landed_cost</span><span class="col-type">NUMERIC(15,2)</span></div>
+          <div class="col-row"><span class="col-name">serial_numbers</span><span class="col-type">JSONB array</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- document_vault -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-sc-b)">
+        <span class="tcard-name">document_vault</span>
+        <span class="tcard-num">#20</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">Centralised file storage linked to POs and shipments. SHA256 for deduplication.</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">SERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">fy</span><span class="col-type">TEXT DEFAULT '2025-26'</span><span class="col-tag tag-idx">IDX</span></div>
+          <div class="col-row"><span class="col-name">po_id</span><span class="col-type">INTEGER SET NULL</span><span class="col-tag tag-fk">FK → purchase_orders</span></div>
+          <div class="col-row"><span class="col-name">shipment_id</span><span class="col-type">INTEGER SET NULL</span><span class="col-tag tag-fk">FK → po_shipments</span></div>
+          <div class="col-row"><span class="col-name">stage</span><span class="col-type">COMMERCIAL|TECHNICAL|LOGISTICS|CUSTOMS|GENERAL</span></div>
+          <div class="col-row"><span class="col-name">doc_type</span><span class="col-type">TEXT NOT NULL</span><span class="col-tag tag-idx">IDX</span></div>
+          <div class="col-row"><span class="col-name">sha256</span><span class="col-type">TEXT (dedup hash)</span></div>
+          <div class="col-row"><span class="col-name">file_size</span><span class="col-type">INTEGER</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     GROUP 4 — USERS & AUTH
+════════════════════════════════════════════════ -->
+<div class="group" style="background:var(--grp-user); border-color:var(--grp-user-b)">
+  <div class="group-header">
+    <div class="group-title" style="color:var(--grp-user-b)">Users &amp; Auth</div>
+    <div class="group-badge" style="background:var(--grp-user-b)">4 tables</div>
+    <div class="group-desc">JWT + Google SSO. Role hierarchy: VIEWER &lt; WAREHOUSE &lt; LOGISTICS &lt; ACCOUNTS &lt; PROC_MANAGER &lt; PROC_HEAD &lt; CFO &lt; DIRECTOR &lt; ADMIN</div>
+  </div>
+  <div class="tables-grid">
+
+    <!-- users -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-user-b)">
+        <span class="tcard-name">users</span>
+        <span class="tcard-num">#1</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">All portal accounts. Role controls nav access and approval rights.</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">SERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">email</span><span class="col-type">TEXT UNIQUE NOT NULL</span><span class="col-tag tag-uniq">UNIQUE</span></div>
+          <div class="col-row"><span class="col-name">password_hash</span><span class="col-type">TEXT NOT NULL</span></div>
+          <div class="col-row"><span class="col-name">name</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">role</span><span class="col-type">TEXT DEFAULT 'VIEWER'</span></div>
+          <div class="col-row"><span class="col-name">department</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">is_active</span><span class="col-type">BOOLEAN DEFAULT true</span></div>
+          <div class="col-row"><span class="col-name">last_login</span><span class="col-type">TIMESTAMP</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- user_preferences -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-user-b)">
+        <span class="tcard-name">user_preferences</span>
+        <span class="tcard-num">#17</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">One row per user (UNIQUE constraint). Theme, currency format, notification settings.</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">user_id</span><span class="col-type">INTEGER CASCADE</span><span class="col-tag tag-fk">FK → users</span></div>
+          <div class="col-row"><span class="col-name">theme_preset</span><span class="col-type">LIGHT|DARK</span></div>
+          <div class="col-row"><span class="col-name">currency_display</span><span class="col-type">TEXT DEFAULT 'INR'</span></div>
+          <div class="col-row"><span class="col-name">number_format</span><span class="col-type">TEXT DEFAULT 'en-IN'</span></div>
+          <div class="col-row"><span class="col-name">date_format</span><span class="col-type">TEXT DEFAULT 'DD/MM/YYYY'</span></div>
+          <div class="col-row"><span class="col-name">rows_per_page</span><span class="col-type">INTEGER DEFAULT 25</span></div>
+          <div class="col-row"><span class="col-name">notifications</span><span class="col-type">JSONB {email, browser}</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- user_dashboards -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-user-b)">
+        <span class="tcard-name">user_dashboards</span>
+        <span class="tcard-num">#18</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">Named dashboard layouts. Users can have multiple; one is flagged as default.</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">user_id</span><span class="col-type">INTEGER CASCADE</span><span class="col-tag tag-fk">FK → users</span></div>
+          <div class="col-row"><span class="col-name">dashboard_name</span><span class="col-type">TEXT NOT NULL</span></div>
+          <div class="col-row"><span class="col-name">is_default</span><span class="col-type">BOOLEAN</span></div>
+          <div class="col-row"><span class="col-name">layout_type</span><span class="col-type">TEXT DEFAULT 'GRID'</span></div>
+          <div class="col-row"><span class="col-name">columns</span><span class="col-type">INTEGER DEFAULT 3</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- dashboard_widgets -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-user-b)">
+        <span class="tcard-name">dashboard_widgets</span>
+        <span class="tcard-num">#19</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">Per-widget config with grid position. chart_type: TABLE|BAR|LINE|PIE|KPI|GAUGE.</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">dashboard_id</span><span class="col-type">INTEGER CASCADE</span><span class="col-tag tag-fk">FK → user_dashboards</span></div>
+          <div class="col-row"><span class="col-name">widget_type</span><span class="col-type">TEXT NOT NULL</span></div>
+          <div class="col-row"><span class="col-name">title</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">grid_col / grid_row</span><span class="col-type">INTEGER (position)</span></div>
+          <div class="col-row"><span class="col-name">chart_type</span><span class="col-type">TABLE|BAR|LINE|PIE|KPI|GAUGE</span></div>
+          <div class="col-row"><span class="col-name">config</span><span class="col-type">JSONB (chart settings)</span></div>
+          <div class="col-row"><span class="col-name">data_source</span><span class="col-type">TEXT (API endpoint ref)</span></div>
+          <div class="col-row"><span class="col-name">refresh_interval_sec</span><span class="col-type">INTEGER DEFAULT 300</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     GROUP 5 — CONFIG & METADATA
+════════════════════════════════════════════════ -->
+<div class="group" style="background:var(--grp-cfg); border-color:var(--grp-cfg-b)">
+  <div class="group-header">
+    <div class="group-title" style="color:var(--grp-cfg-b)">Config &amp; Metadata</div>
+    <div class="group-badge" style="background:var(--grp-cfg-b)">5 tables</div>
+    <div class="group-desc">Singleton configs + event/notification logs. Safe to re-run (ON CONFLICT DO NOTHING seeds).</div>
+  </div>
+  <div class="tables-grid">
+
+    <!-- approval_matrix_config -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-cfg-b)">
+        <span class="tcard-name">approval_matrix_config</span>
+        <span class="tcard-num">#21 · singleton</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">id=1 only. Controls approval thresholds per PO category (t1, t2, auto, always_full).</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Seeded Config</div>
+        <div class="col-list" style="font-family:'Chivo Mono',monospace; font-size:10px; color:var(--mid); padding-bottom:10px; line-height:1.8">
+          CAPEX → always_full (always 3 approvers)<br>
+          FINISHED_GOODS → t1: ₹10L, t2: ₹50L<br>
+          RAW_MATERIAL → t1: ₹10L, t2: ₹50L<br>
+          OPEX → t1: ₹5L, t2: ₹25L<br>
+          CONSUMABLES → auto: ₹50K, t1: ₹2L
+        </div>
+      </div>
+    </div>
+
+    <!-- smtp_config -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-cfg-b)">
+        <span class="tcard-name">smtp_config</span>
+        <span class="tcard-num">#22 · singleton</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">id=1 only. Nodemailer config for SLA breach email alerts. Disabled by default.</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">host</span><span class="col-type">TEXT DEFAULT 'smtp.gmail.com'</span></div>
+          <div class="col-row"><span class="col-name">port</span><span class="col-type">INTEGER DEFAULT 587</span></div>
+          <div class="col-row"><span class="col-name">enabled</span><span class="col-type">BOOLEAN DEFAULT FALSE</span></div>
+          <div class="col-row"><span class="col-name">notify_emails</span><span class="col-type">TEXT[] (recipient list)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- sla_notification_log -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-cfg-b)">
+        <span class="tcard-name">sla_notification_log</span>
+        <span class="tcard-num">#23</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">Every SLA email sent. Prevents duplicate alerts (24h dedup window per PO per event_type).</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">po_id</span><span class="col-type">INTEGER CASCADE</span><span class="col-tag tag-fk">FK → purchase_orders</span></div>
+          <div class="col-row"><span class="col-name">event_type</span><span class="col-type">SLA_WARNING|SLA_BREACH|OVERDUE</span><span class="col-tag tag-idx">IDX</span></div>
+          <div class="col-row"><span class="col-name">approver_role</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">sent_to</span><span class="col-type">TEXT[]</span></div>
+          <div class="col-row"><span class="col-name">sent_at</span><span class="col-type">TIMESTAMP</span><span class="col-tag tag-idx">IDX</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- email_ingestion_config -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-cfg-b)">
+        <span class="tcard-name">email_ingestion_config</span>
+        <span class="tcard-num">#24 · singleton</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">id=1 only. IMAP settings for auto-parsing LC emails. Disabled by default, poll every 15 min.</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Config JSONB Keys</div>
+        <div class="col-list" style="font-size:10px; color:var(--mid); padding-bottom:10px; line-height:1.8">
+          enabled, imap_host, imap_port, imap_secure, imap_user, mailbox, poll_interval_minutes, routing_rules[]
+        </div>
+      </div>
+    </div>
+
+    <!-- email_ingestion_log -->
+    <div class="tcard" onclick="toggle(this)">
+      <div class="tcard-head" style="border-color:var(--grp-cfg-b)">
+        <span class="tcard-name">email_ingestion_log</span>
+        <span class="tcard-num">#25</span>
+        <span class="tcard-toggle">▼ expand</span>
+      </div>
+      <div class="tcard-purpose">Every email processed by the IMAP poller. Status: PENDING|PROCESSED|FAILED|SKIPPED.</div>
+      <div class="tcard-body">
+        <div class="tcard-section-title">Key Columns</div>
+        <div class="col-list">
+          <div class="col-row"><span class="col-name">message_id</span><span class="col-type">TEXT UNIQUE</span><span class="col-tag tag-uniq">UNIQUE</span></div>
+          <div class="col-row"><span class="col-name">subject</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">sender</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">attachments_count</span><span class="col-type">INTEGER</span></div>
+          <div class="col-row"><span class="col-name">status</span><span class="col-type">PENDING|PROCESSED|FAILED|SKIPPED</span><span class="col-tag tag-idx">IDX</span></div>
+          <div class="col-row"><span class="col-name">matched_po_id</span><span class="col-type">INTEGER SET NULL</span><span class="col-tag tag-fk">FK → purchase_orders</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     STATUS FLOWS
+════════════════════════════════════════════════ -->
+<div class="flow-section">
+  <div class="flow-title">Status Flows — at a glance</div>
+  <div class="flows-grid">
+
+    <div class="flow-card">
+      <div class="flow-card-title">Purchase Order (purchase_orders.status)</div>
+      <div class="flow-steps">
+        <span class="flow-step start">DRAFT</span><span class="flow-sep">→</span>
+        <span class="flow-step">PENDING_APPROVAL</span><span class="flow-sep">→</span>
+        <span class="flow-step">APPROVED</span><span class="flow-sep">→</span>
+        <span class="flow-step">ORDERED</span><span class="flow-sep">→</span>
+        <span class="flow-step">PARTIALLY_RECEIVED</span><span class="flow-sep">→</span>
+        <span class="flow-step">RECEIVED</span><span class="flow-sep">→</span>
+        <span class="flow-step end">CLOSED</span>
+        <span class="flow-sep">|</span>
+        <span class="flow-step alt">REJECTED</span>
+        <span class="flow-step alt">CANCELLED</span>
+      </div>
+    </div>
+
+    <div class="flow-card">
+      <div class="flow-card-title">LC Master (lc_master.status)</div>
+      <div class="flow-steps">
+        <span class="flow-step start">APPLIED</span><span class="flow-sep">→</span>
+        <span class="flow-step">ISSUED</span><span class="flow-sep">→</span>
+        <span class="flow-step">AMENDED</span><span class="flow-sep">→</span>
+        <span class="flow-step">NEGOTIATED</span><span class="flow-sep">→</span>
+        <span class="flow-step end">CLOSED</span>
+        <span class="flow-sep">|</span>
+        <span class="flow-step alt">EXPIRED</span>
+      </div>
+    </div>
+
+    <div class="flow-card">
+      <div class="flow-card-title">Contract (contracts.status)</div>
+      <div class="flow-steps">
+        <span class="flow-step start">DRAFT</span><span class="flow-sep">→</span>
+        <span class="flow-step">INTERNALLY_APPROVED</span><span class="flow-sep">→</span>
+        <span class="flow-step">SENT_TO_SUPPLIER</span><span class="flow-sep">→</span>
+        <span class="flow-step end">EXECUTED</span>
+        <span class="flow-sep">|</span>
+        <span class="flow-step alt">TERMINATED</span>
+      </div>
+    </div>
+
+    <div class="flow-card">
+      <div class="flow-card-title">Customs (customs.status)</div>
+      <div class="flow-steps">
+        <span class="flow-step start">PENDING</span><span class="flow-sep">→</span>
+        <span class="flow-step">DUTY_PAID</span><span class="flow-sep">→</span>
+        <span class="flow-step">OOC</span><span class="flow-sep">→</span>
+        <span class="flow-step end">DELIVERED</span>
+      </div>
+    </div>
+
+    <div class="flow-card">
+      <div class="flow-card-title">LC Amendment (lc_amendments.status)</div>
+      <div class="flow-steps">
+        <span class="flow-step start">DRAFT</span><span class="flow-sep">→</span>
+        <span class="flow-step">PENDING_BANK</span><span class="flow-sep">→</span>
+        <span class="flow-step">BANK_CONFIRMED</span><span class="flow-sep">→</span>
+        <span class="flow-step">BENEFICIARY_ACK</span><span class="flow-sep">→</span>
+        <span class="flow-step end">COMPLETED</span>
+        <span class="flow-sep">|</span>
+        <span class="flow-step alt">REJECTED</span>
+      </div>
+    </div>
+
+    <div class="flow-card">
+      <div class="flow-card-title">Role Hierarchy (users.role)</div>
+      <div class="flow-steps">
+        <span class="flow-step start">VIEWER</span><span class="flow-sep">&lt;</span>
+        <span class="flow-step">WAREHOUSE</span><span class="flow-sep">&lt;</span>
+        <span class="flow-step">LOGISTICS</span><span class="flow-sep">&lt;</span>
+        <span class="flow-step">ACCOUNTS</span><span class="flow-sep">&lt;</span>
+        <span class="flow-step">PROC_MGR</span><span class="flow-sep">&lt;</span>
+        <span class="flow-step">PROC_HEAD</span><span class="flow-sep">&lt;</span>
+        <span class="flow-step">CFO</span><span class="flow-sep">&lt;</span>
+        <span class="flow-step">DIRECTOR</span><span class="flow-sep">&lt;</span>
+        <span class="flow-step end">ADMIN</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</main>
+
+<footer>
+  Ornate Solar Pvt. Ltd. · Procurement Portal DB Schema v3.8 · PostgreSQL (Neon) · 28 tables · Generated 2026-03-02
+</footer>
+
+<script>
+  function toggle(card) {
+    const isExpanded = card.classList.contains('expanded');
+    card.classList.toggle('expanded');
+    const btn = card.querySelector('.tcard-toggle');
+    btn.textContent = isExpanded ? '▼ expand' : '▲ collapse';
+  }
+</script>
+
+</body>
+</html>

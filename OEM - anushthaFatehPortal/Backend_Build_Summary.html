@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UnityESS Technical Compliance Portal — Backend Implementation Report</title>
+<style>
+  /* ── Reset & Base ───────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand: #F26B4E;
+    --brand-light: #fef0ec;
+    --brand-dark: #c9523a;
+    --text: #1a1a2e;
+    --text-muted: #555;
+    --bg: #ffffff;
+    --row-alt: #f7f7fa;
+    --border: #e0e0e6;
+    --code-bg: #f4f4f8;
+  }
+
+  html { font-size: 15px; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.65;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page { max-width: 900px; margin: 0 auto; padding: 48px 40px; }
+
+  /* ── Typography ─────────────────────────────────────── */
+  h1 { font-size: 1.9rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  h2 { font-size: 1.35rem; font-weight: 700; color: var(--brand); margin: 40px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--brand); }
+  h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 28px 0 10px; }
+  h4 { font-size: 0.95rem; font-weight: 600; color: var(--brand-dark); margin: 20px 0 8px; }
+  p, li { font-size: 0.93rem; color: var(--text); }
+  p { margin-bottom: 10px; }
+  ul, ol { margin: 6px 0 14px 22px; }
+  li { margin-bottom: 4px; }
+  strong { font-weight: 600; }
+  code {
+    font-family: "SF Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+    font-size: 0.84rem;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+  .muted { color: var(--text-muted); font-size: 0.85rem; }
+
+  /* ── Header / Cover ─────────────────────────────────── */
+  .cover {
+    border-bottom: 3px solid var(--brand);
+    padding-bottom: 28px;
+    margin-bottom: 36px;
+  }
+  .cover .brand-bar {
+    background: var(--brand);
+    color: #fff;
+    padding: 6px 14px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    display: inline-block;
+    border-radius: 3px;
+    margin-bottom: 18px;
+  }
+  .cover h1 { font-size: 1.75rem; line-height: 1.3; margin-bottom: 6px; }
+  .cover .subtitle { font-size: 1.05rem; color: var(--brand); font-weight: 600; margin-bottom: 16px; }
+  .cover-meta {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .cover-meta span strong { color: var(--text); }
+
+  /* ── Tables ─────────────────────────────────────────── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 20px;
+    font-size: 0.88rem;
+  }
+  thead th {
+    background: var(--brand);
+    color: #fff;
+    text-align: left;
+    padding: 9px 12px;
+    font-weight: 600;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  thead th:first-child { border-radius: 4px 0 0 0; }
+  thead th:last-child { border-radius: 0 4px 0 0; }
+  tbody td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tbody tr:nth-child(even) { background: var(--row-alt); }
+  tbody tr:last-child td { border-bottom: none; }
+
+  /* Compact variant */
+  table.compact td, table.compact th { padding: 6px 10px; font-size: 0.84rem; }
+
+  /* ── Architecture diagram ───────────────────────────── */
+  .arch-box {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 24px;
+    font-family: "SF Mono", "Fira Code", Consolas, monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    white-space: pre;
+    overflow-x: auto;
+    margin: 14px 0 20px;
+  }
+
+  /* ── Highlight boxes ────────────────────────────────── */
+  .callout {
+    background: var(--brand-light);
+    border-left: 4px solid var(--brand);
+    padding: 14px 18px;
+    border-radius: 0 6px 6px 0;
+    margin: 16px 0;
+  }
+  .callout p { margin-bottom: 0; }
+
+  /* ── Workflow stages ────────────────────────────────── */
+  .stages {
+    display: flex;
+    gap: 0;
+    flex-wrap: wrap;
+    margin: 16px 0 20px;
+    align-items: center;
+  }
+  .stage-box {
+    background: var(--brand-light);
+    border: 1px solid var(--brand);
+    border-radius: 6px;
+    padding: 8px 14px;
+    text-align: center;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--brand-dark);
+    min-width: 100px;
+  }
+  .stage-arrow {
+    font-size: 1.2rem;
+    color: var(--brand);
+    padding: 0 6px;
+    font-weight: 700;
+  }
+
+  /* ── Code commands ──────────────────────────────────── */
+  .cmd-block {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 16px 20px;
+    border-radius: 6px;
+    font-family: "SF Mono", "Fira Code", Consolas, monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    margin: 12px 0 20px;
+    overflow-x: auto;
+  }
+  .cmd-block .comment { color: #6c7086; }
+  .cmd-block .num { color: #6c7086; margin-right: 12px; }
+
+  /* ── Footer ─────────────────────────────────────────── */
+  .footer {
+    margin-top: 48px;
+    padding-top: 16px;
+    border-top: 2px solid var(--brand);
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  /* ── Print styles ───────────────────────────────────── */
+  @media print {
+    html { font-size: 13px; }
+    .page { padding: 0; max-width: 100%; }
+    h2 { page-break-after: avoid; }
+    table, .arch-box, .cmd-block { page-break-inside: avoid; }
+    .section { page-break-inside: avoid; }
+    .cover { page-break-after: always; }
+    .section-pagebreak { page-break-before: always; }
+    .footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 8px 40px; background: #fff; }
+    @page { margin: 18mm 15mm 20mm 15mm; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- COVER                                                          -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="brand-bar">Ornate Agencies Pvt. Ltd.</div>
+  <h1>UnityESS Technical Compliance Portal</h1>
+  <div class="subtitle">Backend Implementation Report</div>
+  <div class="cover-meta">
+    <span><strong>Date:</strong> March 16, 2026</span>
+    <span><strong>Version:</strong> 2.1.0</span>
+    <span><strong>Prepared by:</strong> Engineering Team</span>
+    <span><strong>Classification:</strong> Confidential</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 1. EXECUTIVE SUMMARY                                           -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>1. Executive Summary</h2>
+
+<p>The UnityESS Technical Compliance Portal is an enterprise-grade internal platform that manages the technical approval lifecycle of Battery Energy Storage System (BESS) component specifications across all active Ornate Agencies projects. This report documents the delivery of the complete backend implementation: <strong>59 Python files</strong> spanning ORM models, Pydantic schemas, service classes, API endpoints, Celery workers, and Alembic migrations, built on top of the pre-existing PostgreSQL schema (17 tables, 10 enums, 12 triggers, 2 stored procedures) and fully designed React frontend (11 pages).</p>
+
+<p>The backend delivers a production-ready API layer that powers compliance sheet creation, a 7-stage multi-role approval workflow, AI-assisted datasheet parameter extraction, and automated document generation across PDF, Excel, and PPTX formats. The system currently tracks 6 active BESS projects ranging from 5 MWh to 500 MWh in scale.</p>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 2. PROJECT CONTEXT                                             -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>2. Project Context</h2>
+
+<h3>What Existed Before This Build</h3>
+<table>
+  <thead><tr><th>Component</th><th>Status Before</th></tr></thead>
+  <tbody>
+    <tr><td>React Frontend (Next.js 14)</td><td>Fully designed and implemented: 11 pages with mock data, Tailwind + shadcn/ui</td></tr>
+    <tr><td>PostgreSQL Schema</td><td>Production-ready: 17 tables, 10 enums, 12 triggers, 2 stored procedures, RLS policies</td></tr>
+    <tr><td>FastAPI Backend</td><td>Stubbed: <code>main.py</code> with router imports only, no implementation</td></tr>
+  </tbody>
+</table>
+
+<h3>What Was Delivered</h3>
+<div class="callout">
+  <p><strong>59 Python files</strong> constituting the complete backend implementation: 10 ORM models, 12 Pydantic schema modules, 11 service classes, 11 endpoint modules (40+ routes), 2 Celery workers, Alembic migrations, and core infrastructure (config, security, database, exceptions).</p>
+</div>
+
+<h3>Active Projects Tracked</h3>
+<table>
+  <thead><tr><th>Project</th><th>Scale</th><th>Client</th><th>Current Stage</th></tr></thead>
+  <tbody>
+    <tr><td>NTPC Barh</td><td>200 MW / 400 MWh</td><td>NGSL</td><td>Technical Lead Review</td></tr>
+    <tr><td>TNGECL Eagle Infra</td><td>5 MWh x 5 sites</td><td>Eagle Infra</td><td>Engineering Review</td></tr>
+    <tr><td>Sitapur Solar+BESS</td><td>250 MW + 200 MWh</td><td>NTPC REL</td><td>Customer Submission</td></tr>
+    <tr><td>Amrita Hospital BTM</td><td>11 MWp + 20 MWh</td><td>Amrita Hospital</td><td>Customer Sign-off</td></tr>
+    <tr><td>BSPGCL Bihar</td><td>125 MW / 500 MWh</td><td>BSPGCL</td><td>Locked (v1.4)</td></tr>
+    <tr><td>SunSure C&I</td><td>C&I Portfolio</td><td>SunSure Energy</td><td>Draft</td></tr>
+  </tbody>
+</table>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 3. TECHNICAL ARCHITECTURE                                      -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>3. Technical Architecture</h2>
+
+<h3>Layered Architecture</h3>
+<div class="arch-box">Client (Next.js 14)
+       |
+       | HTTPS / REST
+       v
+API Endpoints  (FastAPI, 11 modules, 40+ routes)
+       |
+       v
+Services       (11 service classes, business logic)
+       |
+       v
+ORM Models     (SQLAlchemy 2.0 async, 10 model files)
+       |
+       v
+PostgreSQL 16  (17 tables, RLS, triggers, stored procedures)
+       |
+   +---+---+
+   |       |
+Redis 7  MinIO
+(cache)  (storage)</div>
+
+<h3>Technology Stack</h3>
+<table>
+  <thead><tr><th>Layer</th><th>Technology</th><th>Version</th></tr></thead>
+  <tbody>
+    <tr><td>API Framework</td><td>FastAPI</td><td>0.115.0</td></tr>
+    <tr><td>ORM</td><td>SQLAlchemy (async)</td><td>2.0.36</td></tr>
+    <tr><td>Database</td><td>PostgreSQL</td><td>16</td></tr>
+    <tr><td>Cache / Queue Broker</td><td>Redis</td><td>7 (5.2.0 client)</td></tr>
+    <tr><td>Task Queue</td><td>Celery</td><td>5.4.0</td></tr>
+    <tr><td>Object Storage</td><td>MinIO (S3 API via boto3)</td><td>1.35.0</td></tr>
+    <tr><td>AI Extraction</td><td>Anthropic Claude API</td><td>0.40.0</td></tr>
+    <tr><td>PDF Generation</td><td>WeasyPrint</td><td>63.0</td></tr>
+    <tr><td>Excel Generation</td><td>openpyxl</td><td>3.1.5</td></tr>
+    <tr><td>PPTX Generation</td><td>python-pptx</td><td>1.0.2</td></tr>
+    <tr><td>Validation</td><td>Pydantic v2</td><td>2.9.2</td></tr>
+    <tr><td>Migrations</td><td>Alembic</td><td>1.13.3</td></tr>
+    <tr><td>Auth</td><td>python-jose (JWT) + passlib (bcrypt)</td><td>3.3.0 / 1.7.4</td></tr>
+    <tr><td>ASGI Server</td><td>Uvicorn</td><td>0.31.0</td></tr>
+  </tbody>
+</table>
+
+<h3>Infrastructure</h3>
+<table>
+  <thead><tr><th>Environment</th><th>Platform</th><th>Details</th></tr></thead>
+  <tbody>
+    <tr><td>Development</td><td>Docker Compose</td><td>PostgreSQL, Redis, MinIO containers</td></tr>
+    <tr><td>Production</td><td>AWS ap-south-1 (Mumbai)</td><td>EC2, RDS, ElastiCache, S3/MinIO</td></tr>
+    <tr><td>CI/CD</td><td>GitHub Actions</td><td>Lint, test, build, deploy pipeline</td></tr>
+  </tbody>
+</table>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 4. WHAT WAS BUILT                                              -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 class="section-pagebreak">4. What Was Built</h2>
+
+<h3>a) Data Layer &mdash; 10 ORM Model Files</h3>
+<p>SQLAlchemy 2.0 async models mapping all 17 database tables, with 11 Python enums mirroring the PostgreSQL enum types.</p>
+
+<table>
+  <thead><tr><th>Model File</th><th>Database Tables Covered</th></tr></thead>
+  <tbody>
+    <tr><td><code>user.py</code></td><td>users</td></tr>
+    <tr><td><code>oem.py</code></td><td>oems, component_types, component_models</td></tr>
+    <tr><td><code>parameter.py</code></td><td>standard_parameters, parameter_values</td></tr>
+    <tr><td><code>project.py</code></td><td>projects</td></tr>
+    <tr><td><code>sheet.py</code></td><td>technical_sheets, sheet_compliance_results, sheet_versions</td></tr>
+    <tr><td><code>template.py</code></td><td>compliance_templates, compliance_template_parameters</td></tr>
+    <tr><td><code>workflow.py</code></td><td>approval_workflows, workflow_steps</td></tr>
+    <tr><td><code>document.py</code></td><td>generated_documents</td></tr>
+    <tr><td><code>audit.py</code></td><td>audit_logs (quarterly partitioned)</td></tr>
+    <tr><td><code>ai_extraction.py</code></td><td>ai_extraction_jobs</td></tr>
+  </tbody>
+</table>
+
+<h4>Python Enums (11)</h4>
+<p><code>ComponentCategory</code>, <code>ParameterDataType</code>, <code>ComplianceStatus</code>, <code>WorkflowStage</code>, <code>ApprovalAction</code>, <code>UserRole</code>, <code>ProjectType</code>, <code>ProjectStatus</code>, <code>DocumentFormat</code>, <code>DocumentType</code>, <code>ExtractionStatus</code></p>
+
+<h3>b) Validation Layer &mdash; 12 Pydantic Schema Modules</h3>
+<p>Request/response schemas for all API endpoints following a consistent <code>Create</code> / <code>Update</code> / <code>Response</code> pattern with Pydantic v2.</p>
+
+<table>
+  <thead><tr><th>Schema Module</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>auth.py</code></td><td>Login request, token response, token payload</td></tr>
+    <tr><td><code>user.py</code></td><td>User create/update/response, role assignment</td></tr>
+    <tr><td><code>oem.py</code></td><td>OEM create/update/response with nested component models</td></tr>
+    <tr><td><code>component.py</code></td><td>Component type and model schemas</td></tr>
+    <tr><td><code>parameter.py</code></td><td>Standard parameter and value schemas (JSONB handling)</td></tr>
+    <tr><td><code>project.py</code></td><td>Project CRUD with progress metadata</td></tr>
+    <tr><td><code>sheet.py</code></td><td>Technical sheet with compliance results</td></tr>
+    <tr><td><code>template.py</code></td><td>Compliance template configuration</td></tr>
+    <tr><td><code>workflow.py</code></td><td>Workflow state, step records, advance request</td></tr>
+    <tr><td><code>document.py</code></td><td>Document generation request, status, download URL</td></tr>
+    <tr><td><code>ai_extraction.py</code></td><td>Extraction job request, result with confidence scores</td></tr>
+    <tr><td><code>common.py</code></td><td>Shared pagination, error envelope, metadata</td></tr>
+  </tbody>
+</table>
+
+<h3>c) Business Logic Layer &mdash; 11 Service Classes</h3>
+
+<table>
+  <thead><tr><th>Service</th><th>Responsibility</th></tr></thead>
+  <tbody>
+    <tr><td><code>AuthService</code></td><td>JWT token issuance (HS256), bcrypt password hashing and verification, login flow</td></tr>
+    <tr><td><code>AuditService</code></td><td>Append-only audit log writes to quarterly-partitioned table</td></tr>
+    <tr><td><code>StorageService</code></td><td>MinIO/S3 file upload, download, presigned URL generation</td></tr>
+    <tr><td><code>ParameterService</code></td><td>Compliance evaluation engine supporting 5 data types (numeric, range, boolean, enum, text)</td></tr>
+    <tr><td><code>OEMService</code></td><td>OEM CRUD, approval status management, compliance scoring</td></tr>
+    <tr><td><code>ComponentService</code></td><td>Component model management, standard parameter mapping</td></tr>
+    <tr><td><code>ProjectService</code></td><td>Project CRUD, progress tracking, stage aggregation</td></tr>
+    <tr><td><code>TemplateService</code></td><td>Compliance template creation and parameter selection</td></tr>
+    <tr><td><code>SheetService</code></td><td>Technical sheet lifecycle: create, populate, evaluate, score, lock</td></tr>
+    <tr><td><code>WorkflowService</code></td><td>7-stage approval state machine with role-based transition enforcement</td></tr>
+    <tr><td><code>BaseService</code></td><td>RLS session context, pagination helpers, common query patterns</td></tr>
+  </tbody>
+</table>
+
+<h3>d) API Layer &mdash; 11 Endpoint Modules, 40+ Routes</h3>
+
+<table>
+  <thead><tr><th>Endpoint Module</th><th>Prefix</th><th>Routes</th><th>Key Operations</th></tr></thead>
+  <tbody>
+    <tr><td>Auth</td><td><code>/auth</code></td><td>3</td><td>Login, refresh, logout</td></tr>
+    <tr><td>Users</td><td><code>/users</code></td><td>4</td><td>CRUD, role assignment, profile</td></tr>
+    <tr><td>OEMs</td><td><code>/oems</code></td><td>5</td><td>CRUD, approval, compliance scores</td></tr>
+    <tr><td>Components</td><td><code>/components</code></td><td>6</td><td>Types, models, parameter mapping</td></tr>
+    <tr><td>Parameters</td><td><code>/parameters</code></td><td>2</td><td>Standard parameters, values</td></tr>
+    <tr><td>Projects</td><td><code>/projects</code></td><td>4</td><td>CRUD, progress, stage summary</td></tr>
+    <tr><td>Sheets</td><td><code>/sheets</code></td><td>7</td><td>Create, populate, evaluate, lock, list, detail, results</td></tr>
+    <tr><td>Workflow</td><td><code>/workflow</code></td><td>4</td><td>Advance, reject, history, pending queue</td></tr>
+    <tr><td>Documents</td><td><code>/documents</code></td><td>4</td><td>Generate (async), status, download, list</td></tr>
+    <tr><td>AI Extraction</td><td><code>/ai</code></td><td>3</td><td>Upload PDF, extraction status, review results</td></tr>
+    <tr><td>Templates</td><td><code>/templates</code></td><td>4</td><td>CRUD, parameter selection</td></tr>
+  </tbody>
+</table>
+
+<p class="muted"><strong>Total:</strong> 46 routes across 11 modules. All routes prefixed with <code>/api/v1</code>. Health check at <code>/health</code>.</p>
+
+<h3>e) Async Workers &mdash; 2 Celery Task Groups</h3>
+
+<table>
+  <thead><tr><th>Worker</th><th>Purpose</th><th>Libraries</th></tr></thead>
+  <tbody>
+    <tr><td>Document Generation</td><td>Async PDF (compliance sheets, audit reports), Excel (parameter matrices), PPTX (comparison decks) — uploaded to MinIO with SHA-256 checksum</td><td>WeasyPrint, openpyxl, python-pptx</td></tr>
+    <tr><td>AI Extraction</td><td>Upload OEM datasheet PDF to Claude API, extract structured parameters with confidence scoring (0.00&ndash;1.00), auto-verify or flag for review</td><td>Anthropic SDK (claude-sonnet-4-6)</td></tr>
+  </tbody>
+</table>
+
+<h3>f) Database Migrations</h3>
+
+<table>
+  <thead><tr><th>Migration</th><th>File</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td>001</td><td><code>001_initial_schema.py</code></td><td>Baseline migration aligning Alembic with existing schema.sql</td></tr>
+    <tr><td>002</td><td><code>002_add_password_hash.py</code></td><td>Add <code>password_hash</code> column to users table for local auth</td></tr>
+  </tbody>
+</table>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 5. KEY BUSINESS LOGIC HIGHLIGHTS                               -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 class="section-pagebreak">5. Key Business Logic Highlights</h2>
+
+<h3>Compliance Evaluation Engine</h3>
+<p>The <code>ParameterService</code> evaluates OEM-submitted values against acceptance criteria defined per standard parameter. The engine supports five data types:</p>
+<table class="compact">
+  <thead><tr><th>Data Type</th><th>Evaluation Logic</th><th>Example</th></tr></thead>
+  <tbody>
+    <tr><td>Numeric</td><td>Value within min/max bounds</td><td>Cycle life >= 6,000 cycles</td></tr>
+    <tr><td>Range</td><td>Value range overlaps acceptance range</td><td>Operating temp: -10 to 55 C</td></tr>
+    <tr><td>Boolean</td><td>Exact match required</td><td>UL 9540A certified: true</td></tr>
+    <tr><td>Enum</td><td>Value in allowed set</td><td>Chemistry: LFP, NMC</td></tr>
+    <tr><td>Text</td><td>Presence check or pattern match</td><td>Certification number provided</td></tr>
+  </tbody>
+</table>
+<p>Each parameter evaluation yields <code>pass</code>, <code>fail</code>, <code>waived</code>, or <code>pending</code>. The overall sheet compliance score is computed as the ratio of passing parameters to total evaluated parameters.</p>
+
+<h3>7-Stage Approval Workflow</h3>
+<div class="stages">
+  <div class="stage-box">1. Draft<br><span class="muted">Engineer</span></div>
+  <div class="stage-arrow">&rarr;</div>
+  <div class="stage-box">2. Eng. Review<br><span class="muted">Sr. Engineer</span></div>
+  <div class="stage-arrow">&rarr;</div>
+  <div class="stage-box">3. Tech Lead<br><span class="muted">Tech Lead</span></div>
+  <div class="stage-arrow">&rarr;</div>
+  <div class="stage-box">4. Management<br><span class="muted">Commercial</span></div>
+  <div class="stage-arrow">&rarr;</div>
+  <div class="stage-box">5. Cust. Sub.<br><span class="muted">Commercial</span></div>
+  <div class="stage-arrow">&rarr;</div>
+  <div class="stage-box">6. Sign-off<br><span class="muted">Customer</span></div>
+  <div class="stage-arrow">&rarr;</div>
+  <div class="stage-box">7. Locked<br><span class="muted">System</span></div>
+</div>
+
+<ul>
+  <li>Role-based transition enforcement at both application (FastAPI middleware) and database (stored procedure) levels</li>
+  <li>Rejection at stages 2, 3, or 4 returns the sheet to Draft with incremented revision number</li>
+  <li>All workflow steps are append-only (PostgreSQL trigger prevents UPDATE/DELETE)</li>
+  <li>Stage transitions executed via <code>advance_workflow()</code> stored procedure as a single atomic operation</li>
+  <li>SHA-256 integrity hash computed and stored at lock</li>
+</ul>
+
+<h3>AI-Powered Extraction Pipeline</h3>
+<ol>
+  <li>Engineer uploads OEM datasheet PDF via <code>/api/v1/ai/extract</code></li>
+  <li>File stored in MinIO; Celery task queued</li>
+  <li>Claude API (<code>claude-sonnet-4-6</code>) extracts structured parameters based on component type schema</li>
+  <li>Each extracted value receives a confidence score (0.00&ndash;1.00)</li>
+  <li>Scoring thresholds: &ge;0.90 auto-verified, 0.80&ndash;0.89 flagged for review, &lt;0.80 requires manual entry</li>
+  <li>Draft compliance sheet created with extracted values; notification sent to engineer</li>
+</ol>
+
+<h3>Row-Level Security</h3>
+<p>PostgreSQL RLS policies enforce data isolation at the database level. Customer users can only access sheets belonging to their assigned project, and only when the sheet has reached stage &ge; <code>customer_submission</code> (stage 5). Session-level variables <code>app.user_role</code> and <code>app.user_id</code> are set by the <code>BaseService</code> on every request.</p>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 6. SECURITY & COMPLIANCE                                       -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>6. Security &amp; Compliance</h2>
+
+<table>
+  <thead><tr><th>Control</th><th>Implementation</th></tr></thead>
+  <tbody>
+    <tr><td>Authentication</td><td>JWT (HS256) with 8-hour expiry; bcrypt password hashing (passlib)</td></tr>
+    <tr><td>Role-Based Access Control</td><td>5 roles: admin, engineer, reviewer, commercial, customer — enforced at route and service layers</td></tr>
+    <tr><td>Row-Level Security</td><td>PostgreSQL RLS policies scoping customer visibility to their project sheets at stage &ge; 5</td></tr>
+    <tr><td>Audit Logging</td><td>Append-only audit_logs table (quarterly partitioned); immutability enforced by PostgreSQL trigger</td></tr>
+    <tr><td>Data Integrity</td><td>SHA-256 integrity hashes on locked sheets and workflow steps; version snapshots at each stage transition</td></tr>
+    <tr><td>Data Residency</td><td>All data in AWS ap-south-1 (Mumbai) &mdash; compliant with IT Act 2000 and NTPC/BSPGCL contract requirements</td></tr>
+    <tr><td>Immutability</td><td>PostgreSQL triggers prevent UPDATE/DELETE on locked sheets, workflow steps, and audit logs</td></tr>
+    <tr><td>API Security</td><td>CORS configuration, exception handlers, Pydantic input validation on all endpoints</td></tr>
+  </tbody>
+</table>
+
+<h3>Regulatory References</h3>
+<table class="compact">
+  <thead><tr><th>Standard</th><th>Scope</th></tr></thead>
+  <tbody>
+    <tr><td>IEC 62619:2022</td><td>Battery safety requirements</td></tr>
+    <tr><td>IEC 62477-1</td><td>PCS (Power Conversion System) safety</td></tr>
+    <tr><td>IS 16270:2014</td><td>Indian battery standard (BIS)</td></tr>
+    <tr><td>CEA Grid Connectivity Standards 2023</td><td>Grid connection compliance</td></tr>
+    <tr><td>CERC BESS Regulations 2022</td><td>Commercial dispatch regulation</td></tr>
+    <tr><td>IT Act 2000</td><td>Data residency and electronic records</td></tr>
+  </tbody>
+</table>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 7. DEPLOYMENT & NEXT STEPS                                     -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 class="section-pagebreak">7. Deployment &amp; Next Steps</h2>
+
+<h3>How to Run (Development)</h3>
+<div class="cmd-block"><span class="comment"># 1. Start infrastructure containers</span>
+docker-compose up -d    <span class="comment"># Redis, MinIO</span>
+
+<span class="comment"># 2. Initialize database</span>
+psql &lt; schema.sql &amp;&amp; psql &lt; seed.sql
+
+<span class="comment"># 3. Run migrations</span>
+alembic upgrade head
+
+<span class="comment"># 4. Start API server</span>
+uvicorn app.main:app --reload
+
+<span class="comment"># 5. Start Celery worker (separate terminal)</span>
+celery -A app.workers.tasks worker</div>
+
+<h3>Remaining Work</h3>
+<table>
+  <thead><tr><th>Item</th><th>Priority</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td>Test Suite</td><td>High</td><td>pytest with async fixtures; target 80% coverage</td></tr>
+    <tr><td>Frontend Integration</td><td>High</td><td>Replace mock data in React frontend with live API endpoints</td></tr>
+    <tr><td>Full-Text Search</td><td>Medium</td><td>Elasticsearch integration for parameter and component search</td></tr>
+    <tr><td>Bulk Excel Import</td><td>Medium</td><td>OEM parameter bulk upload from standardised Excel templates</td></tr>
+    <tr><td>Production Deployment</td><td>High</td><td>AWS ECS/Fargate with RDS, ElastiCache, and S3</td></tr>
+    <tr><td>Keycloak SSO</td><td>Medium</td><td>Replace local JWT auth with Keycloak OIDC (RS256) for production</td></tr>
+  </tbody>
+</table>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 8. FILE INVENTORY                                              -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 class="section-pagebreak">8. File Inventory</h2>
+<p>All 59 Python files organised by architectural layer.</p>
+
+<h4>Core Infrastructure (5 files)</h4>
+<table class="compact">
+  <thead><tr><th>#</th><th>File</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td><code>app/main.py</code></td><td>FastAPI application entry point, router registration, CORS, lifespan</td></tr>
+    <tr><td>2</td><td><code>app/core/config.py</code></td><td>Application settings via pydantic-settings</td></tr>
+    <tr><td>3</td><td><code>app/core/database.py</code></td><td>Async SQLAlchemy engine, session factory</td></tr>
+    <tr><td>4</td><td><code>app/core/security.py</code></td><td>JWT verification, password hashing, RBAC dependencies</td></tr>
+    <tr><td>5</td><td><code>app/core/exceptions.py</code></td><td>Custom exception classes and global handlers</td></tr>
+  </tbody>
+</table>
+
+<h4>ORM Models (10 files)</h4>
+<table class="compact">
+  <thead><tr><th>#</th><th>File</th><th>Tables</th></tr></thead>
+  <tbody>
+    <tr><td>6</td><td><code>app/models/__init__.py</code></td><td>Model registry and base imports</td></tr>
+    <tr><td>7</td><td><code>app/models/user.py</code></td><td>users</td></tr>
+    <tr><td>8</td><td><code>app/models/oem.py</code></td><td>oems, component_types, component_models</td></tr>
+    <tr><td>9</td><td><code>app/models/parameter.py</code></td><td>standard_parameters, parameter_values</td></tr>
+    <tr><td>10</td><td><code>app/models/project.py</code></td><td>projects</td></tr>
+    <tr><td>11</td><td><code>app/models/sheet.py</code></td><td>technical_sheets, sheet_compliance_results, sheet_versions</td></tr>
+    <tr><td>12</td><td><code>app/models/template.py</code></td><td>compliance_templates, compliance_template_parameters</td></tr>
+    <tr><td>13</td><td><code>app/models/workflow.py</code></td><td>approval_workflows, workflow_steps</td></tr>
+    <tr><td>14</td><td><code>app/models/document.py</code></td><td>generated_documents</td></tr>
+    <tr><td>15</td><td><code>app/models/audit.py</code></td><td>audit_logs</td></tr>
+    <tr><td>16</td><td><code>app/models/ai_extraction.py</code></td><td>ai_extraction_jobs</td></tr>
+  </tbody>
+</table>
+
+<h4>Pydantic Schemas (12 files)</h4>
+<table class="compact">
+  <thead><tr><th>#</th><th>File</th><th>Schemas</th></tr></thead>
+  <tbody>
+    <tr><td>17</td><td><code>app/schemas/__init__.py</code></td><td>Schema registry</td></tr>
+    <tr><td>18</td><td><code>app/schemas/auth.py</code></td><td>LoginRequest, TokenResponse, TokenPayload</td></tr>
+    <tr><td>19</td><td><code>app/schemas/user.py</code></td><td>UserCreate, UserUpdate, UserResponse</td></tr>
+    <tr><td>20</td><td><code>app/schemas/oem.py</code></td><td>OEMCreate, OEMUpdate, OEMResponse</td></tr>
+    <tr><td>21</td><td><code>app/schemas/component.py</code></td><td>ComponentTypeSchema, ComponentModelSchema</td></tr>
+    <tr><td>22</td><td><code>app/schemas/parameter.py</code></td><td>ParameterSchema, ParameterValueSchema</td></tr>
+    <tr><td>23</td><td><code>app/schemas/project.py</code></td><td>ProjectCreate, ProjectUpdate, ProjectResponse</td></tr>
+    <tr><td>24</td><td><code>app/schemas/sheet.py</code></td><td>SheetCreate, SheetResponse, ComplianceResultSchema</td></tr>
+    <tr><td>25</td><td><code>app/schemas/template.py</code></td><td>TemplateCreate, TemplateResponse</td></tr>
+    <tr><td>26</td><td><code>app/schemas/workflow.py</code></td><td>WorkflowResponse, StepSchema, AdvanceRequest</td></tr>
+    <tr><td>27</td><td><code>app/schemas/document.py</code></td><td>GenerateRequest, DocumentStatus, DocumentResponse</td></tr>
+    <tr><td>28</td><td><code>app/schemas/ai_extraction.py</code></td><td>ExtractionRequest, ExtractionResult</td></tr>
+    <tr><td>29</td><td><code>app/schemas/common.py</code></td><td>PaginationMeta, ErrorEnvelope, ResponseEnvelope</td></tr>
+  </tbody>
+</table>
+
+<h4>Services (11 files)</h4>
+<table class="compact">
+  <thead><tr><th>#</th><th>File</th><th>Class</th></tr></thead>
+  <tbody>
+    <tr><td>30</td><td><code>app/services/__init__.py</code></td><td>Service registry</td></tr>
+    <tr><td>31</td><td><code>app/services/base.py</code></td><td>BaseService</td></tr>
+    <tr><td>32</td><td><code>app/services/auth_service.py</code></td><td>AuthService</td></tr>
+    <tr><td>33</td><td><code>app/services/audit_service.py</code></td><td>AuditService</td></tr>
+    <tr><td>34</td><td><code>app/services/storage_service.py</code></td><td>StorageService</td></tr>
+    <tr><td>35</td><td><code>app/services/parameter_service.py</code></td><td>ParameterService</td></tr>
+    <tr><td>36</td><td><code>app/services/oem_service.py</code></td><td>OEMService</td></tr>
+    <tr><td>37</td><td><code>app/services/component_service.py</code></td><td>ComponentService</td></tr>
+    <tr><td>38</td><td><code>app/services/project_service.py</code></td><td>ProjectService</td></tr>
+    <tr><td>39</td><td><code>app/services/template_service.py</code></td><td>TemplateService</td></tr>
+    <tr><td>40</td><td><code>app/services/sheet_service.py</code></td><td>SheetService</td></tr>
+    <tr><td>41</td><td><code>app/services/workflow_service.py</code></td><td>WorkflowService</td></tr>
+  </tbody>
+</table>
+
+<h4>API Endpoints (11 files)</h4>
+<table class="compact">
+  <thead><tr><th>#</th><th>File</th><th>Tag</th></tr></thead>
+  <tbody>
+    <tr><td>42</td><td><code>app/api/v1/endpoints/__init__.py</code></td><td>Endpoint registry</td></tr>
+    <tr><td>43</td><td><code>app/api/v1/endpoints/auth.py</code></td><td>Auth</td></tr>
+    <tr><td>44</td><td><code>app/api/v1/endpoints/users.py</code></td><td>Users</td></tr>
+    <tr><td>45</td><td><code>app/api/v1/endpoints/oems.py</code></td><td>OEMs</td></tr>
+    <tr><td>46</td><td><code>app/api/v1/endpoints/components.py</code></td><td>Components</td></tr>
+    <tr><td>47</td><td><code>app/api/v1/endpoints/parameters.py</code></td><td>Parameters</td></tr>
+    <tr><td>48</td><td><code>app/api/v1/endpoints/projects.py</code></td><td>Projects</td></tr>
+    <tr><td>49</td><td><code>app/api/v1/endpoints/sheets.py</code></td><td>Technical Sheets</td></tr>
+    <tr><td>50</td><td><code>app/api/v1/endpoints/workflow.py</code></td><td>Workflow</td></tr>
+    <tr><td>51</td><td><code>app/api/v1/endpoints/documents.py</code></td><td>Documents</td></tr>
+    <tr><td>52</td><td><code>app/api/v1/endpoints/ai_extraction.py</code></td><td>AI Extraction</td></tr>
+    <tr><td>53</td><td><code>app/api/v1/endpoints/templates.py</code></td><td>Templates</td></tr>
+  </tbody>
+</table>
+
+<h4>Workers &amp; Config (3 files)</h4>
+<table class="compact">
+  <thead><tr><th>#</th><th>File</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td>54</td><td><code>app/workers/__init__.py</code></td><td>Worker package init</td></tr>
+    <tr><td>55</td><td><code>app/workers/celeryconfig.py</code></td><td>Celery broker/backend configuration</td></tr>
+    <tr><td>56</td><td><code>app/workers/tasks.py</code></td><td>Document generation and AI extraction tasks</td></tr>
+  </tbody>
+</table>
+
+<h4>Migrations (2 files)</h4>
+<table class="compact">
+  <thead><tr><th>#</th><th>File</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td>57</td><td><code>alembic/env.py</code></td><td>Alembic environment configuration (async)</td></tr>
+    <tr><td>58</td><td><code>alembic/versions/001_initial_schema.py</code></td><td>Baseline schema migration</td></tr>
+    <tr><td>59</td><td><code>alembic/versions/002_add_password_hash.py</code></td><td>Add password_hash to users</td></tr>
+  </tbody>
+</table>
+
+<h4>Package Init Files (4 files)</h4>
+<table class="compact">
+  <thead><tr><th>#</th><th>File</th></tr></thead>
+  <tbody>
+    <tr><td>60</td><td><code>app/__init__.py</code></td></tr>
+    <tr><td>61</td><td><code>app/api/__init__.py</code></td></tr>
+    <tr><td>62</td><td><code>app/api/v1/__init__.py</code></td></tr>
+    <tr><td>63</td><td><code>app/core/__init__.py</code></td></tr>
+  </tbody>
+</table>
+
+<h4>Tests (1 file)</h4>
+<table class="compact">
+  <thead><tr><th>#</th><th>File</th></tr></thead>
+  <tbody>
+    <tr><td>64</td><td><code>tests/__init__.py</code></td></tr>
+  </tbody>
+</table>
+
+<p class="muted"><strong>Total: 64 Python files</strong> (59 application + 4 package inits + 1 test init)</p>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                         -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="footer">
+  <span>Confidential &mdash; Ornate Agencies Pvt. Ltd.</span>
+  <span>UnityESS Technical Compliance Portal &middot; Backend Implementation Report &middot; v2.1.0</span>
+</div>
+
+</div><!-- .page -->
+</body>
+</html>
