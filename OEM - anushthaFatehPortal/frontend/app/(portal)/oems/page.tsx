@@ -460,7 +460,7 @@ export default function OEMsPage() {
             open={driveModalOpen}
             onClose={() => setDriveModalOpen(false)}
             mode="datasheet"
-            defaultOemName={selectedOEM?.name || ""}
+            defaultOemName={typeof selectedOEM === "string" ? selectedOEM : selectedOEM?.name || ""}
             defaultCategory={selectedCategory !== "All" ? selectedCategory : "Cell"}
             onExtracted={async () => {
               setDriveModalOpen(false);
