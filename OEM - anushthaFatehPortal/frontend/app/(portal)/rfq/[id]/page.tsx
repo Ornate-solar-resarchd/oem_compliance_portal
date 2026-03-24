@@ -1,380 +1,231 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { getRFQ, matchRFQ } from "@/lib/api";
-import { cn, scoreColor, scoreBg } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect, useMemo } from "react"
+import { useParams, useRouter } from "next/navigation"
+import { getRFQ } from "@/lib/api"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { ScoreRing } from "@/components/shared/score-ring";
-import { StatusBadge } from "@/components/shared/status-badge";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from "recharts";
-import {
-  ArrowLeft,
-  FileCheck,
-  GitCompare,
-  ChevronDown,
-  ChevronUp,
-  CheckCircle2,
-  XCircle,
-  Loader2,
-} from "lucide-react";
+  ArrowLeft, Loader2, FileText, MapPin, Zap, Calendar, Building2,
+  Download, ClipboardList, ExternalLink, CheckCircle2
+} from "lucide-react"
 
 interface Requirement {
-  parameter: string;
-  code: string;
-  required_value: string;
-  unit: string;
+  parameter: string
+  code: string
+  required_value: string
+  unit: string
+  section?: string
 }
 
-interface MatchDetail {
-  parameter: string;
-  required: string;
-  oem_value: string;
-  match: boolean;
+interface RFQ {
+  id: string
+  customer_name: string
+  project_name: string
+  status: string
+  created_at: string
+  requirements: Requirement[]
+  source_file?: string
+  file_size?: number
+  extraction_method?: string
+  text_length?: number
+  project_meta?: {
+    rfq_ref?: string
+    capacity?: string
+    solar_pv?: string
+    location?: string
+    scope?: string
+    design_life?: string
+    issuer?: string
+  }
 }
 
-interface MatchResult {
-  component_id: string;
-  model_name: string;
-  oem_name: string;
-  match_percentage: number;
-  passed: number;
-  total: number;
-  details: MatchDetail[];
-}
+export default function RFQDetailPage() {
+  const params = useParams()
+  const router = useRouter()
+  const id = params.id as string
 
-interface RFQData {
-  id: string;
-  customer_name: string;
-  project_name: string;
-  status: string;
-  created_at: string;
-  requirements: Requirement[];
-}
-
-interface MatchData {
-  rfq_id: string;
-  customer: string;
-  matches: MatchResult[];
-}
-
-export default function RFQComparisonPage() {
-  const params = useParams();
-  const router = useRouter();
-  const id = params.id as string;
-
-  const [rfq, setRfq] = useState<RFQData | null>(null);
-  const [matchData, setMatchData] = useState<MatchData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [expandedCard, setExpandedCard] = useState<string | null>(null);
+  const [rfq, setRfq] = useState<RFQ | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        const [rfqRes, matchRes] = await Promise.all([
-          getRFQ(id),
-          matchRFQ(id),
-        ]);
-        setRfq(rfqRes);
-        setMatchData(matchRes);
-      } catch (err) {
-        console.error("Failed to fetch RFQ data:", err);
-      } finally {
-        setLoading(false);
-      }
+    getRFQ(id).then(d => { setRfq(d); setLoading(false) }).catch(() => setLoading(false))
+  }, [id])
+
+  // Group requirements by section
+  const groupedReqs = useMemo(() => {
+    if (!rfq) return new Map<string, Requirement[]>()
+    const map = new Map<string, Requirement[]>()
+    for (const r of rfq.requirements) {
+      const section = r.section || "General"
+      if (!map.has(section)) map.set(section, [])
+      map.get(section)!.push(r)
     }
-    fetchData();
-  }, [id]);
+    return map
+  }, [rfq])
 
-  const sortedMatches = matchData?.matches
-    ? [...matchData.matches].sort(
-        (a, b) => b.match_percentage - a.match_percentage
-      )
-    : [];
+  if (loading) return <div className="flex items-center justify-center min-h-[60vh]"><Loader2 className="h-8 w-8 animate-spin text-slate-400" /></div>
+  if (!rfq) return <div className="text-center py-20 text-slate-400">RFQ not found</div>
 
-  const chartData = sortedMatches.map((m) => ({
-    name: m.model_name.length > 15
-      ? m.model_name.slice(0, 15) + "..."
-      : m.model_name,
-    fullName: m.model_name,
-    match: m.match_percentage,
-  }));
-
-  const getBarColor = (value: number) => {
-    if (value >= 90) return "#22c55e";
-    if (value >= 70) return "#eab308";
-    if (value >= 50) return "#f97316";
-    return "#ef4444";
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (!rfq) {
-    return (
-      <div className="text-center py-20 text-muted-foreground">
-        RFQ not found.
-      </div>
-    );
-  }
+  const meta = rfq.project_meta
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.push("/rfq")}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
+    <div className="space-y-6 animate-fade-in-up" style={{ animationFillMode: "both" }}>
+      {/* Back */}
+      <Button variant="ghost" onClick={() => router.push("/rfq")}>
+        <ArrowLeft className="mr-2 h-4 w-4" /> Back to RFQ Manager
+      </Button>
+
+      {/* Header Card */}
+      <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-6 text-white">
+        <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              {rfq.customer_name} &mdash; {rfq.project_name}
-            </h1>
-            <p className="text-muted-foreground text-sm mt-0.5">
-              RFQ Comparison &middot; {rfq.requirements?.length || 0} parameters
-            </p>
+            <div className="flex items-center gap-2 mb-2">
+              <Badge variant="pass" className="text-[10px] uppercase tracking-wider">
+                {rfq.status}
+              </Badge>
+              {rfq.extraction_method && (
+                <Badge variant="brand" className="text-[10px] uppercase tracking-wider">
+                  {rfq.extraction_method === "document_parsing" ? "AI Extracted" : rfq.extraction_method}
+                </Badge>
+              )}
+            </div>
+            <h1 className="text-2xl font-bold">{rfq.project_name}</h1>
+            <div className="text-slate-300 mt-1">{rfq.customer_name}</div>
+          </div>
+          <div className="text-right">
+            <div className="text-4xl font-bold text-brand">{rfq.requirements.length}</div>
+            <div className="text-xs text-slate-400 mt-1">Requirements Extracted</div>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => router.push(`/rfq/${id}/compliance`)}
-          >
-            <FileCheck className="mr-2 h-4 w-4" />
-            Generate Compliance Sheet
-          </Button>
-          <Button onClick={() => router.push(`/rfq/${id}/diversify`)}>
-            <GitCompare className="mr-2 h-4 w-4" />
-            Generate Diversify Sheet
-          </Button>
-        </div>
+
+        {/* Meta Info */}
+        {meta && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5 pt-5 border-t border-white/10">
+            {meta.capacity && (
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-amber-400" />
+                <div><div className="text-[10px] text-slate-400">Capacity</div><div className="text-sm font-semibold">{meta.capacity}</div></div>
+              </div>
+            )}
+            {meta.location && (
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-emerald-400" />
+                <div><div className="text-[10px] text-slate-400">Location</div><div className="text-sm font-semibold">{meta.location}</div></div>
+              </div>
+            )}
+            {meta.rfq_ref && (
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-blue-400" />
+                <div><div className="text-[10px] text-slate-400">RFQ Ref</div><div className="text-sm font-semibold">{meta.rfq_ref}</div></div>
+              </div>
+            )}
+            {meta.design_life && (
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-purple-400" />
+                <div><div className="text-[10px] text-slate-400">Design Life</div><div className="text-sm font-semibold">{meta.design_life}</div></div>
+              </div>
+            )}
+            {meta.solar_pv && (
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-yellow-400" />
+                <div><div className="text-[10px] text-slate-400">Solar PV</div><div className="text-sm font-semibold">{meta.solar_pv}</div></div>
+              </div>
+            )}
+            {meta.scope && (
+              <div className="flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-slate-400" />
+                <div><div className="text-[10px] text-slate-400">Scope</div><div className="text-sm font-semibold">{meta.scope}</div></div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Source file info */}
+        {rfq.source_file && (
+          <div className="flex items-center gap-2 mt-4 pt-4 border-t border-white/10 text-xs text-slate-400">
+            <FileText className="w-3.5 h-3.5" />
+            <span>Source: {rfq.source_file}</span>
+            {rfq.text_length && <span>· {rfq.text_length.toLocaleString()} chars parsed</span>}
+          </div>
+        )}
       </div>
 
-      {/* Match Chart */}
-      {chartData.length > 0 && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">
-              Match Percentage by Model
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 5, right: 20, bottom: 40, left: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: 11 }}
-                    angle={-30}
-                    textAnchor="end"
-                    height={60}
-                  />
-                  <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
-                  <Tooltip
-                    formatter={(value: number) => [`${value}%`, "Match"]}
-                    labelFormatter={(label: string, payload: any[]) =>
-                      payload?.[0]?.payload?.fullName || label
-                    }
-                  />
-                  <Bar dataKey="match" radius={[4, 4, 0, 0]}>
-                    {chartData.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={getBarColor(entry.match)}
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Main Content - Two Panels */}
-      <div className="grid gap-6 lg:grid-cols-[1fr_1.5fr]">
-        {/* Left Panel: Requirements Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">RFQ Requirements</CardTitle>
-            <CardDescription>
-              Technical parameters specified by {rfq.customer_name}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-md border">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b bg-muted/50">
-                    <th className="py-2 px-3 text-left font-medium">
-                      Parameter
-                    </th>
-                    <th className="py-2 px-3 text-left font-medium">
-                      Required
-                    </th>
-                    <th className="py-2 px-3 text-left font-medium">Unit</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rfq.requirements?.map((req, i) => (
-                    <tr key={i} className="border-b last:border-0">
-                      <td className="py-2 px-3 font-medium">
-                        {req.parameter}
-                      </td>
-                      <td className="py-2 px-3 font-mono text-xs">
-                        {req.required_value}
-                      </td>
-                      <td className="py-2 px-3 text-muted-foreground">
-                        {req.unit}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Right Panel: Match Results */}
-        <div className="space-y-4">
-          <h2 className="text-base font-semibold">
-            Match Results ({sortedMatches.length} models)
-          </h2>
-          {sortedMatches.map((match) => {
-            const isExpanded = expandedCard === match.component_id;
-            return (
-              <Card key={match.component_id} className="overflow-hidden">
-                <div
-                  className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/30 transition-colors"
-                  onClick={() =>
-                    setExpandedCard(isExpanded ? null : match.component_id)
-                  }
-                >
-                  <div className="flex items-center gap-4">
-                    <ScoreRing score={match.match_percentage} size={48} />
-                    <div>
-                      <p className="font-semibold">{match.model_name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {match.oem_name}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <div className="flex items-center gap-2">
-                        <Progress
-                          value={match.match_percentage}
-                          className="w-24 h-2"
-                        />
-                        <span
-                          className={cn(
-                            "text-sm font-semibold",
-                            scoreColor(match.match_percentage)
-                          )}
-                        >
-                          {match.match_percentage}%
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {match.passed}/{match.total} passed
-                      </p>
-                    </div>
-                    {isExpanded ? (
-                      <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </div>
+      {/* Requirements Summary */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {Array.from(groupedReqs.entries()).map(([section, reqs]) => (
+          <Card key={section} className="card-interactive">
+            <CardContent className="pt-4 pb-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{section}</div>
+                  <div className="text-2xl font-bold text-slate-800 mt-1">{reqs.length}</div>
                 </div>
+                <div className="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center">
+                  <ClipboardList className="w-5 h-5 text-brand" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-                {isExpanded && (
-                  <div className="border-t px-4 pb-4">
-                    <table className="w-full text-sm mt-3">
-                      <thead>
-                        <tr className="border-b bg-muted/50">
-                          <th className="py-2 px-3 text-left font-medium">
-                            Parameter
-                          </th>
-                          <th className="py-2 px-3 text-left font-medium">
-                            Required
-                          </th>
-                          <th className="py-2 px-3 text-left font-medium">
-                            OEM Value
-                          </th>
-                          <th className="py-2 px-3 text-center font-medium">
-                            Match
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {match.details.map((detail, i) => (
-                          <tr
-                            key={i}
-                            className={cn(
-                              "border-b last:border-0",
-                              detail.match ? "bg-green-50/50 dark:bg-green-950/20" : "bg-red-50/50 dark:bg-red-950/20"
-                            )}
-                          >
-                            <td className="py-2 px-3 font-medium">
-                              {detail.parameter}
-                            </td>
-                            <td className="py-2 px-3 font-mono text-xs">
-                              {detail.required}
-                            </td>
-                            <td className="py-2 px-3 font-mono text-xs">
-                              {detail.oem_value}
-                            </td>
-                            <td className="py-2 px-3 text-center">
-                              {detail.match ? (
-                                <CheckCircle2 className="h-4 w-4 text-green-600 inline" />
-                              ) : (
-                                <XCircle className="h-4 w-4 text-red-500 inline" />
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </Card>
-            );
-          })}
+      {/* Requirements by Section */}
+      <div className="space-y-4">
+        {Array.from(groupedReqs.entries()).map(([section, reqs]) => (
+          <Card key={section}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-brand" />
+                {section}
+              </CardTitle>
+              <CardDescription className="text-xs">{reqs.length} requirements</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-lg border overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-slate-50 border-b text-[10px] uppercase tracking-wider text-slate-500">
+                      <th className="py-2.5 px-4 text-left font-semibold">Parameter</th>
+                      <th className="py-2.5 px-4 text-left font-semibold">Code</th>
+                      <th className="py-2.5 px-4 text-left font-semibold">Required Value</th>
+                      <th className="py-2.5 px-4 text-left font-semibold">Unit</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {reqs.map((r, i) => (
+                      <tr key={r.code + i} className={cn("border-b last:border-0 table-row-hover", i % 2 ? "bg-slate-50/50" : "")}>
+                        <td className="py-2.5 px-4 font-medium text-slate-700">{r.parameter}</td>
+                        <td className="py-2.5 px-4 font-mono text-xs text-slate-400">{r.code}</td>
+                        <td className="py-2.5 px-4">
+                          <span className={cn("font-semibold",
+                            r.required_value.startsWith(">=") ? "text-emerald-600" :
+                            r.required_value.startsWith("<=") ? "text-blue-600" :
+                            r.required_value === "Yes" || r.required_value === "Required" || r.required_value === "Mandatory" ? "text-brand" :
+                            "text-slate-800"
+                          )}>
+                            {r.required_value}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-4 text-slate-400 text-xs">{r.unit}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-          {sortedMatches.length === 0 && (
-            <Card className="py-12">
-              <CardContent className="text-center text-muted-foreground">
-                No matching models found for this RFQ.
-              </CardContent>
-            </Card>
-          )}
-        </div>
+      {/* Download / Actions */}
+      <div className="flex gap-3">
+        <Button variant="outline" className="flex-1" onClick={() => window.print()}>
+          <Download className="mr-2 h-4 w-4" /> Download / Print
+        </Button>
       </div>
     </div>
-  );
+  )
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { getRFQs, uploadRFQ, createRFQ } from "@/lib/api"
+import { DriveFetcherModal } from "@/components/shared/drive-fetcher-modal"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
@@ -12,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Progress } from "@/components/ui/progress"
 import {
   Upload, FileText, Calendar, ClipboardList, Loader2, CheckCircle2,
-  FileUp, File, X, AlertCircle, Sparkles, ArrowRight
+  FileUp, File, X, AlertCircle, Sparkles, ArrowRight, HardDrive
 } from "lucide-react"
 
 interface Requirement {
@@ -38,6 +39,7 @@ export default function RFQManagerPage() {
   const [rfqs, setRfqs] = useState<RFQ[]>([])
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [driveModalOpen, setDriveModalOpen] = useState(false)
 
   // Upload form state
   const [customerName, setCustomerName] = useState("")
@@ -158,7 +160,12 @@ export default function RFQManagerPage() {
             Upload RFQ documents and AI will extract compliance requirements automatically
           </p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm() }}>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setDriveModalOpen(true)}>
+            <HardDrive className="mr-2 h-4 w-4" />
+            Fetch from Drive
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm() }}>
           <DialogTrigger asChild>
             <Button>
               <Upload className="mr-2 h-4 w-4" />
@@ -362,7 +369,22 @@ export default function RFQManagerPage() {
             )}
           </DialogContent>
         </Dialog>
+        </div>
       </div>
+
+      {/* Drive Fetcher Modal for RFQ */}
+      <DriveFetcherModal
+        open={driveModalOpen}
+        onClose={() => setDriveModalOpen(false)}
+        mode="rfq"
+        customerName={customerName}
+        projectName={projectName}
+        onExtracted={async () => {
+          setDriveModalOpen(false)
+          const data = await getRFQs()
+          setRfqs(data.items || [])
+        }}
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">

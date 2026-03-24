@@ -383,35 +383,8 @@ export default function ComparePage() {
                 })}
               </div>
 
-              {/* Score Chart */}
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <BarChart3 className="h-4 w-4 text-slate-400" /> Compliance Score Comparison
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={200}>
-                    <BarChart data={scoreChartData} margin={{ top: 10, right: 20, bottom: 5, left: 20 }}>
-                      <XAxis dataKey="oem" tick={{ fontSize: 11 }} />
-                      <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
-                      <Tooltip content={({ active, payload }) => {
-                        if (!active || !payload?.[0]) return null
-                        const d = payload[0].payload
-                        return (
-                          <div className="bg-white border rounded-lg shadow-lg p-3 text-xs">
-                            <div className="font-bold text-slate-800">{d.fullName}</div>
-                            <div className="text-slate-500">{d.oem}</div>
-                            <div className={cn("text-lg font-bold mt-1", scoreColor(d.score))}>{d.score}%</div>
-                          </div>
-                        )
-                      }} />
-                      <Bar dataKey="score" radius={[6, 6, 0, 0]} barSize={40}>
-                        {scoreChartData.map((entry, idx) => <Cell key={idx} fill={entry.fill} />)}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
+              {/* Model summary cards kept, score chart removed */}
+              <Card className="hidden">
               </Card>
 
               {/* Section Filter */}
@@ -490,15 +463,7 @@ export default function ComparePage() {
                             ))}
                           </>
                         ))}
-                        {/* Score row */}
-                        <tr className="border-t-2 border-slate-200 bg-slate-50">
-                          <td className="py-3 px-3 text-xs font-bold text-slate-900">Compliance Score</td>
-                          {matrix.models.map(model => (
-                            <td key={model.id} className="py-3 px-3 text-center">
-                              <span className={cn("text-base font-bold", scoreColor(model.score))}>{model.score}%</span>
-                            </td>
-                          ))}
-                        </tr>
+                        {/* End of parameter rows */}
                       </tbody>
                     </table>
                   </div>

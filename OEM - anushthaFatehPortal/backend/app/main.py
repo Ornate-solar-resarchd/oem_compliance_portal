@@ -2,13 +2,16 @@
 UnityESS Technical Compliance Portal — FastAPI Application
 In-memory seed data mode — no database required.
 """
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.endpoints import (
     auth, oems, components, projects, sheets,
     workflow, documents, templates,
-    dashboard, rfq, mail, comparison,
+    dashboard, rfq, mail, comparison, pipeline, gdrive,
 )
 
 app = FastAPI(
@@ -39,6 +42,8 @@ app.include_router(dashboard.router, prefix=prefix, tags=["Dashboard"])
 app.include_router(rfq.router, prefix=prefix, tags=["RFQ"])
 app.include_router(mail.router, prefix=prefix, tags=["Mail"])
 app.include_router(comparison.router, prefix=prefix, tags=["Comparison"])
+app.include_router(pipeline.router, prefix=prefix, tags=["Pipeline"])
+app.include_router(gdrive.router, prefix=prefix, tags=["Google Drive"])
 
 
 @app.get("/api/v1/health")

@@ -3,9 +3,9 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  LayoutDashboard, Database, Building2, FileText,
+  LayoutDashboard, Building2, FileText,
   GitCompare, ClipboardCheck, Settings,
-  Activity, FileBarChart, Zap, ChevronRight
+  Zap, ChevronRight
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -14,22 +14,14 @@ const NAV_SECTIONS = [
     label: "Main",
     items: [
       { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-      { href: "/technical-data", icon: Database, label: "Technical Data" },
       { href: "/oems", icon: Building2, label: "OEM Library" },
-    ],
-  },
-  {
-    label: "Compliance",
-    items: [
       { href: "/rfq", icon: FileText, label: "RFQ Manager", badge: "AI" },
-      { href: "/projects", icon: ClipboardCheck, label: "Projects" },
-      { href: "/workflow", icon: Activity, label: "Workflow" },
     ],
   },
   {
-    label: "Tools",
+    label: "Management",
     items: [
-      { href: "/tech-signal", icon: FileBarChart, label: "Tech Signal" },
+      { href: "/projects", icon: ClipboardCheck, label: "Projects & Workflow" },
       { href: "/compare", icon: GitCompare, label: "Comparison" },
     ],
   },

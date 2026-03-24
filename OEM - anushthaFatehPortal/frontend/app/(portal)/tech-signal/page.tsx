@@ -204,24 +204,22 @@ export default function TechSignalPage() {
                   <div key={section}>
                     <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 pb-1 border-b">{section}</div>
                     <div className="rounded-lg border overflow-hidden">
-                      <table className="w-full text-xs">
+                      <table className="w-full text-xs table-fixed">
                         <thead>
                           <tr className="bg-slate-50 border-b text-[10px] uppercase tracking-wider text-slate-500">
-                            <th className="py-2 px-3 text-left font-semibold">Parameter</th>
-                            <th className="py-2 px-3 text-left font-semibold">Code</th>
-                            <th className="py-2 px-3 text-left font-semibold">Value</th>
-                            <th className="py-2 px-3 text-center font-semibold">Status</th>
-                            <th className="py-2 px-3 text-left font-semibold">Confidence</th>
+                            <th className="py-2.5 px-4 text-left font-semibold w-[35%]">Parameter</th>
+                            <th className="py-2.5 px-4 text-right font-semibold w-[25%]">Value</th>
+                            <th className="py-2.5 px-4 text-center font-semibold w-[15%]">Status</th>
+                            <th className="py-2.5 px-4 text-right font-semibold w-[25%]">Confidence</th>
                           </tr>
                         </thead>
                         <tbody>
                           {sectionParams.map((p, i) => (
                             <tr key={p.code} className={cn("border-b last:border-0 table-row-hover", i % 2 === 0 ? "" : "bg-slate-50/50")}>
-                              <td className="py-2 px-3 font-medium text-slate-700">{p.name}</td>
-                              <td className="py-2 px-3 font-mono text-slate-400">{p.code}</td>
-                              <td className="py-2 px-3 font-semibold text-slate-800">{p.value} <span className="text-slate-400 font-normal">{p.unit}</span></td>
-                              <td className="py-2 px-3 text-center"><div className="flex items-center justify-center gap-1">{statusIcon(p.status)}<span className="capitalize">{p.status}</span></div></td>
-                              <td className="py-2 px-3"><div className="flex items-center gap-2"><Progress value={p.confidence * 100} className="h-1.5 w-14" /><span className="text-slate-400">{Math.round(p.confidence * 100)}%</span></div></td>
+                              <td className="py-2.5 px-4 font-medium text-slate-700">{p.name}<span className="text-slate-300 font-mono text-[9px] block mt-0.5">{p.code}</span></td>
+                              <td className="py-2.5 px-4 text-right font-semibold text-slate-800 tabular-nums">{p.value} <span className="text-slate-400 font-normal">{p.unit}</span></td>
+                              <td className="py-2.5 px-4 text-center"><div className="flex items-center justify-center gap-1">{statusIcon(p.status)}<span className="capitalize">{p.status}</span></div></td>
+                              <td className="py-2.5 px-4 text-right"><div className="flex items-center justify-end gap-2"><Progress value={p.confidence * 100} className="h-1.5 w-16" /><span className="text-slate-500 tabular-nums w-8 text-[10px]">{Math.round(p.confidence * 100)}%</span></div></td>
                             </tr>
                           ))}
                         </tbody>

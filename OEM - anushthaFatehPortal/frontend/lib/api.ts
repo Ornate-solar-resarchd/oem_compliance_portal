@@ -56,13 +56,15 @@ export const createOEM = (body: any) => post("/oems/", body)
 export const getComponents = () => get("/components/")
 export const getComponent = (id: string) => get(`/components/${id}`)
 export const getComponentParams = (id: string) => get(`/components/${id}/parameters`)
-export const uploadDatasheet = (file: File, oemName: string, modelName: string) => {
+export const uploadDatasheet = (file: File, oemName: string, modelName: string, category: string = "Cell") => {
   const fd = new FormData()
   fd.append("file", file)
   fd.append("oem_name", oemName)
   fd.append("model_name", modelName)
+  fd.append("category", category)
   return uploadFile("/components/upload-datasheet", fd)
 }
+export const getCategories = () => get("/components/categories")
 export const uploadComplianceSheet = (file: File, oemName: string, modelName: string) => {
   const fd = new FormData()
   fd.append("file", file)
@@ -79,6 +81,8 @@ export const createProject = (body: any) => post("/projects/", body)
 // Sheets
 export const getSheets = () => get("/sheets/")
 export const getSheet = (id: string) => get(`/sheets/${id}`)
+export const createSheet = (projectId: string, componentId: string) =>
+  post("/sheets/", { project_id: projectId, component_id: componentId })
 
 // Templates
 export const getTemplates = () => get("/templates/")
@@ -112,3 +116,17 @@ export const generateTechnicalSignal = (body: any) => post("/documents/technical
 
 // Mail
 export const sendTechnicalMail = (body: any) => post("/mail/technical", body)
+
+// Pipeline
+export const getPipeline = () => get("/pipeline/")
+export const getPipelineStats = () => get("/pipeline/stats")
+export const getDeal = (id: string) => get(`/pipeline/${id}`)
+export const createDeal = (body: any) => post("/pipeline/", body)
+export const advanceDeal = (id: string, body: any) => post(`/pipeline/${id}/advance`, body)
+
+// Google Drive Fetcher
+export const searchDrive = (query: string, type: string = "") =>
+  get(`/gdrive/search?q=${encodeURIComponent(query)}${type ? `&type=${type}` : ""}`)
+export const fetchAndExtract = (body: {
+  file_id: string; file_name: string; oem_name: string; model_name: string; category: string
+}) => post("/gdrive/fetch-and-extract", body)
