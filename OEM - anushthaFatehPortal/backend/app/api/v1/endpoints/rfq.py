@@ -125,6 +125,11 @@ async def upload_rfq(
     file_size = len(contents)
     file_ext = (file.filename or "").rsplit(".", 1)[-1].lower()
 
+    # Step 0: Save to Google Drive
+    from app.data.gdrive_upload import upload_to_gdrive
+    gdrive_result = await upload_to_gdrive(contents, file.filename or "rfq_document.pdf")
+    gdrive_url = gdrive_result.get("file", {}).get("url", "") if gdrive_result.get("success") else ""
+
     # Step 1: Extract text from the document
     document_text = _extract_text(contents, file.filename or "")
     text_length = len(document_text)
@@ -153,6 +158,7 @@ async def upload_rfq(
         "extraction_method": "document_parsing",
         "text_extracted": text_length > 0,
         "text_length": text_length,
+        "gdrive_url": gdrive_url,
     }
     if project_meta:
         new_rfq["project_meta"] = project_meta
@@ -170,6 +176,8 @@ async def upload_rfq(
         "requirements_extracted": len(extracted_requirements),
         "requirements": extracted_requirements,
         "project_meta": project_meta,
+        "gdrive_url": gdrive_url,
+        "gdrive_saved": bool(gdrive_url),
         "message": f"Extracted {len(extracted_requirements)} technical requirements from '{file.filename}' ({text_length} chars parsed)",
     }
 

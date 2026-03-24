@@ -177,7 +177,7 @@ export default function OEMDetailPage() {
                   Approved
                 </Badge>
               ) : (
-                <Badge variant="outline" className="text-amber-600 border-amber-200">
+                <Badge variant="pending" className="text-amber-600 border-amber-200">
                   <XCircle className="h-3.5 w-3.5 mr-1" />
                   Pending Approval
                 </Badge>

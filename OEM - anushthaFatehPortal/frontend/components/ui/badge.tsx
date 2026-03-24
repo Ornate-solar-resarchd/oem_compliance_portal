@@ -18,6 +18,8 @@ const badgeVariants = cva(
         approved: "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100",
         review: "bg-amber-50 text-amber-600 ring-1 ring-amber-100",
         active: "bg-brand-50 text-brand-600 ring-1 ring-brand-200 animate-pulse-glow",
+        outline: "bg-transparent border border-slate-200 text-slate-600",
+        secondary: "bg-slate-50 text-slate-500",
       },
     },
     defaultVariants: { variant: "default" },

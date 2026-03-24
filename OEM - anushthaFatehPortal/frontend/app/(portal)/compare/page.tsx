@@ -60,10 +60,10 @@ export default function ComparePage() {
         const res = await getComponents()
         const items = res.items ?? []
         setComponents(items)
-        const types: string[] = [...new Set(items.map((c: Component) => c.component_type_name).filter(Boolean))]
+        const types = Array.from(new Set(items.map((c: Component) => c.component_type_name).filter(Boolean))) as string[]
         if (types.length > 0) setSelectedType(types[0])
         // Expand all OEMs by default
-        const oems: string[] = [...new Set(items.map((c: Component) => c.oem_name).filter(Boolean))]
+        const oems = Array.from(new Set(items.map((c: Component) => c.oem_name).filter(Boolean))) as string[]
         setExpandedOEMs(new Set(oems))
       } catch (e) { console.error(e) }
       finally { setLoading(false) }
@@ -73,10 +73,10 @@ export default function ComparePage() {
 
   /* Derived data */
   const componentTypes = useMemo(() =>
-    ([...new Set(components.map(c => c.component_type_name).filter(Boolean))] as string[]).sort(), [components])
+    (Array.from(new Set(components.map(c => c.component_type_name).filter(Boolean))) as string[]).sort(), [components])
 
   const oemList = useMemo(() => {
-    const oems: string[] = [...new Set(components.filter(c => c.component_type_name === selectedType).map(c => c.oem_name).filter(Boolean))]
+    const oems = Array.from(new Set(components.filter(c => c.component_type_name === selectedType).map(c => c.oem_name).filter(Boolean))) as string[]
     return oems.sort()
   }, [components, selectedType])
 

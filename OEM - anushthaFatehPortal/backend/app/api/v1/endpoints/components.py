@@ -31,6 +31,15 @@ async def upload_datasheet(
     file_size = len(contents)
     file_ext = (file.filename or "").rsplit(".", 1)[-1].lower()
 
+    # Save to Google Drive (async, non-blocking)
+    from app.data.gdrive_upload import upload_to_gdrive
+    gdrive_result = await upload_to_gdrive(contents, file.filename or "datasheet.pdf")
+    gdrive_url = ""
+    gdrive_file_id = ""
+    if gdrive_result.get("success"):
+        gdrive_url = gdrive_result["file"]["url"]
+        gdrive_file_id = gdrive_result["file"]["id"]
+
     # Find or create OEM
     oem = next((o for o in OEMS if o["name"].lower() == oem_name.lower()), None)
     oem_id = oem["id"] if oem else f"oem-new-{len(OEMS)+1:03d}"
@@ -82,6 +91,8 @@ async def upload_datasheet(
         "fail": fail_count,
         "waived": 0,
         "datasheet": file.filename or "uploaded.pdf",
+        "gdrive_url": gdrive_url,
+        "gdrive_file_id": gdrive_file_id,
     }
     COMPONENTS.append(new_comp)
     PARAMETERS[comp_id] = extracted_params
@@ -110,6 +121,8 @@ async def upload_datasheet(
         "fail": fail_count,
         "parameters": extracted_params,
         "message": f"Extracted {total} {category} specs from '{file.filename}'",
+        "gdrive_url": gdrive_url,
+        "gdrive_saved": bool(gdrive_url),
     }
 
 
