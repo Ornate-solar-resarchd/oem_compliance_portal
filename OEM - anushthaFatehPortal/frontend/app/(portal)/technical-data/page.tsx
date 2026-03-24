@@ -67,8 +67,8 @@ export default function TechnicalDataPage() {
   }, [])
 
   /* Derived */
-  const oemList = useMemo(() => [...new Set(components.map(c => c.oem_name).filter(Boolean))].sort(), [components])
-  const typeList = useMemo(() => [...new Set(components.map(c => c.component_type_name).filter(Boolean))].sort(), [components])
+  const oemList = useMemo(() => ([...new Set(components.map(c => c.oem_name).filter(Boolean))] as string[]).sort(), [components])
+  const typeList = useMemo(() => ([...new Set(components.map(c => c.component_type_name).filter(Boolean))] as string[]).sort(), [components])
 
   const filtered = useMemo(() => {
     let list = components.filter(c => c.is_active)

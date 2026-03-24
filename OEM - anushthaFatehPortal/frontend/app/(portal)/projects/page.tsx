@@ -34,6 +34,7 @@ function AddSheetDialog({ projectId, onCreated }: { projectId: string; onCreated
       setLoadingComps(true)
       getComponents().then(d => { setComponents(d.items || []); setLoadingComps(false) }).catch(() => setLoadingComps(false))
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
   const handleCreate = async () => {
