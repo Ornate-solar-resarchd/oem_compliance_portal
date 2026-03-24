@@ -73,7 +73,7 @@ export default function ComparePage() {
 
   /* Derived data */
   const componentTypes = useMemo(() =>
-    [...new Set(components.map(c => c.component_type_name).filter(Boolean))] as string[]).sort(), [components])
+    ([...new Set(components.map(c => c.component_type_name).filter(Boolean))] as string[]).sort(), [components])
 
   const oemList = useMemo(() => {
     const oems: string[] = [...new Set(components.filter(c => c.component_type_name === selectedType).map(c => c.oem_name).filter(Boolean))]
