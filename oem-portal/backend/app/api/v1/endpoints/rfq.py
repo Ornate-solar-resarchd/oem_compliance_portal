@@ -125,10 +125,7 @@ async def upload_rfq(
     file_size = len(contents)
     file_ext = (file.filename or "").rsplit(".", 1)[-1].lower()
 
-    # Step 0: Save to Google Drive
-    from app.data.gdrive_upload import upload_to_gdrive
-    gdrive_result = await upload_to_gdrive(contents, file.filename or "rfq_document.pdf")
-    gdrive_url = gdrive_result.get("file", {}).get("url", "") if gdrive_result.get("success") else ""
+    gdrive_url = ""
 
     # Step 1: Extract text from the document
     document_text = _extract_text(contents, file.filename or "")

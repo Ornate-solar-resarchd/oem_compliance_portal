@@ -11,7 +11,9 @@
       "Bash(unzip -o \"/Users/priyankrajput/Ornate/Claude 2 - OEM Portal/Claude 2 - OEM Portal/03_EMS_SCADA_OEM_Compliance_Sheet.xlsx\" -d /tmp/xlsx_extracted/)",
       "WebFetch(domain:kedarb1234.github.io)",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:oem-compliance-portal.onrender.com)",
+      "WebFetch(domain:unityess-portal.onrender.com)"
     ],
     "additionalDirectories": [
       "/Users/priyankrajput/Ornate/Claude 2 - OEM Portal/Claude 2 - OEM Portal/OEM - anushthaFatehPortal/frontend/app/(portal)/oems"

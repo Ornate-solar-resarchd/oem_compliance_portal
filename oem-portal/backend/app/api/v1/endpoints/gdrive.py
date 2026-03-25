@@ -139,6 +139,7 @@ async def fetch_and_extract(body: FetchAndExtractRequest):
         "compliance_score": score, "is_active": True,
         "pass": pass_count, "fail": fail_count, "waived": 0,
         "datasheet": body.file_name, "source": "gdrive", "gdrive_file_id": body.file_id,
+        "gdrive_url": f"https://drive.google.com/file/d/{body.file_id}/view",
     }
     COMPONENTS.append(new_comp)
     PARAMETERS[comp_id] = extracted_params

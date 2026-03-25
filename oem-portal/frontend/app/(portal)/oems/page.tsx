@@ -99,6 +99,8 @@ interface Component {
   fail: number;
   waived: number;
   datasheet: string;
+  gdrive_url?: string;
+  gdrive_file_id?: string;
 }
 
 interface Param {
@@ -1046,14 +1048,18 @@ export default function OEMsPage() {
                                 </div>
                               </div>
                               <div className="flex items-center gap-2">
-                                <Button size="sm" variant="outline" className="text-xs h-7 gap-1.5"
-                                  onClick={(e) => { e.stopPropagation(); /* TODO: open document viewer */ }}>
-                                  <Eye className="h-3 w-3" /> View Document
-                                </Button>
-                                <Button size="sm" variant="outline" className="text-xs h-7 gap-1.5"
-                                  onClick={(e) => { e.stopPropagation(); }}>
-                                  <Download className="h-3 w-3" /> Download
-                                </Button>
+                                {comp.gdrive_url && (
+                                  <Button size="sm" variant="outline" className="text-xs h-7 gap-1.5"
+                                    onClick={(e) => { e.stopPropagation(); window.open(comp.gdrive_url, "_blank") }}>
+                                    <Eye className="h-3 w-3" /> View Document
+                                  </Button>
+                                )}
+                                {comp.gdrive_url && (
+                                  <Button size="sm" variant="outline" className="text-xs h-7 gap-1.5"
+                                    onClick={(e) => { e.stopPropagation(); window.open(comp.gdrive_url, "_blank") }}>
+                                    <Download className="h-3 w-3" /> Download
+                                  </Button>
+                                )}
                                 <Button size="sm" variant="ghost" className="text-xs h-7 gap-1.5 text-brand"
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -1156,9 +1162,10 @@ export default function OEMsPage() {
                             {/* Download Datasheet */}
                             {comp.datasheet && (
                               <div className="px-4 pb-2">
-                                <Button variant="outline" size="sm" className="text-xs">
+                                <Button variant="outline" size="sm" className="text-xs"
+                                  onClick={() => comp.gdrive_url ? window.open(comp.gdrive_url, "_blank") : null}>
                                   <Download className="h-3.5 w-3.5 mr-1.5" />
-                                  Download Datasheet ({comp.datasheet})
+                                  {comp.gdrive_url ? `View on Drive (${comp.datasheet})` : `Datasheet: ${comp.datasheet}`}
                                 </Button>
                               </div>
                             )}
