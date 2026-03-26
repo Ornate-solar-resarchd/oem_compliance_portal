@@ -13,7 +13,8 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:oem-compliance-portal.onrender.com)",
-      "WebFetch(domain:unityess-portal.onrender.com)"
+      "WebFetch(domain:unityess-portal.onrender.com)",
+      "Bash(grep -E \"\\\\.py$\")"
     ],
     "additionalDirectories": [
       "/Users/priyankrajput/Ornate/Claude 2 - OEM Portal/Claude 2 - OEM Portal/OEM - anushthaFatehPortal/frontend/app/(portal)/oems"

@@ -1048,18 +1048,24 @@ export default function OEMsPage() {
                                 </div>
                               </div>
                               <div className="flex items-center gap-2">
-                                {comp.gdrive_url && (
-                                  <Button size="sm" variant="outline" className="text-xs h-7 gap-1.5"
-                                    onClick={(e) => { e.stopPropagation(); window.open(comp.gdrive_url, "_blank") }}>
-                                    <Eye className="h-3 w-3" /> View Document
-                                  </Button>
-                                )}
-                                {comp.gdrive_url && (
-                                  <Button size="sm" variant="outline" className="text-xs h-7 gap-1.5"
-                                    onClick={(e) => { e.stopPropagation(); window.open(comp.gdrive_url, "_blank") }}>
-                                    <Download className="h-3 w-3" /> Download
-                                  </Button>
-                                )}
+                                <Button size="sm" variant="outline" className="text-xs h-7 gap-1.5"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    if (comp.gdrive_url) window.open(comp.gdrive_url, "_blank")
+                                    else if (comp.gdrive_file_id) window.open(`https://drive.google.com/file/d/${comp.gdrive_file_id}/view`, "_blank")
+                                    else alert("No document link available. Upload via 'Fetch from Drive' to enable viewing.")
+                                  }}>
+                                  <Eye className="h-3 w-3" /> View
+                                </Button>
+                                <Button size="sm" variant="outline" className="text-xs h-7 gap-1.5"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    if (comp.gdrive_url) window.open(comp.gdrive_url, "_blank")
+                                    else if (comp.gdrive_file_id) window.open(`https://drive.google.com/uc?export=download&id=${comp.gdrive_file_id}`, "_blank")
+                                    else alert("No document link available. Upload via 'Fetch from Drive' to enable downloading.")
+                                  }}>
+                                  <Download className="h-3 w-3" /> Download
+                                </Button>
                                 <Button size="sm" variant="ghost" className="text-xs h-7 gap-1.5 text-brand"
                                   onClick={(e) => {
                                     e.stopPropagation();

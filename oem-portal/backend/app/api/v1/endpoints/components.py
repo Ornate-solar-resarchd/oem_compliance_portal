@@ -31,8 +31,14 @@ async def upload_datasheet(
     file_size = len(contents)
     file_ext = (file.filename or "").rsplit(".", 1)[-1].lower()
 
+    # Save uploaded file to Google Drive so it's accessible later
+    from app.data.gdrive_upload import upload_to_gdrive
+    gdrive_result = await upload_to_gdrive(contents, file.filename or "datasheet.pdf")
     gdrive_url = ""
     gdrive_file_id = ""
+    if gdrive_result.get("success"):
+        gdrive_url = gdrive_result["file"]["url"]
+        gdrive_file_id = gdrive_result["file"]["id"]
 
     # Find or create OEM
     oem = next((o for o in OEMS if o["name"].lower() == oem_name.lower()), None)

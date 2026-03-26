@@ -1,180 +1,201 @@
-# UnityESS Technical Compliance Portal — Architecture
+# UnityESS Technical Compliance Portal — Architecture v2.3
 
 ## Overview
-BESS (Battery Energy Storage System) technical compliance portal for OEM evaluation, RFQ processing, and deal pipeline management.
+BESS (Battery Energy Storage System) technical compliance portal for OEM evaluation, RFQ processing, datasheet extraction, and deal pipeline management.
 
-**Stack:** Next.js 14 + Tailwind + shadcn/ui + Recharts | FastAPI + In-memory data | Gemini AI for document extraction
+**Stack:** Next.js 14 + Tailwind + shadcn/ui + Recharts | FastAPI + In-memory Data | Gemini AI + Google Drive
+
+**Live URLs:**
+- Frontend: https://oem-compliance-portal.vercel.app
+- Backend: https://oem-compliance-portal.onrender.com
+
+---
+
+## System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        FRONTEND (Vercel)                        │
+│                     Next.js 14 + Tailwind                       │
+│                                                                 │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐          │
+│  │Dashboard │ │OEM Lib   │ │RFQ Mgr   │ │Pipeline  │  + 8     │
+│  │KPIs      │ │5 OEMs    │ │AI Extract│ │Kanban    │  more    │
+│  │Workflow  │ │8 Models  │ │Drive Fetch│ │6 Stages  │  pages   │
+│  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘          │
+│       └─────────────┴─────────────┴─────────────┘              │
+│                          REST API                               │
+└──────────────────────────┬──────────────────────────────────────┘
+                           │ HTTPS
+┌──────────────────────────┴──────────────────────────────────────┐
+│                       BACKEND (Render)                          │
+│                    FastAPI + Python 3.11                         │
+│                                                                 │
+│  ┌──────────────────────────────────────────────────────┐      │
+│  │              14 API Endpoint Modules                   │      │
+│  │  auth · oems · components · projects · sheets         │      │
+│  │  workflow · rfq · pipeline · comparison · dashboard    │      │
+│  │  documents · templates · mail · gdrive                │      │
+│  └──────────────────────┬───────────────────────────────┘      │
+│                         │                                       │
+│  ┌──────────┐  ┌────────┴────────┐  ┌──────────────────┐      │
+│  │In-Memory │  │  AI Extraction  │  │  Google Drive     │      │
+│  │Seed Data │  │  Engine         │  │  Integration      │      │
+│  │5 OEMs    │  │1. Gemini (free)│  │Search & Fetch    │      │
+│  │8 Models  │  │2. Claude (paid)│  │via Apps Script   │      │
+│  │28 params │  │3. Keywords     │  │                   │      │
+│  │5 Projects│  │60+ params/doc  │  │                   │      │
+│  │7 Sheets  │  │                 │  │                   │      │
+│  │3 RFQs    │  │                 │  │                   │      │
+│  │6 Deals   │  │                 │  │                   │      │
+│  └──────────┘  └─────────────────┘  └──────────────────┘      │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
 ## Project Structure
 
 ```
-OEM-anushthaFatehPortal/
-├── backend/                    # FastAPI Python backend
+oem-portal/
+├── backend/                          # FastAPI Python
 │   ├── app/
-│   │   ├── main.py             # FastAPI app entry + CORS + routers
-│   │   ├── api/v1/endpoints/   # REST API endpoints
-│   │   │   ├── auth.py         # JWT login (demo users)
-│   │   │   ├── oems.py         # OEM CRUD
-│   │   │   ├── components.py   # Component models + params + datasheet upload
-│   │   │   ├── projects.py     # Project management
-│   │   │   ├── sheets.py       # Technical compliance sheets
-│   │   │   ├── workflow.py     # 7-stage approval workflow
-│   │   │   ├── rfq.py          # RFQ upload + AI extraction (Gemini/Claude/keyword)
-│   │   │   ├── pipeline.py     # Deal pipeline (enquiry→rfq→meeting→proposal→final)
-│   │   │   ├── dashboard.py    # KPI stats + chart data
-│   │   │   ├── comparison.py   # Side-by-side model comparison matrix
-│   │   │   ├── documents.py    # Document generation
-│   │   │   ├── templates.py    # Compliance templates
-│   │   │   └── mail.py         # Technical mail
+│   │   ├── main.py                   # App entry + CORS + 14 routers
+│   │   ├── api/v1/endpoints/         # 14 endpoint modules
+│   │   │   ├── auth.py               # JWT login (7 demo users)
+│   │   │   ├── oems.py               # OEM CRUD
+│   │   │   ├── components.py         # Components + datasheet upload + AI extract
+│   │   │   ├── projects.py           # Project management
+│   │   │   ├── sheets.py             # Compliance sheets
+│   │   │   ├── workflow.py           # 7-stage approval pipeline
+│   │   │   ├── rfq.py               # RFQ upload + AI extraction
+│   │   │   ├── pipeline.py           # Deal pipeline (6 stages)
+│   │   │   ├── gdrive.py            # Google Drive integration
+│   │   │   ├── comparison.py         # Model comparison matrix
+│   │   │   ├── dashboard.py          # KPI stats + charts
+│   │   │   ├── documents.py          # PDF generation
+│   │   │   ├── templates.py          # Compliance templates
+│   │   │   └── mail.py               # Technical email
 │   │   └── data/
-│   │       ├── seed.py         # In-memory seed data (OEMs, components, params, projects, pipeline)
-│   │       └── rfq_extraction.py # AI extraction engine (Gemini → Claude → keyword fallback)
+│   │       ├── seed.py               # All in-memory data
+│   │       ├── rfq_extraction.py     # RFQ AI extraction (60+ params)
+│   │       ├── datasheet_extraction.py # Datasheet AI parser
+│   │       └── gdrive_upload.py      # Drive upload helper
 │   ├── requirements.txt
-│   └── .env                    # API keys (GEMINI_API_KEY, ANTHROPIC_API_KEY)
+│   ├── Dockerfile
+│   ├── render.yaml
+│   └── .env
 │
-├── frontend/                   # Next.js 14 (App Router)
+├── frontend/                          # Next.js 14 (App Router)
 │   ├── app/
-│   │   ├── layout.tsx          # Root HTML layout
-│   │   ├── page.tsx            # Redirect → /dashboard or /login
-│   │   ├── login/page.tsx      # Login with demo credentials
-│   │   └── (portal)/           # Protected routes (auth required)
-│   │       ├── layout.tsx      # Sidebar + Header + Auth guard
-│   │       ├── dashboard/      # KPI cards + charts
-│   │       ├── pipeline/       # Deal pipeline Kanban board (NEW)
-│   │       ├── technical-data/ # All OEM models grouped by manufacturer
-│   │       ├── oems/           # OEM library + [id] detail page
-│   │       ├── rfq/            # RFQ upload + AI extraction + detail view
-│   │       ├── tech-signal/    # Tech signal sheets per component
-│   │       ├── compare/        # Side-by-side model comparison
-│   │       ├── projects/       # Project management
-│   │       ├── workflow/       # Approval pipeline
-│   │       └── settings/       # User settings
+│   │   ├── layout.tsx                 # Root layout
+│   │   ├── page.tsx                   # Redirect → /login or /dashboard
+│   │   ├── login/page.tsx             # Login page
+│   │   └── (portal)/                  # Protected routes
+│   │       ├── layout.tsx             # Sidebar + Header + Auth guard
+│   │       ├── dashboard/             # KPIs + workflow + projects
+│   │       ├── oems/                  # OEM library + [id] detail
+│   │       ├── rfq/                   # RFQ upload + AI + detail + compliance + diversify
+│   │       ├── projects/              # Projects & Workflow
+│   │       ├── compare/               # Model comparison matrix
+│   │       ├── technical-data/        # All models by OEM
+│   │       ├── pipeline/              # Deal pipeline Kanban
+│   │       ├── tech-signal/           # Tech signal sheets
+│   │       ├── workflow/              # Approval workflow
+│   │       └── settings/              # Settings
 │   ├── components/
-│   │   ├── ui/                 # shadcn/ui (Button, Card, Badge, Dialog, Progress, Input)
-│   │   ├── layout/             # Sidebar (dark navy), Header (glass blur)
-│   │   └── shared/             # ScoreRing (animated), StatusBadge, StageBadge
+│   │   ├── ui/                        # shadcn/ui components
+│   │   ├── layout/                    # Sidebar, Header
+│   │   └── shared/                    # ScoreRing, StatusBadge, DriveFetcherModal
 │   ├── lib/
-│   │   ├── api.ts              # REST client (all backend API calls)
-│   │   ├── auth.tsx            # AuthProvider + useAuth + JWT parsing
-│   │   └── utils.ts            # cn(), scoreColor(), formatNumber()
-│   ├── tailwind.config.ts      # Custom theme (brand colors, animations, shadows)
-│   └── .env.local              # NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+│   │   ├── api.ts                     # REST client
+│   │   ├── auth.tsx                   # Auth context
+│   │   └── utils.ts                   # Utilities
+│   ├── Dockerfile
+│   └── package.json
 │
+├── ARCHITECTURE.md
+├── PROJECT_HANDOFF.md
 └── .gitignore
 ```
 
 ---
 
-## Data Flow
+## Core Business Flow
 
 ```
-┌─────────────┐     ┌──────────────┐     ┌──────────────┐
-│   Frontend   │────▶│  Backend API │────▶│  In-Memory   │
-│  Next.js 14  │◀────│   FastAPI    │◀────│  Seed Data   │
-│  Port 3000   │     │  Port 8000   │     │  (Python)    │
-└─────────────┘     └──────┬───────┘     └──────────────┘
-                           │
-                    ┌──────▼───────┐
-                    │  Gemini AI   │
-                    │  (PDF Parse) │
-                    └──────────────┘
+1. OEM LIBRARY (/oems)
+   ├── Browse OEMs → Categories: Cell, DC Block, PCS, EMS
+   ├── Upload datasheets → AI extracts 30-50+ specs
+   └── Fetch from Google Drive → AI extracts specs (no duplicate)
+
+2. RFQ MANAGER (/rfq)
+   ├── Upload customer RFQ (PDF/Excel)
+   ├── AI extracts 60+ BESS technical requirements
+   └── Fetch RFQ from Google Drive
+
+3. DEAL PIPELINE (/pipeline)
+   └── Enquiry → RFQ → Meeting → Request → Proposal → Final
+
+4. TECHNICAL DATA (/technical-data)
+   └── All models grouped by OEM (Card + List view)
+
+5. COMPARISON (/compare)
+   └── Select 2+ models → Parameter matrix (filter by OEM, type, section)
+
+6. PROJECTS & WORKFLOW (/projects)
+   ├── Create projects → Add compliance sheets
+   └── 7-stage approval: Draft → Eng Review → Tech Lead → Mgmt → Customer → Locked
 ```
 
 ---
 
-## Core Features
+## AI Extraction (Gemini → Claude → Keywords)
 
-### 1. Deal Pipeline (`/pipeline`)
 ```
-Enquiry → RFQ → Meeting → Request → Proposal → Final
+Document → Extract Text → Gemini 2.0 Flash (free) → 30-60+ params
+                              ↓ (fallback)
+                          Claude API (paid)
+                              ↓ (fallback)
+                          Keyword Regex (offline)
 ```
-Kanban board tracking deals from first contact to closure. 6 pre-loaded deals (NTPC, Evolve, BSPGCL, etc.)
 
-### 2. Technical Data (`/technical-data`)
-All OEM models grouped by manufacturer (CATL, Lishen, BYD, HiTHIUM, SVOLT). Card + List view toggle. Click to expand → full parameter table with charts.
-
-### 3. RFQ Manager (`/rfq`)
-Upload any RFQ PDF → Gemini AI reads the document → extracts 30-50 BESS technical requirements (capacity, RTE, certifications, EMS specs, grid support, etc.)
-
-### 4. OEM Library (`/oems` + `/oems/[id]`)
-OEM cards with compliance scores, country, approval status. Detail page with model scores, charts, electrical parameters.
-
-### 5. Tech Signal (`/tech-signal`)
-Per-component technical signal documents with parameter tables, electrical bar charts, confidence indicators.
-
-### 6. Comparison (`/compare`)
-Side-by-side parameter matrix. Filter by manufacturer, component type. Color-coded best/worst values.
-
-### 7. Approval Workflow (`/workflow`)
-7-stage pipeline: Draft → Eng Review → Tech Lead → Management → Customer Submission → Signoff → Locked
+**Categories:** Cell (35+ params), DC Block (20+), PCS (22+), EMS (13+)
 
 ---
 
-## OEMs in System
+## Google Drive Integration
 
-| OEM | Models | Avg Score | Country | Website |
-|-----|--------|-----------|---------|---------|
-| CATL | 2 | 97.5% | China | catl.com |
-| Lishen | 2 | 91.2% | China | lishen.com.cn |
-| BYD | 1 | 94.8% | China | byd.com |
-| HiTHIUM | 1 | 87.4% | China | hithium.com |
-| SVOLT | 2 | 93.1% | China | svolt.cn |
+- **Search:** `GET /gdrive/search?q=CATL` → Search company Drive
+- **Fetch & Extract:** `POST /gdrive/fetch-and-extract` → Download + AI extract
+- **No duplicates:** Files fetched from Drive are NOT re-uploaded
+- **Manual uploads:** Saved to Drive via Apps Script doPost()
 
 ---
 
-## API Endpoints
+## Authentication (7 Demo Users)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | /auth/login | JWT login |
-| GET | /dashboard/stats | KPI metrics |
-| GET | /oems/ | List OEMs |
-| GET | /components/ | List component models |
-| GET | /components/{id}/parameters | Model parameters |
-| POST | /components/upload-datasheet | Upload OEM datasheet |
-| GET | /projects/ | List projects |
-| GET | /sheets/ | List compliance sheets |
-| GET | /workflow/pending | Pending approvals |
-| POST | /workflow/{id}/advance | Advance workflow |
-| POST | /rfq/upload | Upload RFQ + AI extraction |
-| GET | /rfq/{id} | RFQ detail |
-| GET | /pipeline/ | Deal pipeline |
-| POST | /pipeline/ | Create new lead |
-| POST | /pipeline/{id}/advance | Move deal stage |
-| GET | /comparison/matrix | Model comparison |
-| GET | /templates/ | Compliance templates |
-| POST | /documents/technical-signal | Generate tech signal |
+| Email | Role | Password |
+|-------|------|----------|
+| anushtha@ornatesolar.in | Admin | Admin@1234 |
+| fateh@ornatesolar.in | Admin | Admin@1234 |
+| kedar@ornatesolar.in | Admin | Admin@1234 |
+| ravi.sharma@ornatesolar.in | Engineer | Ornate@1234 |
+| priya.nair@ornatesolar.in | Reviewer | Ornate@1234 |
+| arun.mehta@ornatesolar.in | Commercial | Ornate@1234 |
+| vijay.k@sunsure.in | Customer | Customer@1234 |
 
 ---
 
-## Authentication
-- JWT tokens (HS256, 8hr expiry)
-- 7 demo users: 3 Admin, 1 Engineer, 1 Reviewer, 1 Commercial, 1 Customer
-- Role-based access (admin, engineer, reviewer, commercial, customer)
+## Deployment
+
+| Service | Platform | Plan | Note |
+|---------|----------|------|------|
+| Backend | Render | Free | Sleeps after 15min idle |
+| Frontend | Vercel | Free | No card required |
+
+**Env vars:** GEMINI_API_KEY, SECRET_KEY, GDRIVE_FETCHER_URL, NEXT_PUBLIC_API_URL
 
 ---
 
-## AI Integration
-RFQ extraction priority:
-1. **Gemini API** (free, 1M context) — reads full PDF text
-2. **Claude API** (paid fallback) — same extraction prompt
-3. **Keyword extraction** (offline) — regex-based, always works
-
-Extracts 60+ BESS parameters: system specs, performance, cell specs, certifications, fire safety, EMS/SCADA, grid support, O&M, solar integration, commercial terms.
-
----
-
-## Running Locally
-
-```bash
-# Backend
-cd backend && source venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
-
-# Frontend
-cd frontend && npm install && npm run dev
-# Open http://localhost:3000
-```
+*UnityESS TCP v2.3 — Ornate Agencies Pvt. Ltd.*
