@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { getRFQs, uploadRFQ, createRFQ } from "@/lib/api"
 import { DriveFetcherModal } from "@/components/shared/drive-fetcher-modal"
+import { SplitDocumentViewer } from "@/components/shared/split-document-viewer"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
@@ -172,7 +173,7 @@ export default function RFQManagerPage() {
               Upload RFQ
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className={cn("max-h-[90vh] overflow-y-auto", extractedData ? "max-w-5xl" : "max-w-2xl")}>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-brand" />
@@ -183,51 +184,26 @@ export default function RFQManagerPage() {
               </DialogDescription>
             </DialogHeader>
 
-            {/* Extraction Result */}
+            {/* Extraction Result — Split View */}
             {extractedData ? (
-              <div className="space-y-4 pt-2">
-                <div className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-                  <CheckCircle2 className="h-6 w-6 text-emerald-500 flex-shrink-0" />
-                  <div>
-                    <div className="text-sm font-semibold text-emerald-700">
-                      {extractedData.requirements_extracted} requirements extracted
-                    </div>
-                    <div className="text-xs text-emerald-600 mt-0.5">
-                      from {extractedData.file_name}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Show extracted requirements */}
-                <div className="border rounded-lg overflow-hidden">
-                  <div className="bg-slate-50 px-4 py-2.5 border-b">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                      Extracted Requirements
-                    </span>
-                  </div>
-                  <div className="divide-y max-h-[300px] overflow-y-auto scrollbar-thin">
-                    {(extractedData.requirements || []).map((req: Requirement, i: number) => (
-                      <div key={i} className="px-4 py-2.5 flex items-center justify-between hover:bg-slate-50 transition-colors">
-                        <div>
-                          <div className="text-sm font-medium text-slate-700">{req.parameter}</div>
-                          <div className="text-xs text-slate-400 font-mono">{req.code}</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm font-semibold text-slate-900">
-                            {req.required_value} {req.unit && <span className="text-slate-400 font-normal">{req.unit}</span>}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex gap-3 pt-2">
+              <div className="space-y-3 pt-2">
+                <SplitDocumentViewer
+                  localFile={file}
+                  fileName={extractedData.file_name}
+                  parameters={extractedData.requirements || []}
+                  mode="rfq"
+                  summary={{
+                    customer_name: extractedData.customer_name,
+                    project_name: extractedData.project_name,
+                    total: extractedData.requirements_extracted,
+                  }}
+                />
+                <div className="flex gap-3 pt-1">
                   <Button variant="outline" className="flex-1" onClick={handleDone}>
                     Close
                   </Button>
                   <Button className="flex-1" onClick={() => { handleDone(); router.push(`/rfq/${extractedData.rfq_id}`) }}>
-                    View Comparison
+                    View Details
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>

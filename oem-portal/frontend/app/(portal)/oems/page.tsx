@@ -11,6 +11,7 @@ import {
   getDashboardCharts,
 } from "@/lib/api";
 import { DriveFetcherModal } from "@/components/shared/drive-fetcher-modal";
+import { SplitDocumentViewer } from "@/components/shared/split-document-viewer";
 import { cn, scoreColor } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -487,7 +488,7 @@ export default function OEMsPage() {
                 Upload Datasheet
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-lg">
+            <DialogContent className={cn("max-h-[90vh] overflow-y-auto", uploadResult ? "sm:max-w-5xl" : "sm:max-w-lg")}>
               <DialogHeader>
                 <DialogTitle>Upload Datasheet</DialogTitle>
                 <DialogDescription>
@@ -660,65 +661,32 @@ export default function OEMsPage() {
                   </div>
                 </div>
               ) : (
-                /* Upload Result */
-                <div className="space-y-4 pt-2">
-                  <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                        <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-emerald-800">
-                          Extraction Complete
-                        </p>
-                        <p className="text-xs text-emerald-600">
-                          {uploadResult.parameters_extracted} parameters extracted
-                        </p>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 text-xs">
-                      <div>
-                        <span className="text-slate-500">OEM:</span>{" "}
-                        <span className="font-medium text-slate-700">{uploadResult.oem_name}</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500">Model:</span>{" "}
-                        <span className="font-medium text-slate-700">{uploadResult.model_name}</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500">Category:</span>{" "}
-                        <span className="font-medium text-slate-700">{uploadResult.category}</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500">Compliance:</span>{" "}
-                        <span className={cn("font-bold", scoreColor(uploadResult.compliance_score))}>
-                          {uploadResult.compliance_score}%
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
+                /* Upload Result — Split View */
+                <div className="space-y-3 pt-2">
+                  <SplitDocumentViewer
+                    localFile={uploadFile}
+                    gdriveFileId={uploadResult.gdrive_file_id}
+                    gdriveUrl={uploadResult.gdrive_url}
+                    fileName={uploadResult.file_name}
+                    parameters={uploadResult.parameters || []}
+                    mode="datasheet"
+                    summary={{
+                      oem_name: uploadResult.oem_name,
+                      model_name: uploadResult.model_name,
+                      category: uploadResult.category,
+                      compliance_score: uploadResult.compliance_score,
+                      pass: uploadResult.pass,
+                      fail: uploadResult.fail,
+                      total: uploadResult.parameters_extracted,
+                    }}
+                  />
                   <div className="flex justify-end gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setUploadOpen(false);
-                        resetUploadDialog();
-                      }}
-                    >
+                    <Button variant="outline" onClick={() => { setUploadOpen(false); resetUploadDialog(); }}>
                       Close
                     </Button>
                     {uploadResult.component_id && (
-                      <Button
-                        onClick={() => {
-                          setUploadOpen(false);
-                          resetUploadDialog();
-                          // Expand the newly uploaded model
-                          toggleModelExpand(uploadResult.component_id);
-                        }}
-                      >
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Details
+                      <Button onClick={() => { setUploadOpen(false); resetUploadDialog(); toggleModelExpand(uploadResult.component_id); }}>
+                        <Eye className="h-4 w-4 mr-2" /> View Details
                       </Button>
                     )}
                   </div>
