@@ -462,7 +462,7 @@ export default function OEMsPage() {
             open={driveModalOpen}
             onClose={() => setDriveModalOpen(false)}
             mode="datasheet"
-            defaultOemName={typeof selectedOEM === "string" ? selectedOEM : selectedOEM?.name || ""}
+            defaultOemName={selectedOEM || ""}
             defaultCategory={selectedCategory !== "All" ? selectedCategory : "Cell"}
             onExtracted={async () => {
               setDriveModalOpen(false);
@@ -1078,6 +1078,40 @@ export default function OEMsPage() {
                                 </Button>
                               </div>
                             </div>
+
+                            {/* Embedded Datasheet Viewer */}
+                            {(comp.gdrive_file_id || comp.gdrive_url) && (
+                              <div className="border-t bg-slate-50/50">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const el = document.getElementById(`pdf-viewer-${comp.id}`);
+                                    if (el) el.classList.toggle("hidden");
+                                  }}
+                                  className="w-full flex items-center justify-between px-4 py-2.5 text-xs font-semibold text-slate-500 hover:text-brand transition-colors"
+                                >
+                                  <span className="flex items-center gap-1.5">
+                                    <FileText className="h-3.5 w-3.5" />
+                                    View Datasheet: {comp.datasheet}
+                                  </span>
+                                  <ChevronDown className="h-3.5 w-3.5" />
+                                </button>
+                                <div id={`pdf-viewer-${comp.id}`} className="hidden px-4 pb-4">
+                                  <div className="rounded-lg border overflow-hidden bg-white" style={{ height: "500px" }}>
+                                    <iframe
+                                      src={comp.gdrive_file_id
+                                        ? `https://drive.google.com/file/d/${comp.gdrive_file_id}/preview`
+                                        : comp.gdrive_url?.replace("/view", "/preview")}
+                                      width="100%"
+                                      height="100%"
+                                      style={{ border: "none" }}
+                                      allow="autoplay"
+                                      title={`Datasheet: ${comp.datasheet}`}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
 
                             {/* Charts Row */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-50/50">
