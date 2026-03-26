@@ -3,1278 +3,992 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UnityESS OEM Portal — Architecture Explorer</title>
+<title>UnityESS Technical Compliance Portal — Architecture Explorer</title>
 <style>
-  :root {
-    --brand: #F26B4E;
-    --brand-light: #FFF0EC;
-    --navy: #0F172A;
-    --navy-light: #1E293B;
-    --slate-50: #F8FAFC;
-    --slate-100: #F1F5F9;
-    --slate-200: #E2E8F0;
-    --slate-300: #CBD5E1;
-    --slate-400: #94A3B8;
-    --slate-500: #64748B;
-    --slate-600: #475569;
-    --slate-700: #334155;
-    --slate-800: #1E293B;
-    --emerald: #10B981;
-    --emerald-light: #ECFDF5;
-    --blue: #3B82F6;
-    --blue-light: #EFF6FF;
-    --purple: #8B5CF6;
-    --purple-light: #F5F3FF;
-    --amber: #F59E0B;
-    --amber-light: #FFFBEB;
-    --red: #EF4444;
-    --red-light: #FEF2F2;
-    --cyan: #06B6D4;
-    --cyan-light: #ECFEFF;
-    --radius: 12px;
-    --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
-    --shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
-    --shadow-md: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1);
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --brand:#F26B4E;--brand-dark:#D9533A;--brand-light:#FFF0EC;--brand-glow:rgba(242,107,78,.15);
+  --navy:#0F172A;--navy-light:#1E293B;--navy-mid:#334155;
+  --slate-50:#F8FAFC;--slate-100:#F1F5F9;--slate-200:#E2E8F0;--slate-300:#CBD5E1;
+  --slate-400:#94A3B8;--slate-500:#64748B;--slate-600:#475569;--slate-700:#334155;
+  --emerald:#10B981;--emerald-light:#ECFDF5;--emerald-dark:#059669;
+  --blue:#3B82F6;--blue-light:#EFF6FF;--blue-dark:#2563EB;
+  --purple:#8B5CF6;--purple-light:#F5F3FF;
+  --amber:#F59E0B;--amber-light:#FFFBEB;
+  --red:#EF4444;--red-light:#FEF2F2;
+  --cyan:#06B6D4;--cyan-light:#ECFEFF;
+  --rose:#F43F5E;--rose-light:#FFF1F2;
+  --radius:12px;--radius-lg:16px;--radius-xl:24px;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.05);
+  --shadow:0 4px 12px rgba(0,0,0,.08);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.12);
+  --shadow-glow:0 0 40px var(--brand-glow);
+  --transition:all .3s cubic-bezier(.4,0,.2,1);
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;background:var(--slate-50);color:var(--navy);line-height:1.6;overflow-x:hidden}
+a{color:var(--brand);text-decoration:none}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+/* ── Utility ── */
+.container{max-width:1280px;margin:0 auto;padding:0 24px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background: var(--slate-50);
-    color: var(--slate-700);
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-  }
+/* ── Hero ── */
+.hero{background:linear-gradient(135deg,var(--navy) 0%,#1a1a3e 50%,var(--navy-light) 100%);color:#fff;padding:80px 0 60px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;right:-20%;width:600px;height:600px;background:radial-gradient(circle,rgba(242,107,78,.12) 0%,transparent 70%);border-radius:50%}
+.hero::after{content:'';position:absolute;bottom:-40%;left:-10%;width:500px;height:500px;background:radial-gradient(circle,rgba(59,130,246,.08) 0%,transparent 70%);border-radius:50%}
+.hero-inner{position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:6px 14px;font-size:13px;color:rgba(255,255,255,.8);margin-bottom:20px;backdrop-filter:blur(8px)}
+.hero-badge span{width:8px;height:8px;border-radius:50%;background:var(--emerald);display:inline-block;animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:800;letter-spacing:-.03em;margin-bottom:12px;background:linear-gradient(135deg,#fff 0%,rgba(255,255,255,.85) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:1.15rem;color:rgba(255,255,255,.65);max-width:680px;line-height:1.7}
+.hero-stats{display:flex;gap:32px;margin-top:36px;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat-num{font-size:2rem;font-weight:800;color:var(--brand)}
+.hero-stat-label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.5);margin-top:2px}
+.live-links{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap}
+.live-link{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:600;transition:var(--transition)}
+.live-link.primary{background:var(--brand);color:#fff}
+.live-link.primary:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 8px 24px rgba(242,107,78,.3)}
+.live-link.secondary{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2)}
+.live-link.secondary:hover{background:rgba(255,255,255,.15)}
 
-  /* ── NAV ── */
-  .top-nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    background: rgba(15,23,42,.95);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255,255,255,.08);
-    padding: 0 32px;
-    height: 56px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .top-nav .logo {
-    font-weight: 700; font-size: 15px; color: #fff;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .top-nav .logo span { color: var(--brand); }
-  .nav-links { display: flex; gap: 4px; }
-  .nav-links a {
-    color: var(--slate-400); text-decoration: none; font-size: 13px; font-weight: 500;
-    padding: 6px 14px; border-radius: 6px; transition: all .2s;
-  }
-  .nav-links a:hover, .nav-links a.active { color: #fff; background: rgba(255,255,255,.08); }
+/* ── Section Nav ── */
+.section-nav{position:sticky;top:0;z-index:100;background:rgba(248,250,252,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--slate-200);padding:0 24px}
+.section-nav-inner{max-width:1280px;margin:0 auto;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.section-nav-inner::-webkit-scrollbar{display:none}
+.nav-btn{padding:14px 18px;font-size:13px;font-weight:600;color:var(--slate-500);border:none;background:none;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:var(--transition)}
+.nav-btn:hover{color:var(--navy)}
+.nav-btn.active{color:var(--brand);border-bottom-color:var(--brand)}
 
-  /* ── HERO ── */
-  .hero {
-    background: linear-gradient(135deg, var(--navy) 0%, #1a2744 50%, #1E293B 100%);
-    padding: 120px 32px 80px;
-    text-align: center;
-    position: relative; overflow: hidden;
-  }
-  .hero::before {
-    content: ''; position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 30% 50%, rgba(242,107,78,.08) 0%, transparent 60%),
-                radial-gradient(ellipse at 70% 30%, rgba(59,130,246,.06) 0%, transparent 50%);
-  }
-  .hero-content { position: relative; max-width: 800px; margin: 0 auto; }
-  .hero-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(242,107,78,.15); color: var(--brand);
-    font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em;
-    padding: 5px 14px; border-radius: 100px; margin-bottom: 20px;
-  }
-  .hero h1 {
-    font-size: 42px; font-weight: 800; color: #fff;
-    line-height: 1.15; margin-bottom: 16px;
-    background: linear-gradient(135deg, #fff 60%, var(--slate-400));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
-  .hero p { color: var(--slate-400); font-size: 17px; max-width: 600px; margin: 0 auto 32px; }
-  .hero-stats {
-    display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;
-  }
-  .hero-stat { text-align: center; }
-  .hero-stat .num {
-    font-size: 32px; font-weight: 800; color: #fff;
-    font-variant-numeric: tabular-nums;
-  }
-  .hero-stat .label { font-size: 12px; color: var(--slate-400); text-transform: uppercase; letter-spacing: .06em; }
+/* ── Section Layout ── */
+section{padding:60px 0;scroll-margin-top:56px}
+section:nth-child(even){background:#fff}
+.section-header{margin-bottom:40px}
+.section-header h2{font-size:1.75rem;font-weight:800;letter-spacing:-.02em;color:var(--navy);margin-bottom:8px}
+.section-header p{color:var(--slate-500);font-size:1rem;max-width:600px}
+.section-tag{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 10px;border-radius:6px;margin-bottom:12px}
 
-  /* ── SECTIONS ── */
-  .section {
-    max-width: 1200px; margin: 0 auto; padding: 80px 32px;
-  }
-  .section-header {
-    text-align: center; margin-bottom: 48px;
-  }
-  .section-label {
-    font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
-    color: var(--brand); margin-bottom: 8px;
-  }
-  .section-title {
-    font-size: 28px; font-weight: 800; color: var(--navy); margin-bottom: 12px;
-  }
-  .section-desc {
-    font-size: 15px; color: var(--slate-500); max-width: 600px; margin: 0 auto;
-  }
+/* ── Cards Grid ── */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
 
-  /* ── FEATURE CARDS ── */
-  .features-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-  }
-  .feature-card {
-    background: #fff; border: 1px solid var(--slate-200); border-radius: var(--radius);
-    padding: 24px; transition: all .25s; cursor: default;
-    position: relative; overflow: hidden;
-  }
-  .feature-card:hover {
-    border-color: var(--brand); box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-  }
-  .feature-card .icon-wrap {
-    width: 40px; height: 40px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; margin-bottom: 14px;
-  }
-  .feature-card h3 { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
-  .feature-card p { font-size: 13px; color: var(--slate-500); line-height: 1.5; }
-  .feature-card .tag {
-    display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .05em; padding: 2px 8px; border-radius: 4px; margin-top: 12px;
-  }
+/* ── Feature Cards ── */
+.feature-card{background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius-lg);padding:28px;transition:var(--transition);cursor:pointer;position:relative;overflow:hidden}
+.feature-card:hover{border-color:var(--slate-300);box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.feature-card-icon{width:48px;height:48px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;flex-shrink:0}
+.feature-card h3{font-size:1.05rem;font-weight:700;color:var(--navy);margin-bottom:6px}
+.feature-card p{font-size:.875rem;color:var(--slate-500);line-height:1.65}
+.feature-card .card-meta{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.card-tag{font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;background:var(--slate-100);color:var(--slate-600)}
+.card-tag.brand{background:var(--brand-light);color:var(--brand-dark)}
+.card-tag.emerald{background:var(--emerald-light);color:var(--emerald-dark)}
+.card-tag.blue{background:var(--blue-light);color:var(--blue-dark)}
+.card-tag.purple{background:var(--purple-light);color:var(--purple)}
+.card-tag.amber{background:var(--amber-light);color:#92400E}
 
-  /* ── TECH STACK ── */
-  .stack-row {
-    display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
-  }
-  .stack-card {
-    background: #fff; border: 1px solid var(--slate-200); border-radius: var(--radius);
-    padding: 20px 24px; text-align: center; min-width: 140px;
-    transition: all .25s;
-  }
-  .stack-card:hover { border-color: var(--blue); box-shadow: var(--shadow-md); transform: translateY(-2px); }
-  .stack-card .stack-icon { font-size: 28px; margin-bottom: 8px; }
-  .stack-card .stack-name { font-size: 14px; font-weight: 700; color: var(--navy); }
-  .stack-card .stack-role { font-size: 11px; color: var(--slate-500); margin-top: 2px; }
-  .stack-divider {
-    text-align: center; padding: 16px 0; font-size: 12px; font-weight: 700;
-    color: var(--slate-400); text-transform: uppercase; letter-spacing: .1em;
-  }
+/* ── Expandable Detail ── */
+.feature-card .detail{max-height:0;overflow:hidden;transition:max-height .4s ease;margin-top:0}
+.feature-card.expanded .detail{max-height:600px;margin-top:16px}
+.detail-inner{padding-top:16px;border-top:1px solid var(--slate-200);font-size:.85rem;color:var(--slate-600);line-height:1.7}
+.detail-inner ul{padding-left:18px;margin-top:6px}
+.detail-inner li{margin-bottom:4px}
+.expand-hint{font-size:11px;color:var(--slate-400);margin-top:12px;transition:var(--transition)}
+.feature-card.expanded .expand-hint{display:none}
 
-  /* ── DIAGRAM BOXES ── */
-  .diagram-container {
-    background: #fff; border: 1px solid var(--slate-200); border-radius: var(--radius);
-    padding: 40px; overflow-x: auto;
-  }
-  .arch-diagram {
-    display: flex; flex-direction: column; gap: 24px; align-items: center;
-    min-width: 700px;
-  }
-  .arch-layer {
-    display: flex; gap: 12px; align-items: center; width: 100%;
-    justify-content: center; flex-wrap: wrap;
-  }
-  .arch-layer-label {
-    writing-mode: vertical-lr; transform: rotate(180deg);
-    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
-    color: var(--slate-400); min-width: 24px; text-align: center;
-  }
-  .arch-box {
-    border-radius: 10px; padding: 14px 20px; text-align: center;
-    font-size: 13px; font-weight: 600; min-width: 120px;
-    border: 2px solid; transition: all .2s;
-  }
-  .arch-box:hover { transform: scale(1.04); }
-  .arch-box small { display: block; font-size: 10px; font-weight: 400; margin-top: 2px; opacity: .7; }
-  .arch-arrow {
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; color: var(--slate-300);
-  }
-  .arch-arrow.down::after { content: '↓'; }
-  .arch-arrow.right::after { content: '→'; }
-  .arch-arrow.bidi::after { content: '⇅'; }
+/* ── System Diagram ── */
+.diagram-wrap{background:var(--navy);border-radius:var(--radius-xl);padding:40px;overflow-x:auto;position:relative}
+.diagram{display:flex;flex-direction:column;gap:24px;min-width:700px;align-items:center}
+.diagram-layer{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;width:100%}
+.diagram-box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius);padding:16px 20px;text-align:center;min-width:140px;flex:1;max-width:220px;transition:var(--transition);cursor:pointer;position:relative}
+.diagram-box:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);transform:scale(1.02)}
+.diagram-box.active{border-color:var(--brand);box-shadow:0 0 20px rgba(242,107,78,.2)}
+.diagram-box-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px}
+.diagram-box-sub{font-size:11px;color:rgba(255,255,255,.5)}
+.diagram-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.35);margin-bottom:8px;text-align:center}
+.diagram-arrow{display:flex;justify-content:center;color:rgba(255,255,255,.3);font-size:20px}
+.diagram-arrow span{display:flex;flex-direction:column;align-items:center;gap:0;font-size:12px;color:rgba(255,255,255,.4)}
 
-  /* Flow diagram */
-  .flow-container { padding: 32px; }
-  .flow-row {
-    display: flex; align-items: center; justify-content: center;
-    gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
-  }
-  .flow-step {
-    padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 600;
-    text-align: center; border: 2px solid; min-width: 100px;
-    transition: all .2s;
-  }
-  .flow-step:hover { transform: scale(1.05); }
-  .flow-step small { display: block; font-size: 10px; font-weight: 400; margin-top: 2px; }
-  .flow-arrow { font-size: 18px; color: var(--slate-300); flex-shrink: 0; }
-  .flow-label {
-    text-align: center; font-size: 13px; font-weight: 700; color: var(--slate-500);
-    margin-bottom: 12px;
-  }
+/* ── Flow Diagram ── */
+.flow-container{display:flex;flex-direction:column;gap:0;padding:20px 0}
+.flow-step{display:flex;align-items:flex-start;gap:16px;position:relative}
+.flow-num{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;color:#fff;position:relative;z-index:2}
+.flow-step::before{content:'';position:absolute;left:19px;top:40px;bottom:-40px;width:2px;background:var(--slate-200);z-index:1}
+.flow-step:last-child::before{display:none}
+.flow-content{flex:1;padding-bottom:32px}
+.flow-content h4{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:4px}
+.flow-content p{font-size:.85rem;color:var(--slate-500);line-height:1.6}
 
-  /* ── DATA FLOW ── */
-  .data-flow-section { background: var(--navy); padding: 80px 32px; }
-  .data-flow-section .section-label { color: var(--brand); }
-  .data-flow-section .section-title { color: #fff; }
-  .data-flow-section .section-desc { color: var(--slate-400); }
-  .data-flow-grid {
-    display: grid; grid-template-columns: 1fr 60px 1fr; gap: 20px;
-    align-items: start; max-width: 1000px; margin: 0 auto;
-  }
-  .data-flow-col { display: flex; flex-direction: column; gap: 12px; }
-  .data-flow-col-title {
-    font-size: 13px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .08em; margin-bottom: 4px; padding: 8px 16px;
-    border-radius: 8px; text-align: center;
-  }
-  .data-flow-item {
-    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
-    border-radius: 10px; padding: 14px 18px;
-    transition: all .2s;
-  }
-  .data-flow-item:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.15); }
-  .data-flow-item h4 { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px; }
-  .data-flow-item p { font-size: 11px; color: var(--slate-400); line-height: 1.4; }
-  .data-flow-arrows {
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center; gap: 8px; padding-top: 48px;
-  }
-  .data-flow-arrows .arrow-line {
-    width: 2px; height: 30px; background: rgba(242,107,78,.3);
-  }
-  .data-flow-arrows .arrow-icon {
-    font-size: 22px; color: var(--brand); animation: pulse 2s infinite;
-  }
-  @keyframes pulse { 0%,100% { opacity: .6; } 50% { opacity: 1; } }
+/* ── Workflow Pipeline ── */
+.pipeline{display:flex;gap:0;overflow-x:auto;padding:20px 0}
+.pipeline-stage{flex:1;min-width:120px;text-align:center;position:relative;padding:0 8px}
+.pipeline-dot{width:36px;height:36px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;position:relative;z-index:2}
+.pipeline-stage::before{content:'';position:absolute;top:18px;left:0;right:0;height:2px;background:var(--slate-200);z-index:1}
+.pipeline-stage:first-child::before{left:50%}
+.pipeline-stage:last-child::before{right:50%}
+.pipeline-stage-name{font-size:11px;font-weight:600;color:var(--slate-600)}
+.pipeline-stage-sub{font-size:10px;color:var(--slate-400);margin-top:2px}
 
-  /* ── OPTIONS COMPARISON ── */
-  .options-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 20px;
-  }
-  .option-card {
-    background: #fff; border: 2px solid var(--slate-200); border-radius: var(--radius);
-    padding: 28px; position: relative; transition: all .25s;
-  }
-  .option-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); }
-  .option-card.recommended { border-color: var(--emerald); }
-  .option-card.recommended::before {
-    content: 'RECOMMENDED'; position: absolute; top: -1px; right: 20px;
-    background: var(--emerald); color: #fff; font-size: 10px; font-weight: 700;
-    padding: 4px 12px; border-radius: 0 0 6px 6px; letter-spacing: .05em;
-  }
-  .option-num {
-    font-size: 11px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .08em; margin-bottom: 4px;
-  }
-  .option-card h3 { font-size: 17px; font-weight: 800; color: var(--navy); margin-bottom: 8px; }
-  .option-card .option-desc { font-size: 13px; color: var(--slate-500); margin-bottom: 16px; line-height: 1.5; }
-  .option-pros, .option-cons { margin-bottom: 12px; }
-  .option-pros h4, .option-cons h4 {
-    font-size: 11px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .05em; margin-bottom: 6px;
-  }
-  .option-pros h4 { color: var(--emerald); }
-  .option-cons h4 { color: var(--red); }
-  .option-list {
-    list-style: none; font-size: 12px; color: var(--slate-600);
-  }
-  .option-list li { padding: 3px 0; padding-left: 16px; position: relative; }
-  .option-list li::before {
-    position: absolute; left: 0; font-size: 12px;
-  }
-  .option-pros .option-list li::before { content: '+'; color: var(--emerald); font-weight: 700; }
-  .option-cons .option-list li::before { content: '-'; color: var(--red); font-weight: 700; }
+/* ── Data Table ── */
+.data-table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border-radius:var(--radius);overflow:hidden;border:1px solid var(--slate-200);font-size:.85rem}
+.data-table th{background:var(--slate-50);padding:12px 16px;text-align:left;font-weight:700;color:var(--slate-700);font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--slate-200)}
+.data-table td{padding:10px 16px;border-bottom:1px solid var(--slate-100);color:var(--slate-600)}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--slate-50)}
 
-  /* ── TRADEOFF TABLE ── */
-  .table-wrap {
-    background: #fff; border: 1px solid var(--slate-200); border-radius: var(--radius);
-    overflow: hidden;
-  }
-  .table-wrap table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .table-wrap th {
-    background: var(--slate-50); font-size: 11px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .06em; color: var(--slate-500);
-    padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--slate-200);
-  }
-  .table-wrap td {
-    padding: 12px 16px; border-bottom: 1px solid var(--slate-100);
-    color: var(--slate-600); vertical-align: top;
-  }
-  .table-wrap tr:last-child td { border-bottom: none; }
-  .table-wrap tr:hover td { background: var(--slate-50); }
-  .cell-best { color: var(--emerald); font-weight: 600; }
-  .cell-ok { color: var(--amber); font-weight: 600; }
-  .cell-weak { color: var(--red); font-weight: 600; }
+/* ── Stat Pills ── */
+.stat-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px}
+.stat-pill{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius);padding:14px 20px;flex:1;min-width:180px}
+.stat-pill-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.stat-pill-text{line-height:1.3}
+.stat-pill-num{font-size:1.3rem;font-weight:800;color:var(--navy)}
+.stat-pill-label{font-size:11px;color:var(--slate-400);text-transform:uppercase;letter-spacing:.06em}
 
-  /* ── TIMELINE ── */
-  .timeline {
-    position: relative; max-width: 800px; margin: 0 auto;
-    padding-left: 32px;
-  }
-  .timeline::before {
-    content: ''; position: absolute; left: 7px; top: 0; bottom: 0;
-    width: 2px; background: var(--slate-200);
-  }
-  .timeline-item {
-    position: relative; margin-bottom: 32px; padding-left: 28px;
-  }
-  .timeline-item::before {
-    content: ''; position: absolute; left: -26px; top: 6px;
-    width: 12px; height: 12px; border-radius: 50%;
-    border: 2px solid; background: #fff;
-  }
-  .timeline-item:nth-child(1)::before { border-color: var(--emerald); background: var(--emerald-light); }
-  .timeline-item:nth-child(2)::before { border-color: var(--blue); background: var(--blue-light); }
-  .timeline-item:nth-child(3)::before { border-color: var(--purple); background: var(--purple-light); }
-  .timeline-item:nth-child(4)::before { border-color: var(--brand); background: var(--brand-light); }
-  .timeline-item h4 {
-    font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 4px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .timeline-item h4 .week-badge {
-    font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px;
-    text-transform: uppercase; letter-spacing: .05em;
-  }
-  .timeline-item p { font-size: 13px; color: var(--slate-500); }
-  .timeline-item ul {
-    margin-top: 6px; padding-left: 16px; font-size: 12px; color: var(--slate-600);
-  }
-  .timeline-item li { margin-bottom: 3px; }
+/* ── Integration Cards ── */
+.integration-card{display:flex;align-items:center;gap:16px;background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius);padding:20px;transition:var(--transition)}
+.integration-card:hover{box-shadow:var(--shadow);border-color:var(--slate-300)}
+.integration-icon{width:48px;height:48px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.integration-info h4{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:2px}
+.integration-info p{font-size:.8rem;color:var(--slate-500)}
 
-  /* ── PIPELINE FLOW ── */
-  .pipeline-visual {
-    display: flex; align-items: center; justify-content: center;
-    gap: 4px; padding: 32px 16px; flex-wrap: wrap;
-  }
-  .pipeline-stage {
-    padding: 10px 16px; border-radius: 8px; font-size: 12px; font-weight: 600;
-    text-align: center; border: 2px solid; min-width: 110px;
-    transition: all .2s;
-  }
-  .pipeline-stage:hover { transform: scale(1.06); }
-  .pipeline-chevron { font-size: 16px; color: var(--slate-300); }
+/* ── Deploy Cards ── */
+.deploy-card{background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius-lg);padding:24px;text-align:center;transition:var(--transition)}
+.deploy-card:hover{box-shadow:var(--shadow)}
+.deploy-icon{font-size:32px;margin-bottom:12px}
+.deploy-card h4{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:4px}
+.deploy-card .deploy-url{font-size:.75rem;color:var(--brand);word-break:break-all}
+.deploy-card .deploy-meta{font-size:.8rem;color:var(--slate-500);margin-top:8px}
 
-  /* ── PAIN POINTS ── */
-  .pain-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 16px;
-  }
-  .pain-card {
-    background: #fff; border: 1px solid var(--slate-200); border-radius: var(--radius);
-    padding: 20px; border-left: 4px solid;
-    transition: all .2s;
-  }
-  .pain-card:hover { box-shadow: var(--shadow-md); }
-  .pain-card.critical { border-left-color: var(--red); }
-  .pain-card.warning { border-left-color: var(--amber); }
-  .pain-card.info { border-left-color: var(--blue); }
-  .pain-card h4 { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
-  .pain-card p { font-size: 12px; color: var(--slate-500); line-height: 1.5; }
-  .pain-severity {
-    display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px;
-    border-radius: 4px; text-transform: uppercase; letter-spacing: .05em; margin-top: 8px;
-  }
+/* ── Tech Stack ── */
+.stack-group{margin-bottom:24px}
+.stack-group-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--slate-400);margin-bottom:10px}
+.stack-pills{display:flex;flex-wrap:wrap;gap:8px}
+.stack-pill{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;border:1px solid var(--slate-200);background:#fff;color:var(--slate-700);transition:var(--transition)}
+.stack-pill:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-light)}
+.stack-pill span{font-size:16px}
 
-  /* ── FOOTER ── */
-  .footer {
-    background: var(--navy); padding: 40px 32px; text-align: center;
-    color: var(--slate-400); font-size: 13px;
-  }
-  .footer strong { color: #fff; }
+/* ── Seed Data ── */
+.seed-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.seed-item{background:var(--slate-50);border-radius:var(--radius);padding:16px;border:1px solid var(--slate-100)}
+.seed-item-title{font-size:.8rem;font-weight:700;color:var(--navy);margin-bottom:6px}
+.seed-item-list{list-style:none;font-size:.78rem;color:var(--slate-500)}
+.seed-item-list li{padding:2px 0}
+.seed-item-list li::before{content:'•';color:var(--brand);margin-right:6px}
 
-  /* ── RESPONSIVE ── */
-  @media (max-width: 768px) {
-    .hero h1 { font-size: 28px; }
-    .hero-stats { gap: 24px; }
-    .data-flow-grid { grid-template-columns: 1fr; }
-    .data-flow-arrows { flex-direction: row; padding-top: 0; }
-    .data-flow-arrows .arrow-line { width: 30px; height: 2px; }
-    .nav-links { display: none; }
-    .section { padding: 48px 20px; }
-    .arch-diagram { min-width: 0; }
-  }
+/* ── Footer ── */
+footer{background:var(--navy);color:rgba(255,255,255,.5);padding:40px 0;text-align:center;font-size:.85rem}
+footer strong{color:#fff}
 
-  /* ── SMOOTH SCROLL ── */
-  html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+/* ── Tooltip ── */
+.tooltip-container{position:relative}
+.tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:8px 12px;border-radius:8px;font-size:12px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
+.tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--navy)}
+.tooltip-container:hover .tooltip{opacity:1}
 
-  /* ── TABS ── */
-  .tab-bar {
-    display: flex; gap: 4px; margin-bottom: 24px; flex-wrap: wrap;
-    background: var(--slate-100); padding: 4px; border-radius: 10px;
-    width: fit-content; margin-left: auto; margin-right: auto;
-  }
-  .tab-btn {
-    padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;
-    color: var(--slate-500); background: none; border: none; cursor: pointer;
-    transition: all .2s;
-  }
-  .tab-btn:hover { color: var(--navy); }
-  .tab-btn.active { background: #fff; color: var(--navy); box-shadow: var(--shadow-sm); }
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; animation: fadeIn .3s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+/* ── Animations ── */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.animate-in{animation:fadeInUp .5s ease both}
+.delay-1{animation-delay:.1s}.delay-2{animation-delay:.2s}.delay-3{animation-delay:.3s}.delay-4{animation-delay:.4s}
 
-  /* ── AI BADGE FLOW ── */
-  .ai-chain {
-    display: flex; align-items: center; justify-content: center;
-    gap: 8px; flex-wrap: wrap; margin: 24px 0;
-  }
-  .ai-tier {
-    padding: 12px 20px; border-radius: 10px; text-align: center;
-    font-size: 13px; font-weight: 600; border: 2px solid;
-  }
-  .ai-tier small { display: block; font-size: 10px; font-weight: 400; margin-top: 2px; }
-  .ai-fallback { font-size: 12px; color: var(--slate-400); font-style: italic; }
+/* ── Responsive ── */
+@media(max-width:768px){
+  .hero{padding:48px 0 36px}
+  .hero h1{font-size:1.8rem}
+  .hero-stats{gap:20px}
+  section{padding:40px 0}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  .diagram-wrap{padding:20px}
+  .pipeline{flex-wrap:wrap;gap:8px}
+  .pipeline-stage::before{display:none}
+  .stat-row{flex-direction:column}
+}
+
+/* ── Print ── */
+@media print{
+  .section-nav{display:none}
+  .hero{padding:20px 0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  section{padding:20px 0;break-inside:avoid}
+  .feature-card:hover{transform:none;box-shadow:none}
+}
 </style>
 </head>
 <body>
 
-<!-- ══════════ TOP NAV ══════════ -->
-<nav class="top-nav">
-  <div class="logo">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F26B4E" stroke-width="2.5" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-    <span>Unity</span>ESS &nbsp;Architecture Explorer
+<!-- ═══════════ HERO ═══════════ -->
+<div class="hero">
+  <div class="container hero-inner">
+    <div class="hero-badge"><span></span> Live on Vercel + Render</div>
+    <h1>UnityESS Technical Compliance Portal</h1>
+    <p>A complete platform for evaluating battery storage (BESS) manufacturers, extracting technical specs from datasheets using AI, managing RFQ requirements, comparing models, and tracking compliance approvals.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-num">6</div><div class="hero-stat-label">Portal Pages</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">35+</div><div class="hero-stat-label">API Endpoints</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">12</div><div class="hero-stat-label">Backend Modules</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">60+</div><div class="hero-stat-label">AI-Extracted Params</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">3</div><div class="hero-stat-label">AI Engines</div></div>
+    </div>
+    <div class="live-links">
+      <a href="https://oem-compliance-portal.vercel.app" target="_blank" class="live-link primary">Open Portal &rarr;</a>
+      <a href="https://oem-compliance-portal.onrender.com/docs" target="_blank" class="live-link secondary">API Docs (Swagger)</a>
+    </div>
   </div>
-  <div class="nav-links">
-    <a href="#overview">Overview</a>
-    <a href="#features">Features</a>
-    <a href="#stack">Tech Stack</a>
-    <a href="#architecture">Architecture</a>
-    <a href="#flows">Data Flows</a>
-    <a href="#health">Health</a>
-    <a href="#options">Future Options</a>
-    <a href="#roadmap">Roadmap</a>
+</div>
+
+<!-- ═══════════ NAV ═══════════ -->
+<nav class="section-nav">
+  <div class="section-nav-inner">
+    <button class="nav-btn active" data-target="overview">Overview</button>
+    <button class="nav-btn" data-target="features">Features</button>
+    <button class="nav-btn" data-target="system">System Diagram</button>
+    <button class="nav-btn" data-target="data-flow">Data Flow</button>
+    <button class="nav-btn" data-target="ai">AI Engine</button>
+    <button class="nav-btn" data-target="workflow">Workflows</button>
+    <button class="nav-btn" data-target="api">API Endpoints</button>
+    <button class="nav-btn" data-target="integrations">Integrations</button>
+    <button class="nav-btn" data-target="data">Seed Data</button>
+    <button class="nav-btn" data-target="tech">Tech Stack</button>
+    <button class="nav-btn" data-target="deploy">Deployment</button>
   </div>
 </nav>
 
-<!-- ══════════ HERO ══════════ -->
-<section class="hero" id="overview">
-  <div class="hero-content">
-    <div class="hero-badge">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
-      POC Complete &middot; Architecture Exploration
-    </div>
-    <h1>UnityESS OEM Portal</h1>
-    <p>
-      Battery Energy Storage System (BESS) technical compliance portal for OEM evaluation,
-      RFQ processing, AI-powered document extraction, and deal pipeline management.
-    </p>
-    <div class="hero-stats">
-      <div class="hero-stat">
-        <div class="num">11</div>
-        <div class="label">Features Built</div>
-      </div>
-      <div class="hero-stat">
-        <div class="num">40+</div>
-        <div class="label">API Endpoints</div>
-      </div>
-      <div class="hero-stat">
-        <div class="num">5</div>
-        <div class="label">OEM Partners</div>
-      </div>
-      <div class="hero-stat">
-        <div class="num">60+</div>
-        <div class="label">BESS Parameters</div>
-      </div>
-      <div class="hero-stat">
-        <div class="num">3</div>
-        <div class="label">AI Models</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════ FEATURES ══════════ -->
-<section class="section" id="features">
-  <div class="section-header">
-    <div class="section-label">What Was Built</div>
-    <div class="section-title">Portal Features</div>
-    <div class="section-desc">Every major capability of the OEM compliance portal</div>
-  </div>
-
-  <div class="features-grid">
-    <div class="feature-card">
-      <div class="icon-wrap" style="background:var(--blue-light);color:var(--blue);">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-      </div>
-      <h3>Dashboard</h3>
-      <p>KPI cards, bar/pie/radar charts, project overview table. Real-time metrics on OEM compliance status, deal pipeline, and system health.</p>
-      <span class="tag" style="background:var(--blue-light);color:var(--blue);">Analytics</span>
-    </div>
-
-    <div class="feature-card">
-      <div class="icon-wrap" style="background:var(--emerald-light);color:var(--emerald);">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      </div>
-      <h3>Deal Pipeline</h3>
-      <p>Kanban board tracking deals from Enquiry through RFQ, Meeting, Bid Prep, Proposal, to Final Decision. 8 active BESS deals tracked.</p>
-      <span class="tag" style="background:var(--emerald-light);color:var(--emerald);">NEW</span>
-    </div>
-
-    <div class="feature-card">
-      <div class="icon-wrap" style="background:var(--purple-light);color:var(--purple);">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      </div>
-      <h3>RFQ Upload &amp; AI Extraction</h3>
-      <p>Upload RFQ documents (PDF). AI automatically extracts 60+ BESS technical requirements using Gemini, Claude, or keyword fallback.</p>
-      <span class="tag" style="background:var(--purple-light);color:var(--purple);">AI-Powered</span>
-    </div>
-
-    <div class="feature-card">
-      <div class="icon-wrap" style="background:var(--brand-light);color:var(--brand);">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
-      </div>
-      <h3>Technical Data</h3>
-      <p>Complete technical specifications for all OEM battery models. 28 parameters per model across 8 component types with compliance scoring.</p>
-      <span class="tag" style="background:var(--brand-light);color:var(--brand);">Core</span>
-    </div>
-
-    <div class="feature-card">
-      <div class="icon-wrap" style="background:var(--cyan-light);color:var(--cyan);">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>
-      </div>
-      <h3>OEM Library</h3>
-      <p>5 major OEMs tracked (CATL, Lishen, BYD, HiTHIUM, SVOLT) with detailed profiles, model catalogs, and compliance history.</p>
-      <span class="tag" style="background:var(--cyan-light);color:var(--cyan);">Directory</span>
-    </div>
-
-    <div class="feature-card">
-      <div class="icon-wrap" style="background:var(--amber-light);color:var(--amber);">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      </div>
-      <h3>Compliance Scoring</h3>
-      <p>Automated compliance scoring against RFQ requirements. Side-by-side comparison of how each OEM model meets specifications.</p>
-      <span class="tag" style="background:var(--amber-light);color:var(--amber);">Evaluation</span>
-    </div>
-
-    <div class="feature-card">
-      <div class="icon-wrap" style="background:var(--blue-light);color:var(--blue);">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      </div>
-      <h3>Tech Signal Sheets</h3>
-      <p>Generate technical signal reports per component. Downloadable compliance documentation for engineering review.</p>
-      <span class="tag" style="background:var(--blue-light);color:var(--blue);">Reports</span>
-    </div>
-
-    <div class="feature-card">
-      <div class="icon-wrap" style="background:var(--emerald-light);color:var(--emerald);">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
-      </div>
-      <h3>7-Stage Workflow</h3>
-      <p>Approval pipeline: Draft &rarr; Engineering Review &rarr; Tech Lead &rarr; Management &rarr; Customer Submission &rarr; Sign-off &rarr; Locked.</p>
-      <span class="tag" style="background:var(--emerald-light);color:var(--emerald);">Process</span>
-    </div>
-
-    <div class="feature-card">
-      <div class="icon-wrap" style="background:var(--purple-light);color:var(--purple);">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      </div>
-      <h3>Model Comparison</h3>
-      <p>Side-by-side comparison matrix of multiple OEM models. Evaluate technical parameters, certifications, and pricing across vendors.</p>
-      <span class="tag" style="background:var(--purple-light);color:var(--purple);">Analysis</span>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════ TECH STACK ══════════ -->
-<section class="section" id="stack" style="background:var(--slate-100);padding-top:80px;padding-bottom:80px;max-width:100%;">
-  <div style="max-width:1200px;margin:0 auto;">
+<!-- ═══════════ OVERVIEW ═══════════ -->
+<section id="overview">
+  <div class="container">
     <div class="section-header">
-      <div class="section-label">Technology</div>
-      <div class="section-title">Tech Stack</div>
-      <div class="section-desc">Modern full-stack architecture built for speed and flexibility</div>
+      <div class="section-tag" style="background:var(--brand-light);color:var(--brand)">Platform Overview</div>
+      <h2>What This Portal Does</h2>
+      <p>UnityESS TCP helps Ornate Solar's team evaluate battery OEMs, process customer requirements, compare models, and manage compliance approvals — all in one place.</p>
     </div>
-
-    <div class="stack-divider">Frontend</div>
-    <div class="stack-row" style="margin-bottom:24px;">
-      <div class="stack-card">
-        <div class="stack-icon">&#9883;</div>
-        <div class="stack-name">Next.js 14</div>
-        <div class="stack-role">App Router + React</div>
-      </div>
-      <div class="stack-card">
-        <div class="stack-icon">&#127912;</div>
-        <div class="stack-name">Tailwind CSS</div>
-        <div class="stack-role">Utility Styling</div>
-      </div>
-      <div class="stack-card">
-        <div class="stack-icon">&#9632;</div>
-        <div class="stack-name">shadcn/ui</div>
-        <div class="stack-role">Component Library</div>
-      </div>
-      <div class="stack-card">
-        <div class="stack-icon">&#128200;</div>
-        <div class="stack-name">Recharts</div>
-        <div class="stack-role">Data Visualization</div>
-      </div>
-      <div class="stack-card">
-        <div class="stack-icon">&#128218;</div>
-        <div class="stack-name">TypeScript</div>
-        <div class="stack-role">Type Safety</div>
-      </div>
+    <div class="stat-row">
+      <div class="stat-pill"><div class="stat-pill-icon" style="background:var(--brand-light)">🏭</div><div class="stat-pill-text"><div class="stat-pill-num">5</div><div class="stat-pill-label">OEM Manufacturers</div></div></div>
+      <div class="stat-pill"><div class="stat-pill-icon" style="background:var(--blue-light)">🔋</div><div class="stat-pill-text"><div class="stat-pill-num">8</div><div class="stat-pill-label">Battery Models</div></div></div>
+      <div class="stat-pill"><div class="stat-pill-icon" style="background:var(--emerald-light)">📋</div><div class="stat-pill-text"><div class="stat-pill-num">5</div><div class="stat-pill-label">Active Projects</div></div></div>
+      <div class="stat-pill"><div class="stat-pill-icon" style="background:var(--purple-light)">📄</div><div class="stat-pill-text"><div class="stat-pill-num">7</div><div class="stat-pill-label">Compliance Sheets</div></div></div>
+      <div class="stat-pill"><div class="stat-pill-icon" style="background:var(--amber-light)">📨</div><div class="stat-pill-text"><div class="stat-pill-num">3</div><div class="stat-pill-label">RFQs Processed</div></div></div>
     </div>
-
-    <div class="stack-divider">Backend</div>
-    <div class="stack-row" style="margin-bottom:24px;">
-      <div class="stack-card">
-        <div class="stack-icon">&#9889;</div>
-        <div class="stack-name">FastAPI</div>
-        <div class="stack-role">Python REST API</div>
+    <div class="grid-3">
+      <div style="background:var(--brand-light);border-radius:var(--radius-lg);padding:24px">
+        <h4 style="font-size:.9rem;font-weight:700;color:var(--brand-dark);margin-bottom:6px">For Technical Teams</h4>
+        <p style="font-size:.82rem;color:var(--slate-600)">Upload datasheets, compare models side-by-side, track compliance scores, and manage 7-stage approval workflows.</p>
       </div>
-      <div class="stack-card">
-        <div class="stack-icon">&#128274;</div>
-        <div class="stack-name">JWT Auth</div>
-        <div class="stack-role">Authentication</div>
+      <div style="background:var(--blue-light);border-radius:var(--radius-lg);padding:24px">
+        <h4 style="font-size:.9rem;font-weight:700;color:var(--blue-dark);margin-bottom:6px">For Commercial Teams</h4>
+        <p style="font-size:.82rem;color:var(--slate-600)">Upload customer RFQs, auto-extract requirements with AI, and match against OEM models to find the best fit.</p>
       </div>
-      <div class="stack-card">
-        <div class="stack-icon">&#128451;</div>
-        <div class="stack-name">Pydantic</div>
-        <div class="stack-role">Data Validation</div>
-      </div>
-    </div>
-
-    <div class="stack-divider">AI / Extraction</div>
-    <div class="stack-row">
-      <div class="stack-card">
-        <div class="stack-icon">&#10024;</div>
-        <div class="stack-name">Google Gemini</div>
-        <div class="stack-role">Primary AI Extraction</div>
-      </div>
-      <div class="stack-card">
-        <div class="stack-icon">&#129302;</div>
-        <div class="stack-name">Claude (Anthropic)</div>
-        <div class="stack-role">AI Fallback</div>
-      </div>
-      <div class="stack-card">
-        <div class="stack-icon">&#128269;</div>
-        <div class="stack-name">Regex Engine</div>
-        <div class="stack-role">Keyword Fallback</div>
+      <div style="background:var(--emerald-light);border-radius:var(--radius-lg);padding:24px">
+        <h4 style="font-size:.9rem;font-weight:700;color:var(--emerald-dark);margin-bottom:6px">For Management</h4>
+        <p style="font-size:.82rem;color:var(--slate-600)">Project progress, approval queues, compliance scores, and document generation.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══════════ SYSTEM ARCHITECTURE ══════════ -->
-<section class="section" id="architecture">
-  <div class="section-header">
-    <div class="section-label">How It Works</div>
-    <div class="section-title">System Architecture</div>
-    <div class="section-desc">How the frontend, backend, and AI services connect</div>
-  </div>
-
-  <div class="diagram-container">
-    <div class="arch-diagram">
-      <!-- Browser Layer -->
-      <div style="text-align:center;margin-bottom:8px;">
-        <span style="font-size:11px;font-weight:700;color:var(--slate-400);text-transform:uppercase;letter-spacing:.1em;">User's Browser</span>
-      </div>
-      <div class="arch-layer">
-        <div class="arch-box" style="background:var(--blue-light);border-color:var(--blue);color:var(--blue);flex:1;max-width:600px;">
-          Next.js Frontend (React + TypeScript)
-          <small>11 pages &middot; shadcn/ui components &middot; Recharts &middot; Tailwind CSS</small>
-        </div>
-      </div>
-
-      <div class="arch-arrow bidi"></div>
-      <div style="font-size:11px;color:var(--slate-400);text-align:center;">REST API calls (JSON over HTTPS) &middot; JWT Bearer Token</div>
-
-      <!-- API Layer -->
-      <div style="text-align:center;margin-top:8px;">
-        <span style="font-size:11px;font-weight:700;color:var(--slate-400);text-transform:uppercase;letter-spacing:.1em;">Server</span>
-      </div>
-      <div class="arch-layer" style="flex-wrap:wrap;gap:10px;">
-        <div class="arch-box" style="background:var(--emerald-light);border-color:var(--emerald);color:#065F46;min-width:90px;">
-          Auth
-          <small>JWT Login</small>
-        </div>
-        <div class="arch-box" style="background:var(--emerald-light);border-color:var(--emerald);color:#065F46;min-width:90px;">
-          OEMs
-          <small>CRUD</small>
-        </div>
-        <div class="arch-box" style="background:var(--emerald-light);border-color:var(--emerald);color:#065F46;min-width:90px;">
-          Components
-          <small>Models + Params</small>
-        </div>
-        <div class="arch-box" style="background:var(--emerald-light);border-color:var(--emerald);color:#065F46;min-width:90px;">
-          RFQ
-          <small>Upload + Extract</small>
-        </div>
-        <div class="arch-box" style="background:var(--emerald-light);border-color:var(--emerald);color:#065F46;min-width:90px;">
-          Pipeline
-          <small>Deal Lifecycle</small>
-        </div>
-        <div class="arch-box" style="background:var(--emerald-light);border-color:var(--emerald);color:#065F46;min-width:90px;">
-          Workflow
-          <small>7-Stage Approval</small>
-        </div>
-        <div class="arch-box" style="background:var(--emerald-light);border-color:var(--emerald);color:#065F46;min-width:90px;">
-          Dashboard
-          <small>Stats + Charts</small>
-        </div>
-        <div class="arch-box" style="background:var(--emerald-light);border-color:var(--emerald);color:#065F46;min-width:90px;">
-          Compare
-          <small>Model Matrix</small>
-        </div>
-      </div>
-
-      <div class="arch-arrow down"></div>
-
-      <!-- Data Layer -->
-      <div class="arch-layer" style="gap:20px;">
-        <div class="arch-box" style="background:var(--amber-light);border-color:var(--amber);color:#92400E;flex:1;max-width:280px;">
-          In-Memory Data Store
-          <small>seed.py &middot; 610 lines &middot; All data lives here</small>
-        </div>
-        <div class="arch-box" style="background:var(--purple-light);border-color:var(--purple);color:var(--purple);flex:1;max-width:280px;">
-          AI Extraction Engine
-          <small>Gemini &rarr; Claude &rarr; Regex fallback</small>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- AI Extraction Chain -->
-  <div style="margin-top:40px;">
-    <div style="text-align:center;margin-bottom:16px;">
-      <span style="font-size:13px;font-weight:700;color:var(--navy);">AI Extraction Fallback Chain</span>
-      <p style="font-size:12px;color:var(--slate-500);">When a user uploads an RFQ document, the system tries three methods in sequence</p>
-    </div>
-    <div class="ai-chain">
-      <div class="ai-tier" style="background:var(--emerald-light);border-color:var(--emerald);color:#065F46;">
-        Tier 1: Google Gemini
-        <small>Free, fast, preferred</small>
-      </div>
-      <span class="ai-fallback">fails? &rarr;</span>
-      <div class="ai-tier" style="background:var(--purple-light);border-color:var(--purple);color:var(--purple);">
-        Tier 2: Claude (Anthropic)
-        <small>Paid, higher accuracy</small>
-      </div>
-      <span class="ai-fallback">fails? &rarr;</span>
-      <div class="ai-tier" style="background:var(--amber-light);border-color:var(--amber);color:#92400E;">
-        Tier 3: Keyword Regex
-        <small>Always works, lower coverage</small>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════ DATA FLOWS ══════════ -->
-<section class="data-flow-section" id="flows">
-  <div style="max-width:1200px;margin:0 auto;">
+<!-- ═══════════ FEATURES ═══════════ -->
+<section id="features">
+  <div class="container">
     <div class="section-header">
-      <div class="section-label">Data Flows</div>
-      <div class="section-title">Key Workflows</div>
-      <div class="section-desc">How data moves through the system in the four critical workflows</div>
+      <div class="section-tag" style="background:var(--blue-light);color:var(--blue)">All Features</div>
+      <h2>Every Page in the Portal</h2>
+      <p>6 focused pages covering the full compliance lifecycle. Click any card for details.</p>
+    </div>
+    <div class="grid-2">
+
+      <!-- OEM Library -->
+      <div class="feature-card" onclick="this.classList.toggle('expanded')">
+        <div class="feature-card-icon" style="background:var(--emerald-light)">🏭</div>
+        <h3>OEM Library</h3>
+        <p>Browse all battery manufacturers and their models. Upload datasheets for AI-powered spec extraction.</p>
+        <div class="card-meta">
+          <span class="card-tag emerald">5 OEMs</span>
+          <span class="card-tag blue">AI Upload</span>
+          <span class="card-tag purple">Drive Fetch</span>
+        </div>
+        <div class="expand-hint">Click for details</div>
+        <div class="detail"><div class="detail-inner">
+          <strong>Features:</strong>
+          <ul>
+            <li>Search and filter OEMs (CATL, Lishen, BYD, HiTHIUM, SVOLT)</li>
+            <li>OEM cards with animated compliance score rings</li>
+            <li>Upload datasheets (PDF/Excel) &mdash; AI extracts 30-50+ technical specs automatically</li>
+            <li>Google Drive Fetcher &mdash; search company Drive and extract specs in one click</li>
+            <li>Add new OEM manufacturers manually</li>
+          </ul>
+          <strong>OEM Detail page:</strong> Score ring hero, models table, 3-column charts (bar, donut, radar)
+        </div></div>
+      </div>
+
+      <!-- RFQ Manager -->
+      <div class="feature-card" onclick="this.classList.toggle('expanded')">
+        <div class="feature-card-icon" style="background:var(--purple-light)">📨</div>
+        <h3>RFQ Manager</h3>
+        <p>Upload customer RFQ documents and let AI extract 60+ BESS technical requirements automatically.</p>
+        <div class="card-meta">
+          <span class="card-tag purple">AI Extraction</span>
+          <span class="card-tag brand">PDF/Excel</span>
+          <span class="card-tag emerald">Auto-Match</span>
+        </div>
+        <div class="expand-hint">Click for details</div>
+        <div class="detail"><div class="detail-inner">
+          <strong>Upload Flow:</strong>
+          <ul>
+            <li>Drag-and-drop upload with 5-phase progress animation</li>
+            <li>Phases: Uploading &rarr; Parsing structure &rarr; AI extracting &rarr; Validating params &rarr; Cross-referencing standards</li>
+            <li>Extracts: capacity, chemistry, certifications, grid specs, O&M, commercial terms</li>
+          </ul>
+          <strong>RFQ Detail page:</strong> Dark header, metadata, grouped requirements by section with parameter codes and required values. Download/print button.
+          <br><br><strong>Matching:</strong> Compare extracted requirements against all OEM models to find best fit.
+        </div></div>
+      </div>
+
+      <!-- Compare -->
+      <div class="feature-card" onclick="this.classList.toggle('expanded')">
+        <div class="feature-card-icon" style="background:var(--blue-light)">⚖️</div>
+        <h3>Model Comparison</h3>
+        <p>Select 2+ battery models and compare all technical parameters side-by-side in a matrix view.</p>
+        <div class="card-meta">
+          <span class="card-tag blue">Matrix View</span>
+          <span class="card-tag emerald">Pass/Fail</span>
+          <span class="card-tag">Section Filter</span>
+        </div>
+        <div class="expand-hint">Click for details</div>
+        <div class="detail"><div class="detail-inner">
+          <strong>Layout:</strong> 2-panel split
+          <ul>
+            <li>Left: Type filter tabs, search, OEM filter with logos &amp; country flags, model selection</li>
+            <li>Right: Model summary cards, section filter tabs, parameter matrix</li>
+            <li>Color coding: Green = pass/above benchmark, Red = fail/below, Orange = waived</li>
+            <li>Sticky header for scrolling through long parameter lists</li>
+          </ul>
+          <strong>Sections:</strong> Electrical, Physical, Thermal, Safety, Performance
+        </div></div>
+      </div>
+
+      <!-- Projects & Workflow -->
+      <div class="feature-card" onclick="this.classList.toggle('expanded')">
+        <div class="feature-card-icon" style="background:var(--amber-light)">📋</div>
+        <h3>Projects & Workflow</h3>
+        <p>Create projects, link compliance sheets to battery models, and manage 7-stage approvals.</p>
+        <div class="card-meta">
+          <span class="card-tag amber">7 Stages</span>
+          <span class="card-tag emerald">Approve/Reject</span>
+          <span class="card-tag blue">Comments</span>
+        </div>
+        <div class="expand-hint">Click for details</div>
+        <div class="detail"><div class="detail-inner">
+          <strong>Two-tab interface:</strong>
+          <ul>
+            <li><strong>Projects tab:</strong> Create projects (name, client, type, capacity, location), view project cards with progress bars, add compliance sheets to projects</li>
+            <li><strong>Workflow tab:</strong> Stage pipeline visualization, pending approval queue, review panel with score, P/F/W counters, comment box, approve/reject buttons</li>
+          </ul>
+          <strong>Project types:</strong> Utility, Hybrid, BTM (Behind-the-Meter), C&I (Commercial &amp; Industrial)
+          <br><strong>Sheet format:</strong> TCS-001 through TCS-007
+        </div></div>
+      </div>
+
+      <!-- Settings -->
+      <div class="feature-card" onclick="this.classList.toggle('expanded')">
+        <div class="feature-card-icon" style="background:var(--slate-100)">⚙️</div>
+        <h3>Settings</h3>
+        <p>User profile, notification preferences, team members, and system health monitoring.</p>
+        <div class="card-meta">
+          <span class="card-tag">Profile</span>
+          <span class="card-tag">Notifications</span>
+          <span class="card-tag blue">System Health</span>
+        </div>
+        <div class="expand-hint">Click for details</div>
+        <div class="detail"><div class="detail-inner">
+          <strong>4 tabs:</strong>
+          <ul>
+            <li><strong>Profile:</strong> Name, email, role, organization</li>
+            <li><strong>Notifications:</strong> Email alerts, in-app notifications, daily digest toggles</li>
+            <li><strong>Team:</strong> 7 team members with status indicators</li>
+            <li><strong>System Health:</strong> Service status (PostgreSQL, Redis, MinIO, API Gateway), storage usage bars</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <!-- Login -->
+      <div class="feature-card" onclick="this.classList.toggle('expanded')">
+        <div class="feature-card-icon" style="background:var(--slate-100)">🔐</div>
+        <h3>Login</h3>
+        <p>JWT-based authentication with role-based access. 7 demo users across 5 roles.</p>
+        <div class="card-meta">
+          <span class="card-tag">JWT Auth</span>
+          <span class="card-tag purple">5 Roles</span>
+          <span class="card-tag">7 Users</span>
+        </div>
+        <div class="expand-hint">Click for details</div>
+        <div class="detail"><div class="detail-inner">
+          <strong>Roles:</strong> Admin, Engineer, Reviewer, Commercial, Customer
+          <br><strong>Auth flow:</strong> Login &rarr; JWT token stored in localStorage &rarr; Auto-parsed for user info &rarr; Token expiry check on each page load
+          <br><strong>Protected routes:</strong> All portal pages wrapped in AuthProvider + PortalGuard
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SYSTEM DIAGRAM ═══════════ -->
+<section id="system">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag" style="background:var(--purple-light);color:var(--purple)">Architecture</div>
+      <h2>System Diagram</h2>
+      <p>How the frontend, backend, AI, and external services connect. Hover over any box for details.</p>
+    </div>
+    <div class="diagram-wrap">
+      <div class="diagram">
+
+        <!-- Frontend Layer -->
+        <div class="diagram-label">Frontend &mdash; Vercel (Next.js 14 + Tailwind)</div>
+        <div class="diagram-layer">
+          <div class="diagram-box tooltip-container" onclick="this.classList.toggle('active')">
+            <div class="diagram-box-title">OEM Library</div>
+            <div class="diagram-box-sub">5 OEMs &bull; 8 Models</div>
+            <div class="tooltip">Browse OEMs, upload datasheets, score rings</div>
+          </div>
+          <div class="diagram-box tooltip-container" onclick="this.classList.toggle('active')">
+            <div class="diagram-box-title">RFQ Manager</div>
+            <div class="diagram-box-sub">AI Extract &bull; Match</div>
+            <div class="tooltip">Upload RFQs, extract 60+ params, match to models</div>
+          </div>
+          <div class="diagram-box tooltip-container" onclick="this.classList.toggle('active')">
+            <div class="diagram-box-title">Projects & Workflow</div>
+            <div class="diagram-box-sub">7-Stage Approval</div>
+            <div class="tooltip">Create projects, compliance sheets, 7-stage approval pipeline</div>
+          </div>
+          <div class="diagram-box tooltip-container" onclick="this.classList.toggle('active')">
+            <div class="diagram-box-title">Comparison</div>
+            <div class="diagram-box-sub">Matrix View</div>
+            <div class="tooltip">Side-by-side model parameter comparison</div>
+          </div>
+          <div class="diagram-box tooltip-container" onclick="this.classList.toggle('active')">
+            <div class="diagram-box-title">Settings</div>
+            <div class="diagram-box-sub">Profile &bull; Team</div>
+            <div class="tooltip">User profile, notifications, team, system health</div>
+          </div>
+        </div>
+
+        <div class="diagram-arrow"><span>&darr; REST API (HTTPS) &darr;</span></div>
+
+        <!-- Backend Layer -->
+        <div class="diagram-label">Backend &mdash; Render (FastAPI + Python)</div>
+        <div class="diagram-layer">
+          <div class="diagram-box tooltip-container" onclick="this.classList.toggle('active')">
+            <div class="diagram-box-title">12 API Modules</div>
+            <div class="diagram-box-sub">35+ endpoints</div>
+            <div class="tooltip">auth, oems, components, projects, sheets, workflow, rfq, gdrive, comparison, documents, templates, mail</div>
+          </div>
+          <div class="diagram-box tooltip-container" onclick="this.classList.toggle('active')">
+            <div class="diagram-box-title">AI Extraction</div>
+            <div class="diagram-box-sub">Gemini &rarr; Claude &rarr; Keyword</div>
+            <div class="tooltip">3-tier fallback: Gemini (free) first, then Claude (paid), then regex keyword matching</div>
+          </div>
+          <div class="diagram-box tooltip-container" onclick="this.classList.toggle('active')">
+            <div class="diagram-box-title">In-Memory Data</div>
+            <div class="diagram-box-sub">Seed Data Store</div>
+            <div class="tooltip">5 OEMs, 8 models, 5 projects, 7 sheets, 3 RFQs, 6 deals</div>
+          </div>
+        </div>
+
+        <div class="diagram-arrow"><span>&darr; External Services &darr;</span></div>
+
+        <!-- External Services -->
+        <div class="diagram-label">Integrations</div>
+        <div class="diagram-layer">
+          <div class="diagram-box tooltip-container" style="border-color:rgba(16,185,129,.3)" onclick="this.classList.toggle('active')">
+            <div class="diagram-box-title">Google Gemini</div>
+            <div class="diagram-box-sub">Free AI &bull; 1M Context</div>
+            <div class="tooltip">Primary AI for datasheet + RFQ extraction</div>
+          </div>
+          <div class="diagram-box tooltip-container" style="border-color:rgba(139,92,246,.3)" onclick="this.classList.toggle('active')">
+            <div class="diagram-box-title">Anthropic Claude</div>
+            <div class="diagram-box-sub">Paid Fallback</div>
+            <div class="tooltip">Secondary AI when Gemini unavailable</div>
+          </div>
+          <div class="diagram-box tooltip-container" style="border-color:rgba(59,130,246,.3)" onclick="this.classList.toggle('active')">
+            <div class="diagram-box-title">Google Drive</div>
+            <div class="diagram-box-sub">Apps Script Proxy</div>
+            <div class="tooltip">Search company Drive, download datasheets, fetch-and-extract in one call</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ DATA FLOW ═══════════ -->
+<section id="data-flow">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag" style="background:var(--emerald-light);color:var(--emerald)">Data Flow</div>
+      <h2>How Data Moves Through the System</h2>
+      <p>The three core workflows that drive the portal.</p>
+    </div>
+    <div class="grid-2">
+
+      <!-- Flow 1: Datasheet Upload -->
+      <div style="background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius-lg);padding:28px">
+        <h3 style="font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:16px">1. Datasheet Upload & AI Extraction</h3>
+        <div class="flow-container">
+          <div class="flow-step">
+            <div class="flow-num" style="background:var(--brand)">1</div>
+            <div class="flow-content"><h4>Upload PDF or Excel</h4><p>User uploads OEM datasheet through the portal or fetches from Google Drive</p></div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-num" style="background:var(--blue)">2</div>
+            <div class="flow-content"><h4>Text Extraction</h4><p>PyPDF2 extracts text from PDFs, openpyxl parses Excel files</p></div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-num" style="background:var(--purple)">3</div>
+            <div class="flow-content"><h4>AI Analyzes Content</h4><p>Gemini (or Claude, or keyword regex) extracts 30-50+ technical specs with confidence scores</p></div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-num" style="background:var(--emerald)">4</div>
+            <div class="flow-content"><h4>Compliance Scoring</h4><p>Each parameter is evaluated as Pass, Fail, or Waived. Overall compliance score is calculated.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flow 2: RFQ Processing -->
+      <div style="background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius-lg);padding:28px">
+        <h3 style="font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:16px">2. RFQ Processing & Matching</h3>
+        <div class="flow-container">
+          <div class="flow-step">
+            <div class="flow-num" style="background:var(--brand)">1</div>
+            <div class="flow-content"><h4>Upload Customer RFQ</h4><p>Customer's technical requirements document (PDF/Excel/CSV) is uploaded</p></div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-num" style="background:var(--blue)">2</div>
+            <div class="flow-content"><h4>AI Extracts Requirements</h4><p>60+ BESS parameters extracted: capacity, chemistry, certifications, grid specs, O&M terms</p></div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-num" style="background:var(--purple)">3</div>
+            <div class="flow-content"><h4>Metadata Detection</h4><p>Project info auto-detected: capacity (MW/MWh), location, design life, solar integration</p></div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-num" style="background:var(--emerald)">4</div>
+            <div class="flow-content"><h4>Match Against Models</h4><p>Each requirement compared to all OEM models. Best-fit models ranked by match percentage.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flow 3: Compliance Workflow -->
+      <div style="background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius-lg);padding:28px">
+        <h3 style="font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:16px">3. Compliance Sheet & Approval</h3>
+        <div class="flow-container">
+          <div class="flow-step">
+            <div class="flow-num" style="background:var(--brand)">1</div>
+            <div class="flow-content"><h4>Create Project</h4><p>Define project: name, client, type (Utility/BTM/C&I/Hybrid), capacity, location</p></div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-num" style="background:var(--blue)">2</div>
+            <div class="flow-content"><h4>Add Compliance Sheet</h4><p>Link a battery model to the project. System pulls all technical parameters automatically.</p></div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-num" style="background:var(--purple)">3</div>
+            <div class="flow-content"><h4>7-Stage Approval</h4><p>Sheet moves through: Draft &rarr; Engineering &rarr; Tech Lead &rarr; Management &rarr; Customer &rarr; Locked</p></div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-num" style="background:var(--emerald)">4</div>
+            <div class="flow-content"><h4>Approved & Locked</h4><p>Final approval locks the sheet. Compliance score and all parameters are finalized.</p></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ AI ENGINE ═══════════ -->
+<section id="ai">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag" style="background:var(--purple-light);color:var(--purple)">AI Engine</div>
+      <h2>How AI Extraction Works</h2>
+      <p>A 3-tier fallback system ensures reliable extraction regardless of API availability.</p>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" onclick="switchTab(event,'flow-rfq')">RFQ Extraction</button>
-      <button class="tab-btn" onclick="switchTab(event,'flow-pipeline')">Deal Pipeline</button>
-      <button class="tab-btn" onclick="switchTab(event,'flow-compliance')">Compliance Scoring</button>
-      <button class="tab-btn" onclick="switchTab(event,'flow-workflow')">Approval Workflow</button>
-    </div>
-
-    <!-- RFQ Flow -->
-    <div id="flow-rfq" class="tab-panel active">
-      <div class="flow-container">
-        <div class="flow-label" style="color:var(--slate-300);">RFQ Document Upload &amp; AI Extraction Flow</div>
-        <div class="flow-row">
-          <div class="flow-step" style="background:var(--blue-light);border-color:var(--blue);color:var(--blue);">
-            Upload PDF
-            <small>User drops RFQ file</small>
-          </div>
-          <span class="flow-arrow">&rarr;</span>
-          <div class="flow-step" style="background:var(--purple-light);border-color:var(--purple);color:var(--purple);">
-            AI Extraction
-            <small>Gemini / Claude / Regex</small>
-          </div>
-          <span class="flow-arrow">&rarr;</span>
-          <div class="flow-step" style="background:var(--emerald-light);border-color:var(--emerald);color:#065F46;">
-            60+ Parameters
-            <small>Structured JSON output</small>
-          </div>
-          <span class="flow-arrow">&rarr;</span>
-          <div class="flow-step" style="background:var(--amber-light);border-color:var(--amber);color:#92400E;">
-            Requirements View
-            <small>Tabular display</small>
-          </div>
-          <span class="flow-arrow">&rarr;</span>
-          <div class="flow-step" style="background:var(--brand-light);border-color:var(--brand);color:var(--brand);">
-            OEM Matching
-            <small>Compare vs models</small>
-          </div>
+    <div style="background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px">
+      <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:20px">Extraction Priority Chain</h3>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:stretch">
+        <div style="flex:1;min-width:200px;background:var(--emerald-light);border-radius:var(--radius);padding:20px;border:2px solid var(--emerald)">
+          <div style="font-size:12px;font-weight:700;color:var(--emerald);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Priority 1</div>
+          <div style="font-size:1.1rem;font-weight:800;color:var(--navy)">Google Gemini 2.0 Flash</div>
+          <div style="font-size:.82rem;color:var(--slate-500);margin-top:6px">Free tier, 1M token context. Handles most documents. Returns structured JSON of extracted parameters.</div>
+        </div>
+        <div style="display:flex;align-items:center;color:var(--slate-400);font-size:20px;padding:0 4px">&rarr;</div>
+        <div style="flex:1;min-width:200px;background:var(--purple-light);border-radius:var(--radius);padding:20px;border:2px solid var(--purple)">
+          <div style="font-size:12px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Priority 2</div>
+          <div style="font-size:1.1rem;font-weight:800;color:var(--navy)">Anthropic Claude</div>
+          <div style="font-size:.82rem;color:var(--slate-500);margin-top:6px">Paid API fallback. Activated when Gemini is unavailable or fails. Higher accuracy for complex documents.</div>
+        </div>
+        <div style="display:flex;align-items:center;color:var(--slate-400);font-size:20px;padding:0 4px">&rarr;</div>
+        <div style="flex:1;min-width:200px;background:var(--amber-light);border-radius:var(--radius);padding:20px;border:2px solid var(--amber)">
+          <div style="font-size:12px;font-weight:700;color:#92400E;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Priority 3</div>
+          <div style="font-size:1.1rem;font-weight:800;color:var(--navy)">Keyword Regex</div>
+          <div style="font-size:.82rem;color:var(--slate-500);margin-top:6px">Offline fallback. 100+ regex patterns match MW, MWh, certifications, temperature ranges, etc. Works without any API.</div>
         </div>
       </div>
     </div>
 
-    <!-- Pipeline Flow -->
-    <div id="flow-pipeline" class="tab-panel">
-      <div class="flow-container">
-        <div class="flow-label" style="color:var(--slate-300);">Deal Pipeline Stages (Kanban Board)</div>
-        <div class="pipeline-visual">
-          <div class="pipeline-stage" style="background:#f8fafc;border-color:var(--slate-300);color:var(--slate-600);">
-            Enquiry / Lead
-          </div>
-          <span class="pipeline-chevron">&rsaquo;</span>
-          <div class="pipeline-stage" style="background:var(--blue-light);border-color:var(--blue);color:var(--blue);">
-            RFQ Received
-          </div>
-          <span class="pipeline-chevron">&rsaquo;</span>
-          <div class="pipeline-stage" style="background:var(--purple-light);border-color:var(--purple);color:var(--purple);">
-            Meeting
-          </div>
-          <span class="pipeline-chevron">&rsaquo;</span>
-          <div class="pipeline-stage" style="background:var(--amber-light);border-color:var(--amber);color:#92400E;">
-            Bid Preparation
-          </div>
-          <span class="pipeline-chevron">&rsaquo;</span>
-          <div class="pipeline-stage" style="background:var(--brand-light);border-color:var(--brand);color:var(--brand);">
-            Proposal Submitted
-          </div>
-          <span class="pipeline-chevron">&rsaquo;</span>
-          <div class="pipeline-stage" style="background:var(--emerald-light);border-color:var(--emerald);color:#065F46;">
-            Final Decision
-          </div>
-        </div>
-        <div style="text-align:center;margin-top:16px;">
-          <p style="font-size:12px;color:var(--slate-400);">8 active deals tracked &middot; NTPC, Evolve Energy, BSPGCL, SECI, GIPCL, and more</p>
+    <div class="grid-2">
+      <div style="background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius-lg);padding:24px">
+        <h4 style="font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:12px">Datasheet Parameters (30-50+ per doc)</h4>
+        <div class="seed-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr))">
+          <div class="seed-item"><div class="seed-item-title">Electrical</div><ul class="seed-item-list"><li>Capacity (Ah)</li><li>Voltage (V)</li><li>Energy (Wh)</li><li>Internal Resistance</li><li>C-Rate</li><li>Max Current</li></ul></div>
+          <div class="seed-item"><div class="seed-item-title">Physical</div><ul class="seed-item-list"><li>Weight (kg)</li><li>Dimensions (mm)</li><li>Energy Density</li><li>Form Factor</li></ul></div>
+          <div class="seed-item"><div class="seed-item-title">Thermal</div><ul class="seed-item-list"><li>Charge Temp Range</li><li>Discharge Temp</li><li>Storage Temp</li><li>Cooling Type</li></ul></div>
+          <div class="seed-item"><div class="seed-item-title">Safety</div><ul class="seed-item-list"><li>Chemistry (LFP)</li><li>IEC 62619</li><li>UL 1973 / 9540</li><li>UN 38.3</li><li>BIS Certified</li></ul></div>
+          <div class="seed-item"><div class="seed-item-title">Performance</div><ul class="seed-item-list"><li>Cycle Life</li><li>Calendar Life</li><li>Self-Discharge</li><li>RTE (%)</li><li>EOL Retention</li></ul></div>
         </div>
       </div>
-    </div>
-
-    <!-- Compliance Flow -->
-    <div id="flow-compliance" class="tab-panel">
-      <div class="flow-container">
-        <div class="flow-label" style="color:var(--slate-300);">Compliance Scoring Flow</div>
-        <div class="flow-row">
-          <div class="flow-step" style="background:var(--blue-light);border-color:var(--blue);color:var(--blue);">
-            OEM Datasheet
-            <small>Upload specs</small>
-          </div>
-          <span class="flow-arrow">&rarr;</span>
-          <div class="flow-step" style="background:var(--purple-light);border-color:var(--purple);color:var(--purple);">
-            Parameter Extract
-            <small>28 params per model</small>
-          </div>
-          <span class="flow-arrow">&rarr;</span>
-          <div class="flow-step" style="background:var(--amber-light);border-color:var(--amber);color:#92400E;">
-            RFQ Requirements
-            <small>Customer specs</small>
-          </div>
-          <span class="flow-arrow">&rarr;</span>
-          <div class="flow-step" style="background:var(--emerald-light);border-color:var(--emerald);color:#065F46;">
-            Score: 0-100%
-            <small>Pass / Partial / Fail</small>
-          </div>
-        </div>
-        <div style="text-align:center;margin-top:12px;">
-          <span style="display:inline-block;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;background:var(--emerald-light);color:#065F46;margin:0 4px;">&ge;90% = Pass</span>
-          <span style="display:inline-block;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;background:var(--amber-light);color:#92400E;margin:0 4px;">&ge;75% = Partial</span>
-          <span style="display:inline-block;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;background:var(--red-light);color:var(--red);margin:0 4px;">&lt;75% = Fail</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Workflow Flow -->
-    <div id="flow-workflow" class="tab-panel">
-      <div class="flow-container">
-        <div class="flow-label" style="color:var(--slate-300);">7-Stage Approval Workflow</div>
-        <div class="flow-row">
-          <div class="flow-step" style="background:var(--slate-100);border-color:var(--slate-300);color:var(--slate-600);font-size:11px;">
-            Draft
-          </div>
-          <span class="flow-arrow">&rarr;</span>
-          <div class="flow-step" style="background:var(--blue-light);border-color:var(--blue);color:var(--blue);font-size:11px;">
-            Engineering Review
-          </div>
-          <span class="flow-arrow">&rarr;</span>
-          <div class="flow-step" style="background:var(--purple-light);border-color:var(--purple);color:var(--purple);font-size:11px;">
-            Tech Lead
-          </div>
-          <span class="flow-arrow">&rarr;</span>
-          <div class="flow-step" style="background:var(--amber-light);border-color:var(--amber);color:#92400E;font-size:11px;">
-            Management
-          </div>
-          <span class="flow-arrow">&rarr;</span>
-          <div class="flow-step" style="background:var(--brand-light);border-color:var(--brand);color:var(--brand);font-size:11px;">
-            Customer Submit
-          </div>
-          <span class="flow-arrow">&rarr;</span>
-          <div class="flow-step" style="background:var(--cyan-light);border-color:var(--cyan);color:#0E7490;font-size:11px;">
-            Sign-off
-          </div>
-          <span class="flow-arrow">&rarr;</span>
-          <div class="flow-step" style="background:var(--emerald-light);border-color:var(--emerald);color:#065F46;font-size:11px;">
-            Locked
-          </div>
-        </div>
-        <div style="text-align:center;margin-top:12px;">
-          <p style="font-size:12px;color:var(--slate-400);">Rejection at any stage returns to Draft &middot; Sign action jumps to Locked</p>
+      <div style="background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius-lg);padding:24px">
+        <h4 style="font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:12px">RFQ Parameters (60+ categories)</h4>
+        <div class="seed-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr))">
+          <div class="seed-item"><div class="seed-item-title">BESS System</div><ul class="seed-item-list"><li>Energy Capacity</li><li>Power Rating</li><li>Chemistry Type</li><li>Cooling System</li><li>Grid Connection</li></ul></div>
+          <div class="seed-item"><div class="seed-item-title">Performance</div><ul class="seed-item-list"><li>RTE (%)</li><li>Availability (%)</li><li>Peak Supply</li><li>Degradation</li></ul></div>
+          <div class="seed-item"><div class="seed-item-title">Certifications</div><ul class="seed-item-list"><li>IEC / UL / UN</li><li>BIS / CEA / CERC</li><li>IS/IEC/IEEE</li><li>Fire Safety</li></ul></div>
+          <div class="seed-item"><div class="seed-item-title">Grid Services</div><ul class="seed-item-list"><li>PFR / SFR / TFR</li><li>Black Start</li><li>Reactive Power</li><li>Inertia Emulation</li></ul></div>
+          <div class="seed-item"><div class="seed-item-title">Commercial</div><ul class="seed-item-list"><li>Warranty Period</li><li>O&M Terms</li><li>Bid Security</li><li>Delivery Schedule</li></ul></div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══════════ HEALTH / PAIN POINTS ══════════ -->
-<section class="section" id="health">
-  <div class="section-header">
-    <div class="section-label">Current Health</div>
-    <div class="section-title">Architecture Pain Points</div>
-    <div class="section-desc">Known issues that need addressing as the system grows</div>
-  </div>
+<!-- ═══════════ WORKFLOWS ═══════════ -->
+<section id="workflow">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag" style="background:var(--amber-light);color:#92400E">Workflows</div>
+      <h2>Approval Workflow Stages</h2>
+      <p>The 7-stage compliance approval workflow powers the portal's lifecycle management.</p>
+    </div>
 
-  <div class="pain-grid">
-    <div class="pain-card critical">
-      <h4>All Data In Memory</h4>
-      <p>Every OEM, component, deal, and RFQ lives in a single Python file (seed.py, 610 lines). All data is lost when the server restarts. No database.</p>
-      <span class="pain-severity" style="background:var(--red-light);color:var(--red);">Critical</span>
+    <!-- Compliance Approval Pipeline -->
+    <div style="background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px">
+      <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:20px">Compliance Sheet Approval (7 Stages)</h3>
+      <div class="pipeline">
+        <div class="pipeline-stage"><div class="pipeline-dot" style="background:var(--slate-400)">1</div><div class="pipeline-stage-name">Draft</div><div class="pipeline-stage-sub">Initial creation</div></div>
+        <div class="pipeline-stage"><div class="pipeline-dot" style="background:var(--blue)">2</div><div class="pipeline-stage-name">Engineering</div><div class="pipeline-stage-sub">Technical review</div></div>
+        <div class="pipeline-stage"><div class="pipeline-dot" style="background:var(--purple)">3</div><div class="pipeline-stage-name">Tech Lead</div><div class="pipeline-stage-sub">Lead approval</div></div>
+        <div class="pipeline-stage"><div class="pipeline-dot" style="background:var(--brand)">4</div><div class="pipeline-stage-name">Management</div><div class="pipeline-stage-sub">Business sign-off</div></div>
+        <div class="pipeline-stage"><div class="pipeline-dot" style="background:var(--amber)">5</div><div class="pipeline-stage-name">Customer Sub</div><div class="pipeline-stage-sub">Sent to client</div></div>
+        <div class="pipeline-stage"><div class="pipeline-dot" style="background:var(--cyan)">6</div><div class="pipeline-stage-name">Customer OK</div><div class="pipeline-stage-sub">Client approved</div></div>
+        <div class="pipeline-stage"><div class="pipeline-dot" style="background:var(--emerald)">7</div><div class="pipeline-stage-name">Locked</div><div class="pipeline-stage-sub">Finalized</div></div>
+      </div>
+      <div style="margin-top:16px;font-size:.82rem;color:var(--slate-500)">
+        At each stage, reviewers can <strong>approve</strong> (advance to next), <strong>reject</strong> (return to draft), or add <strong>comments</strong>. Each sheet tracks pass/fail/waived parameter counts and overall compliance score.
+      </div>
     </div>
-    <div class="pain-card critical">
-      <h4>No Tests</h4>
-      <p>Zero test files across backend or frontend. No way to verify changes don't break existing features. High regression risk.</p>
-      <span class="pain-severity" style="background:var(--red-light);color:var(--red);">Critical</span>
-    </div>
-    <div class="pain-card warning">
-      <h4>Monolithic Page Files</h4>
-      <p>Frontend pages are 400-500 lines each. Config, forms, modals, charts, and filtering all live in a single component per page.</p>
-      <span class="pain-severity" style="background:var(--amber-light);color:#92400E;">Warning</span>
-    </div>
-    <div class="pain-card warning">
-      <h4>Direct Global State Mutation</h4>
-      <p>Every API endpoint directly imports and mutates global Python lists. No service layer, no transactions, race conditions possible.</p>
-      <span class="pain-severity" style="background:var(--amber-light);color:#92400E;">Warning</span>
-    </div>
-    <div class="pain-card warning">
-      <h4>No Type Contracts</h4>
-      <p>API returns untyped Python dicts. Frontend defines the same TypeScript interfaces in multiple files. Type mismatches caught only at runtime.</p>
-      <span class="pain-severity" style="background:var(--amber-light);color:#92400E;">Warning</span>
-    </div>
-    <div class="pain-card info">
-      <h4>Duplicated Config</h4>
-      <p>OEM colors, stage configs, and icon mappings appear in 5+ different frontend files. Changes require updating multiple locations.</p>
-      <span class="pain-severity" style="background:var(--blue-light);color:var(--blue);">Hygiene</span>
-    </div>
-  </div>
 
-  <!-- Readiness Scorecard -->
-  <div style="margin-top:48px;">
-    <h3 style="font-size:18px;font-weight:700;color:var(--navy);text-align:center;margin-bottom:24px;">Production Readiness Scorecard</h3>
-    <div class="table-wrap" style="max-width:700px;margin:0 auto;">
-      <table>
+  </div>
+</section>
+
+<!-- ═══════════ API ═══════════ -->
+<section id="api">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag" style="background:var(--cyan-light);color:var(--cyan)">API</div>
+      <h2>API Endpoints (35+)</h2>
+      <p>Complete REST API organized into 12 modules. All endpoints are under <code>/api/v1</code>.</p>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="data-table">
         <thead>
-          <tr><th>Category</th><th>Status</th><th>Notes</th></tr>
+          <tr><th>Module</th><th>Key Endpoints</th><th>Purpose</th></tr>
         </thead>
         <tbody>
-          <tr><td>Data Persistence</td><td class="cell-weak">Not Ready</td><td>In-memory only, lost on restart</td></tr>
-          <tr><td>Authentication</td><td class="cell-ok">Basic</td><td>JWT works, but hardcoded users</td></tr>
-          <tr><td>Authorization</td><td class="cell-ok">Basic</td><td>Role checks exist but not enforced</td></tr>
-          <tr><td>Error Handling</td><td class="cell-weak">Not Ready</td><td>No consistent error format</td></tr>
-          <tr><td>Logging</td><td class="cell-weak">Not Ready</td><td>Only print() statements</td></tr>
-          <tr><td>Testing</td><td class="cell-weak">Not Ready</td><td>No tests anywhere</td></tr>
-          <tr><td>API Documentation</td><td class="cell-ok">Basic</td><td>FastAPI auto-docs, no schemas</td></tr>
-          <tr><td>Feature Completeness</td><td class="cell-best">Strong</td><td>11 features, all functional</td></tr>
-          <tr><td>UI/UX Quality</td><td class="cell-best">Strong</td><td>Polished design, responsive</td></tr>
+          <tr><td><strong>Auth</strong></td><td>POST /auth/login &bull; GET /auth/me</td><td>JWT login, user profile</td></tr>
+          <tr><td><strong>OEMs</strong></td><td>GET /oems/ &bull; POST /oems/ &bull; GET /oems/{id}</td><td>OEM manufacturer CRUD</td></tr>
+          <tr><td><strong>Components</strong></td><td>GET /components/ &bull; GET /{id}/parameters &bull; POST /upload-datasheet &bull; POST /upload-compliance-sheet</td><td>Battery models + AI datasheet extraction</td></tr>
+          <tr><td><strong>Projects</strong></td><td>GET /projects/ &bull; POST /projects/ &bull; GET /{id}</td><td>Project management</td></tr>
+          <tr><td><strong>Sheets</strong></td><td>GET /sheets/ &bull; POST /sheets/ &bull; GET /{id}</td><td>Technical compliance sheets (TCS-XXX)</td></tr>
+          <tr><td><strong>Workflow</strong></td><td>GET /workflow/pending &bull; GET /count &bull; POST /{id}/advance</td><td>7-stage approval pipeline</td></tr>
+          <tr><td><strong>RFQ</strong></td><td>GET /rfq/ &bull; POST /rfq/upload &bull; GET /{id} &bull; GET /{id}/match</td><td>RFQ upload + AI extraction + model matching</td></tr>
+          <tr><td><strong>Comparison</strong></td><td>GET /comparison/matrix?model_ids=...</td><td>Side-by-side model parameter matrix</td></tr>
+          <tr><td><strong>GDrive</strong></td><td>GET /gdrive/search &bull; POST /fetch-and-extract &bull; GET /download/{id}</td><td>Google Drive search, download, extract</td></tr>
+          <tr><td><strong>Documents</strong></td><td>GET /documents/ &bull; POST /documents/technical-signal</td><td>PDF/Excel/PPTX report generation</td></tr>
+          <tr><td><strong>Templates</strong></td><td>GET /templates/ &bull; GET /{id}</td><td>Compliance templates (28 params each)</td></tr>
+          <tr><td><strong>Mail</strong></td><td>POST /mail/technical &bull; POST /mail/approval</td><td>Email notifications</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 </section>
 
-<!-- ══════════ ARCHITECTURE OPTIONS ══════════ -->
-<section class="section" id="options" style="background:var(--slate-100);max-width:100%;padding-top:80px;padding-bottom:80px;">
-  <div style="max-width:1200px;margin:0 auto;">
+<!-- ═══════════ INTEGRATIONS ═══════════ -->
+<section id="integrations">
+  <div class="container">
     <div class="section-header">
-      <div class="section-label">Where We Go Next</div>
-      <div class="section-title">Architecture Options</div>
-      <div class="section-desc">Four evaluated paths for evolving the portal from POC to production</div>
+      <div class="section-tag" style="background:var(--blue-light);color:var(--blue)">Integrations</div>
+      <h2>External Services & Integrations</h2>
+      <p>The portal connects to AI services, cloud storage, and is designed for future database + auth integration.</p>
     </div>
-
-    <div class="options-grid">
-      <!-- Option 1 -->
-      <div class="option-card recommended">
-        <div class="option-num" style="color:var(--emerald);">Option 1</div>
-        <h3>Layered Services</h3>
-        <p class="option-desc">Add a service layer between endpoints and data, plus a repository pattern for swappable storage. Frontend gets shared types and custom hooks.</p>
-        <div class="option-pros">
-          <h4>Strengths</h4>
-          <ul class="option-list">
-            <li>Best database migration path</li>
-            <li>Incremental &mdash; one domain at a time</li>
-            <li>Services testable in isolation</li>
-            <li>Right-sized for small team</li>
-          </ul>
-        </div>
-        <div class="option-cons">
-          <h4>Tradeoffs</h4>
-          <ul class="option-list">
-            <li>More files to navigate</li>
-            <li>Repository pattern learning curve</li>
-            <li>Discipline needed to not bypass layers</li>
-          </ul>
-        </div>
+    <div class="grid-3">
+      <div class="integration-card">
+        <div class="integration-icon" style="background:var(--emerald-light)">🤖</div>
+        <div class="integration-info"><h4>Google Gemini 2.0 Flash</h4><p>Primary AI for document extraction. Free tier with 1M token context window.</p></div>
       </div>
-
-      <!-- Option 2 -->
-      <div class="option-card">
-        <div class="option-num" style="color:var(--blue);">Option 2</div>
-        <h3>Thin Backend</h3>
-        <p class="option-desc">Strip backend to pure CRUD + AI extraction. Move all business logic to the frontend with React Query for caching.</p>
-        <div class="option-pros">
-          <h4>Strengths</h4>
-          <ul class="option-list">
-            <li>Backend becomes trivially simple</li>
-            <li>React Query eliminates boilerplate</li>
-            <li>Fewer endpoints to maintain</li>
-          </ul>
-        </div>
-        <div class="option-cons">
-          <h4>Tradeoffs</h4>
-          <ul class="option-list">
-            <li>Frontend bundle grows significantly</li>
-            <li>Complex calculations in browser</li>
-            <li>Can't share logic with mobile app</li>
-          </ul>
-        </div>
+      <div class="integration-card">
+        <div class="integration-icon" style="background:var(--purple-light)">🧠</div>
+        <div class="integration-info"><h4>Anthropic Claude</h4><p>Fallback AI for extraction. Paid API, activated when Gemini is unavailable.</p></div>
       </div>
-
-      <!-- Option 3 -->
-      <div class="option-card">
-        <div class="option-num" style="color:var(--purple);">Option 3</div>
-        <h3>Domain Modules</h3>
-        <p class="option-desc">Reorganize into vertical domain modules (oem/, rfq/, pipeline/) each containing router, service, types, and seed data.</p>
-        <div class="option-pros">
-          <h4>Strengths</h4>
-          <ul class="option-list">
-            <li>Strong domain isolation</li>
-            <li>Each domain independently testable</li>
-            <li>Great for larger teams</li>
-          </ul>
-        </div>
-        <div class="option-cons">
-          <h4>Tradeoffs</h4>
-          <ul class="option-list">
-            <li>Massive file reorganization</li>
-            <li>Over-engineered for 1-2 devs</li>
-            <li>Cross-domain queries become harder</li>
-          </ul>
-        </div>
+      <div class="integration-card">
+        <div class="integration-icon" style="background:var(--blue-light)">📁</div>
+        <div class="integration-info"><h4>Google Drive</h4><p>Search company Drive for datasheets, download and extract specs in one click via Apps Script proxy.</p></div>
       </div>
-
-      <!-- Option 4 -->
-      <div class="option-card">
-        <div class="option-num" style="color:var(--amber);">Option 4</div>
-        <h3>Do Less</h3>
-        <p class="option-desc">Fix only the worst pain points: split seed.py, add response schemas, extract frontend types, add React Query.</p>
-        <div class="option-pros">
-          <h4>Strengths</h4>
-          <ul class="option-list">
-            <li>Minimal disruption</li>
-            <li>Zero learning curve</li>
-            <li>Pure wins, nothing gets harder</li>
-          </ul>
-        </div>
-        <div class="option-cons">
-          <h4>Tradeoffs</h4>
-          <ul class="option-list">
-            <li>Structural problems remain</li>
-            <li>No database migration path</li>
-            <li>Same friction adding features</li>
-          </ul>
-        </div>
+      <div class="integration-card">
+        <div class="integration-icon" style="background:var(--amber-light)">📊</div>
+        <div class="integration-info"><h4>Recharts</h4><p>Interactive charts: Bar, Radar, Pie, Line charts for compliance visualization and comparisons.</p></div>
+      </div>
+      <div class="integration-card">
+        <div class="integration-icon" style="background:var(--slate-100)">📄</div>
+        <div class="integration-info"><h4>WeasyPrint / Openpyxl / PPTX</h4><p>Generate PDF, Excel, and PowerPoint technical reports and compliance documents.</p></div>
+      </div>
+      <div class="integration-card">
+        <div class="integration-icon" style="background:var(--red-light)">🔐</div>
+        <div class="integration-info"><h4>JWT Authentication</h4><p>Token-based auth with role-based access. Keycloak integration prepared for production.</p></div>
       </div>
     </div>
-
-    <!-- Tradeoff Table -->
-    <div style="margin-top:48px;">
-      <h3 style="font-size:18px;font-weight:700;color:var(--navy);text-align:center;margin-bottom:24px;">Tradeoff Comparison</h3>
-      <div class="table-wrap" style="overflow-x:auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>Dimension</th>
-              <th style="text-align:center;">Option 1: Layered</th>
-              <th style="text-align:center;">Option 2: Thin BE</th>
-              <th style="text-align:center;">Option 3: Domain</th>
-              <th style="text-align:center;">Option 4: Do Less</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Simplicity</strong></td>
-              <td class="cell-ok" style="text-align:center;">Medium</td>
-              <td class="cell-best" style="text-align:center;">High</td>
-              <td class="cell-weak" style="text-align:center;">Low</td>
-              <td class="cell-best" style="text-align:center;">Highest</td>
-            </tr>
-            <tr>
-              <td><strong>Migration Effort</strong></td>
-              <td class="cell-ok" style="text-align:center;">Medium</td>
-              <td class="cell-ok" style="text-align:center;">Medium</td>
-              <td class="cell-weak" style="text-align:center;">High</td>
-              <td class="cell-best" style="text-align:center;">Low</td>
-            </tr>
-            <tr>
-              <td><strong>Testability</strong></td>
-              <td class="cell-best" style="text-align:center;">High</td>
-              <td class="cell-ok" style="text-align:center;">Medium</td>
-              <td class="cell-best" style="text-align:center;">High</td>
-              <td class="cell-weak" style="text-align:center;">Low</td>
-            </tr>
-            <tr>
-              <td><strong>Extensibility</strong></td>
-              <td class="cell-best" style="text-align:center;">High</td>
-              <td class="cell-ok" style="text-align:center;">Medium</td>
-              <td class="cell-best" style="text-align:center;">High</td>
-              <td class="cell-weak" style="text-align:center;">Low</td>
-            </tr>
-            <tr>
-              <td><strong>DB Migration Path</strong></td>
-              <td class="cell-best" style="text-align:center;">Excellent</td>
-              <td class="cell-ok" style="text-align:center;">Good</td>
-              <td class="cell-ok" style="text-align:center;">Good</td>
-              <td class="cell-weak" style="text-align:center;">Poor</td>
-            </tr>
-            <tr>
-              <td><strong>Over-Engineering Risk</strong></td>
-              <td class="cell-best" style="text-align:center;">Low</td>
-              <td class="cell-best" style="text-align:center;">Low</td>
-              <td class="cell-weak" style="text-align:center;">High</td>
-              <td class="cell-best" style="text-align:center;">None</td>
-            </tr>
-          </tbody>
-        </table>
+    <div style="margin-top:20px;background:var(--slate-50);border-radius:var(--radius);padding:20px;border:1px solid var(--slate-200)">
+      <h4 style="font-size:.85rem;font-weight:700;color:var(--slate-600);margin-bottom:8px">Prepared for Production (Not Yet Active)</h4>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <span class="stack-pill"><span>🐘</span> PostgreSQL (Neon)</span>
+        <span class="stack-pill"><span>🔴</span> Redis + Celery</span>
+        <span class="stack-pill"><span>📦</span> MinIO (S3 storage)</span>
+        <span class="stack-pill"><span>🔑</span> Keycloak SSO</span>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══════════ ROADMAP ══════════ -->
-<section class="section" id="roadmap">
-  <div class="section-header">
-    <div class="section-label">Execution Plan</div>
-    <div class="section-title">Recommended Roadmap</div>
-    <div class="section-desc">Option 1 (Layered Services), executed incrementally starting with quick wins</div>
-  </div>
-
-  <div class="timeline">
-    <div class="timeline-item">
-      <h4>
-        Quick Wins &amp; Hygiene
-        <span class="week-badge" style="background:var(--emerald-light);color:#065F46;">Week 1</span>
-      </h4>
-      <p>Low-risk improvements that pay off immediately</p>
-      <ul>
-        <li>Split seed.py into 4 domain files (OEM, component, pipeline, RFQ)</li>
-        <li>Add Pydantic response models to all API endpoints</li>
-        <li>Extract frontend TypeScript types to shared <code>types/</code> directory</li>
-        <li>Add React Query to 1-2 pages (Pipeline, OEMs)</li>
-      </ul>
+<!-- ═══════════ SEED DATA ═══════════ -->
+<section id="data">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag" style="background:var(--rose-light);color:var(--rose)">Data</div>
+      <h2>Built-in Seed Data</h2>
+      <p>The portal ships with realistic demo data to showcase all features immediately.</p>
     </div>
-
-    <div class="timeline-item">
-      <h4>
-        Service Layer (Core Domains)
-        <span class="week-badge" style="background:var(--blue-light);color:var(--blue);">Week 2-3</span>
-      </h4>
-      <p>Add services for the most active domains</p>
-      <ul>
-        <li>Create PipelineService and RFQService with business logic</li>
-        <li>Extract workflow state machine into WorkflowService</li>
-        <li>Endpoints become thin controllers</li>
-        <li>Add structured logging (replace print statements)</li>
-      </ul>
-    </div>
-
-    <div class="timeline-item">
-      <h4>
-        Repository Pattern
-        <span class="week-badge" style="background:var(--purple-light);color:var(--purple);">Week 4</span>
-      </h4>
-      <p>Abstract data access for future database migration</p>
-      <ul>
-        <li>Define repository interfaces per domain</li>
-        <li>Implement in-memory repositories (wrap existing seed data)</li>
-        <li>Swap all services to use repositories instead of direct imports</li>
-        <li>Verify demo mode still works with seed data</li>
-      </ul>
-    </div>
-
-    <div class="timeline-item">
-      <h4>
-        Frontend Polish &amp; Database Prep
-        <span class="week-badge" style="background:var(--brand-light);color:var(--brand);">Week 5+</span>
-      </h4>
-      <p>Component extraction and production readiness</p>
-      <ul>
-        <li>Extract modal/dialog components from page files</li>
-        <li>Extract chart components for reuse</li>
-        <li>Consolidate config objects (OEM_INFO, STAGE_CONFIG)</li>
-        <li>Implement PostgreSQL repositories (swap in for in-memory)</li>
-      </ul>
+    <div class="grid-3">
+      <div style="background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius-lg);padding:24px">
+        <h4 style="font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:12px">🏭 5 OEM Manufacturers</h4>
+        <div class="seed-item-list">
+          <li><strong>CATL</strong> — China, 97.5% score, 2 models</li>
+          <li><strong>Lishen</strong> — China, 91.2% score, 2 models</li>
+          <li><strong>BYD</strong> — China, 94.8% score, 1 model</li>
+          <li><strong>HiTHIUM</strong> — China, 87.4% score, 1 model</li>
+          <li><strong>SVOLT</strong> — China, 93.1% score, 2 models</li>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius-lg);padding:24px">
+        <h4 style="font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:12px">🔋 8 Battery Models</h4>
+        <div class="seed-item-list">
+          <li>CATL 280Ah &amp; 314Ah LFP Cells</li>
+          <li>Lishen 271Ah &amp; 280Ah LFP Cells</li>
+          <li>BYD Blade 138Ah Cell</li>
+          <li>HiTHIUM 280Ah Cell</li>
+          <li>SVOLT 280Ah &amp; Short Blade 196Ah</li>
+        </div>
+        <div style="font-size:.78rem;color:var(--slate-400);margin-top:8px">Each with 28+ technical parameters</div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius-lg);padding:24px">
+        <h4 style="font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:12px">📋 5 Active Projects</h4>
+        <div class="seed-item-list">
+          <li>NTPC Barh — 200MW / 400MWh</li>
+          <li>Amrita Hospital BTM — 11MW / 20MWh</li>
+          <li>BSPGCL Bihar — 125MW / 500MWh</li>
+          <li>Eagle Infra TNGECL — 5MW / 25MWh</li>
+          <li>Sitapur Solar+BESS — 250MW / 200MWh</li>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius-lg);padding:24px">
+        <h4 style="font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:12px">📨 3 RFQs with Requirements</h4>
+        <div class="seed-item-list">
+          <li>Sitapur Solar+BESS — 8 requirements</li>
+          <li>Bihar Grid-Scale BESS — 4 requirements</li>
+          <li>Evolve Energy 15MW/45MWh — 20 requirements</li>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius-lg);padding:24px">
+        <h4 style="font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:12px">👥 7 Demo Users</h4>
+        <div class="seed-item-list">
+          <li>3 Admins (Anushtha, Fateh, Kedar)</li>
+          <li>1 Engineer (Ravi Sharma)</li>
+          <li>1 Reviewer (Priya Nair)</li>
+          <li>1 Commercial (Arun Mehta)</li>
+          <li>1 Customer (Vijay K @ Sunsure)</li>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ══════════ FOOTER ══════════ -->
-<footer class="footer">
-  <p>
-    <strong>UnityESS OEM Portal</strong> &middot; Architecture Explorer
-    <br>
-    Generated March 2026 &middot; Built with Next.js 14 + FastAPI
-    <br>
-    <span style="color:var(--slate-500);">Ornate Solar</span>
-  </p>
+<!-- ═══════════ TECH STACK ═══════════ -->
+<section id="tech">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag" style="background:var(--emerald-light);color:var(--emerald)">Stack</div>
+      <h2>Technology Stack</h2>
+      <p>The tools and frameworks powering the portal.</p>
+    </div>
+    <div class="grid-2">
+      <div>
+        <div class="stack-group">
+          <div class="stack-group-title">Frontend</div>
+          <div class="stack-pills">
+            <div class="stack-pill"><span>⚡</span> Next.js 14</div>
+            <div class="stack-pill"><span>⚛️</span> React 18</div>
+            <div class="stack-pill"><span>🎨</span> Tailwind CSS 3</div>
+            <div class="stack-pill"><span>🧩</span> shadcn/ui</div>
+            <div class="stack-pill"><span>📊</span> Recharts</div>
+            <div class="stack-pill"><span>🔲</span> Radix UI</div>
+            <div class="stack-pill"><span>✨</span> Lucide Icons</div>
+            <div class="stack-pill"><span>📝</span> TypeScript 5</div>
+          </div>
+        </div>
+        <div class="stack-group">
+          <div class="stack-group-title">Backend</div>
+          <div class="stack-pills">
+            <div class="stack-pill"><span>🐍</span> Python 3.11</div>
+            <div class="stack-pill"><span>⚡</span> FastAPI</div>
+            <div class="stack-pill"><span>🦄</span> Uvicorn</div>
+            <div class="stack-pill"><span>🔑</span> PyJWT</div>
+            <div class="stack-pill"><span>📄</span> PyPDF2</div>
+            <div class="stack-pill"><span>📊</span> Openpyxl</div>
+            <div class="stack-pill"><span>📑</span> python-pptx</div>
+            <div class="stack-pill"><span>📰</span> WeasyPrint</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="stack-group">
+          <div class="stack-group-title">AI & Extraction</div>
+          <div class="stack-pills">
+            <div class="stack-pill"><span>🤖</span> Google Gemini 2.0</div>
+            <div class="stack-pill"><span>🧠</span> Anthropic Claude</div>
+            <div class="stack-pill"><span>🔍</span> Regex Extraction</div>
+          </div>
+        </div>
+        <div class="stack-group">
+          <div class="stack-group-title">Infrastructure</div>
+          <div class="stack-pills">
+            <div class="stack-pill"><span>▲</span> Vercel</div>
+            <div class="stack-pill"><span>🌐</span> Render</div>
+            <div class="stack-pill"><span>🐳</span> Docker</div>
+            <div class="stack-pill"><span>📁</span> Google Drive</div>
+          </div>
+        </div>
+        <div class="stack-group">
+          <div class="stack-group-title">Prepared (Future)</div>
+          <div class="stack-pills">
+            <div class="stack-pill"><span>🐘</span> PostgreSQL + Neon</div>
+            <div class="stack-pill"><span>🔴</span> Redis + Celery</div>
+            <div class="stack-pill"><span>📦</span> MinIO (S3)</div>
+            <div class="stack-pill"><span>🔑</span> Keycloak</div>
+            <div class="stack-pill"><span>🗄️</span> SQLAlchemy + Alembic</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ DEPLOYMENT ═══════════ -->
+<section id="deploy">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag" style="background:var(--brand-light);color:var(--brand)">Deployment</div>
+      <h2>Where It Runs</h2>
+      <p>Both services are deployed on free tiers with zero infrastructure cost.</p>
+    </div>
+    <div class="grid-2" style="max-width:800px;margin:0 auto">
+      <div class="deploy-card">
+        <div class="deploy-icon">▲</div>
+        <h4>Frontend — Vercel</h4>
+        <div class="deploy-url">oem-compliance-portal.vercel.app</div>
+        <div class="deploy-meta">
+          <div>Next.js 14 &bull; Free Plan &bull; Auto-deploy from Git</div>
+          <div style="margin-top:6px;font-size:.75rem;color:var(--slate-400)">No credit card required &bull; Global CDN &bull; Edge functions</div>
+        </div>
+      </div>
+      <div class="deploy-card">
+        <div class="deploy-icon">🌐</div>
+        <h4>Backend — Render</h4>
+        <div class="deploy-url">oem-compliance-portal.onrender.com</div>
+        <div class="deploy-meta">
+          <div>FastAPI &bull; Docker &bull; Free Plan</div>
+          <div style="margin-top:6px;font-size:.75rem;color:var(--slate-400)">Sleeps after 15min idle &bull; Auto-wakes on request &bull; Dynamic PORT</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:32px;background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius-lg);padding:24px">
+      <h4 style="font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:12px">Environment Variables</h4>
+      <table class="data-table" style="max-width:700px">
+        <thead><tr><th>Variable</th><th>Service</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>GEMINI_API_KEY</code></td><td>Backend</td><td>Google Gemini AI extraction</td></tr>
+          <tr><td><code>ANTHROPIC_API_KEY</code></td><td>Backend</td><td>Claude AI fallback</td></tr>
+          <tr><td><code>SECRET_KEY</code></td><td>Backend</td><td>JWT signing secret</td></tr>
+          <tr><td><code>GDRIVE_FETCHER_URL</code></td><td>Backend</td><td>Google Apps Script proxy URL</td></tr>
+          <tr><td><code>NEXT_PUBLIC_API_URL</code></td><td>Frontend</td><td>Backend API base URL</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer>
+  <div class="container">
+    <p><strong>UnityESS Technical Compliance Portal v2.3</strong></p>
+    <p style="margin-top:4px">Ornate Agencies Pvt. Ltd. &mdash; Architecture Explorer &mdash; March 2026</p>
+  </div>
 </footer>
 
 <script>
-  // Tab switching
-  function switchTab(e, panelId) {
-    const parent = e.target.closest('.data-flow-section') || document;
-    parent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    parent.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    e.target.classList.add('active');
-    document.getElementById(panelId).classList.add('active');
-  }
+// Sticky nav active state
+const navBtns = document.querySelectorAll('.nav-btn');
+const sections = document.querySelectorAll('section[id]');
 
-  // Nav active state on scroll
-  const sections = document.querySelectorAll('section[id]');
-  const navLinks = document.querySelectorAll('.nav-links a');
-  window.addEventListener('scroll', () => {
-    let current = '';
-    sections.forEach(s => {
-      if (window.scrollY >= s.offsetTop - 100) current = s.id;
-    });
-    navLinks.forEach(a => {
-      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
-    });
+navBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = document.getElementById(btn.dataset.target);
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
   });
+});
 
-  // Animate elements on scroll
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.style.opacity = '1';
-        e.target.style.transform = 'translateY(0)';
-      }
-    });
-  }, { threshold: 0.1 });
-
-  document.querySelectorAll('.feature-card, .option-card, .pain-card, .stack-card, .timeline-item').forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(20px)';
-    el.style.transition = 'opacity .5s ease, transform .5s ease';
-    observer.observe(el);
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navBtns.forEach(b => b.classList.remove('active'));
+      const match = document.querySelector(`.nav-btn[data-target="${entry.target.id}"]`);
+      if (match) match.classList.add('active');
+    }
   });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sections.forEach(s => observer.observe(s));
+
+// Animate elements on scroll
+const animateObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('animate-in');
+      animateObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.feature-card, .stat-pill, .integration-card, .deploy-card').forEach(el => {
+  animateObserver.observe(el);
+});
 </script>
 </body>
 </html>

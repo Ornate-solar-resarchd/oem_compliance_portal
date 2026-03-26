@@ -130,3 +130,6 @@ export const searchDrive = (query: string, type: string = "") =>
 export const fetchAndExtract = (body: {
   file_id: string; file_name: string; oem_name: string; model_name: string; category: string
 }) => post("/gdrive/fetch-and-extract", body)
+export const batchImportFromDrive = (oem_searches: Array<{
+  search: string; oem_name: string; category: string
+}>) => post("/gdrive/batch-import", { oem_searches })
