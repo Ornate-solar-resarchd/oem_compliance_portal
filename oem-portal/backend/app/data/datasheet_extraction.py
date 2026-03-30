@@ -158,6 +158,65 @@ CRITICAL: Return AT LEAST 20 parameters. Extract every single data point. Return
     return []
 
 
+def extract_specs_with_claude(text: str, category: str, api_key: str) -> list:
+    """Use Claude API to extract specs from datasheet text (primary)."""
+    try:
+        import anthropic
+        client = anthropic.Anthropic(api_key=api_key)
+
+        category_prompt = CATEGORY_PROMPTS.get(category, CATEGORY_PROMPTS["Cell"])
+
+        prompt = f"""You are an expert BESS technical engineer. Extract EVERY technical specification from this {category} datasheet.
+
+BE EXHAUSTIVE — extract 30-50+ parameters minimum.
+
+{category_prompt}
+
+RULES:
+1. Extract EVERY number, rating, spec, measurement, range, limit, threshold
+2. Ranges → extract min and max as separate entries
+3. Include ALL certifications individually
+4. Include model number, manufacturer, dimensions, weight
+5. Include warranty, design life, degradation specs
+6. DO NOT skip any specification
+
+DATASHEET TEXT:
+{text[:40000]}
+
+Return a JSON array. Each object must have:
+- "name": parameter name (human readable)
+- "code": short uppercase code (e.g. CELL_CAPACITY_AH)
+- "value": exact extracted value as string
+- "unit": unit of measurement
+- "section": category (Electrical, Physical, Thermal, Safety, Performance, Communication, General)
+- "status": "pass"
+- "page": approximate page number where found (number or null)
+- "source_text": exact phrase from document where value was found (max 80 chars)
+
+Return AT LEAST 20 parameters. Return ONLY the JSON array."""
+
+        message = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=4096,
+            messages=[{"role": "user", "content": prompt}],
+        )
+
+        response_text = message.content[0].text.strip()
+        if response_text.startswith("```"):
+            response_text = re.sub(r'^```(?:json)?\s*', '', response_text)
+            response_text = re.sub(r'\s*```$', '', response_text)
+        if response_text.startswith("["):
+            return json.loads(response_text)
+        match = re.search(r'\[.*\]', response_text, re.DOTALL)
+        if match:
+            return json.loads(match.group())
+
+    except Exception as e:
+        print(f"Claude datasheet extraction error: {e}")
+
+    return []
+
+
 def extract_specs_keyword(text: str, category: str) -> list:
     """Fallback keyword-based extraction when no AI available."""
     text_lower = text.lower()
@@ -340,18 +399,30 @@ def extract_specs_keyword(text: str, category: str) -> list:
 
 
 def extract_from_datasheet(contents: bytes, filename: str, category: str) -> list:
-    """Main extraction function — tries Gemini first, falls back to keywords."""
+    """Main extraction function — Claude first, Gemini fallback, keywords last."""
     text = extract_text_from_file(contents, filename)
     if not text:
         return []
 
+    # 1. Try Claude first (primary)
+    claude_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if claude_key and claude_key != "sk-placeholder" and len(claude_key) > 20:
+        print(f"[Datasheet] Using Claude AI (primary) for {category} extraction...")
+        results = extract_specs_with_claude(text, category, claude_key)
+        if results:
+            print(f"[Datasheet] Claude extracted {len(results)} specs")
+            return results
+        print(f"[Datasheet] Claude failed, trying Gemini fallback...")
+
+    # 2. Try Gemini (fallback)
     gemini_key = os.environ.get("GEMINI_API_KEY", "")
     if gemini_key and gemini_key != "YOUR_GEMINI_KEY_HERE" and len(gemini_key) > 10:
-        print(f"[Datasheet] Using Gemini AI for {category} extraction...")
+        print(f"[Datasheet] Using Gemini AI (fallback) for {category} extraction...")
         results = extract_specs_with_gemini(text, category, gemini_key)
         if results:
             print(f"[Datasheet] Gemini extracted {len(results)} specs")
             return results
 
+    # 3. Keywords (always works)
     print(f"[Datasheet] Using keyword extraction for {category}...")
     return extract_specs_keyword(text, category)

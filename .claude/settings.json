@@ -14,7 +14,11 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:oem-compliance-portal.onrender.com)",
       "WebFetch(domain:unityess-portal.onrender.com)",
-      "Bash(grep -E \"\\\\.py$\")"
+      "Bash(grep -E \"\\\\.py$\")",
+      "Read(//Users/priyankrajput/Downloads/**)",
+      "Bash(ls /Users/priyankrajput/Downloads/A_Compliance_Sheets for rfq*)",
+      "Bash(ls /Users/priyankrajput/Downloads/*Compliance*)",
+      "Bash(wc -l \"/Users/priyankrajput/Ornate/Claude 2 - OEM Portal/Claude 2 - OEM Portal/oem-portal/frontend/app/\\(portal\\)/rfq/[id]/page.tsx\")"
     ],
     "additionalDirectories": [
       "/Users/priyankrajput/Ornate/Claude 2 - OEM Portal/Claude 2 - OEM Portal/OEM - anushthaFatehPortal/frontend/app/(portal)/oems"

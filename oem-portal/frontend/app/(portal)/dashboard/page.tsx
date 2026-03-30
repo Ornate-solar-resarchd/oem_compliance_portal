@@ -6,7 +6,7 @@ import { getDashboardStats, getPendingWorkflows, getProjects } from "@/lib/api"
 import { cn, formatNumber, scoreColor } from "@/lib/utils"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { StageBadge } from "@/components/shared/status-badge"
-import { Activity, FileCheck, Clock, TrendingUp, Loader2 } from "lucide-react"
+import { Activity, FileCheck, Clock, Loader2 } from "lucide-react"
 
 interface Stats { active_projects: number; sheets_in_review: number; pending_approvals: number; avg_compliance_score: number }
 interface Workflow { id: string; sheet_number: string; project_name: string; workflow_stage: string; compliance_score: number; component_model_name: string; waiting_hours: number }
@@ -38,7 +38,6 @@ export default function DashboardPage() {
     { title: "Active Projects", value: stats?.active_projects ?? 0, icon: Activity, color: "text-blue-600", bg: "bg-blue-50" },
     { title: "Sheets In Review", value: stats?.sheets_in_review ?? 0, icon: FileCheck, color: "text-amber-600", bg: "bg-amber-50" },
     { title: "Pending Approvals", value: stats?.pending_approvals ?? 0, icon: Clock, color: "text-purple-600", bg: "bg-purple-50" },
-    { title: "Avg Score", value: stats?.avg_compliance_score ?? 0, icon: TrendingUp, color: "text-emerald-600", bg: "bg-emerald-50", isScore: true },
   ]
 
   return (
@@ -56,8 +55,8 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-500">{kpi.title}</p>
-                  <p className={cn("text-3xl font-bold mt-1 number-animate", kpi.isScore ? scoreColor(kpi.value) : "text-slate-900")}>
-                    {kpi.isScore ? `${kpi.value}%` : formatNumber(kpi.value)}
+                  <p className={cn("text-3xl font-bold mt-1 number-animate", "text-slate-900")}>
+                    {formatNumber(kpi.value)}
                   </p>
                 </div>
                 <div className={cn("flex items-center justify-center w-12 h-12 rounded-xl", kpi.bg)}>

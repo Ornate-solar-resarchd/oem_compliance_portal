@@ -9,7 +9,7 @@ import {
   CheckCircle2, XCircle, AlertTriangle, FileText, ExternalLink, Download,
   ChevronDown, ChevronRight, Maximize2, Minimize2,
 } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect, useMemo } from "react"
 
 interface Param {
   name?: string
@@ -21,6 +21,8 @@ interface Param {
   section?: string
   status?: string
   confidence?: number
+  page?: number | null
+  source_text?: string
 }
 
 interface SplitDocumentViewerProps {
@@ -80,15 +82,28 @@ export function SplitDocumentViewer({
     })
   }
 
-  // Build PDF preview URL
-  let pdfSrc = ""
-  if (localFile && localFile.type === "application/pdf") {
-    pdfSrc = URL.createObjectURL(localFile)
-  } else if (gdriveFileId) {
-    pdfSrc = `https://drive.google.com/file/d/${gdriveFileId}/preview`
-  } else if (gdriveUrl) {
-    pdfSrc = gdriveUrl.replace("/view", "/preview")
-  }
+  // Build PDF preview URL — stable reference with cleanup
+  const [localBlobUrl, setLocalBlobUrl] = useState("")
+
+  useEffect(() => {
+    if (localFile) {
+      const url = URL.createObjectURL(localFile)
+      setLocalBlobUrl(url)
+      return () => URL.revokeObjectURL(url)
+    } else {
+      setLocalBlobUrl("")
+    }
+  }, [localFile])
+
+  const pdfSrc = useMemo(() => {
+    if (localBlobUrl) return localBlobUrl
+    if (gdriveFileId) return `https://drive.google.com/file/d/${gdriveFileId}/preview`
+    if (gdriveUrl) return gdriveUrl.replace("/view", "/preview")
+    return ""
+  }, [localBlobUrl, gdriveFileId, gdriveUrl])
+
+  const isPdf = localFile?.type === "application/pdf" || fileName?.toLowerCase().endsWith(".pdf")
+  const isExcel = fileName?.toLowerCase().endsWith(".xlsx") || fileName?.toLowerCase().endsWith(".xls")
 
   const totalParams = parameters.length
   const passCount = summary?.pass ?? parameters.filter(p => p.status === "pass").length
@@ -122,19 +137,59 @@ export function SplitDocumentViewer({
         </div>
 
         {/* PDF Content */}
-        {pdfSrc ? (
+        {pdfSrc && localBlobUrl ? (
+          /* Local file — use object tag which handles blob URLs better */
+          <object
+            data={`${localBlobUrl}#toolbar=1&navpanes=0`}
+            type="application/pdf"
+            className="flex-1 w-full"
+          >
+            <div className="flex-1 flex items-center justify-center text-slate-400 p-4">
+              <div className="text-center">
+                <FileText className="h-10 w-10 mx-auto mb-2 text-slate-200" />
+                <p className="text-sm">Your browser cannot display this PDF inline.</p>
+                <a href={localBlobUrl} target="_blank" rel="noopener noreferrer"
+                  className="text-xs text-brand mt-2 inline-block hover:underline">
+                  Open PDF in new tab →
+                </a>
+              </div>
+            </div>
+          </object>
+        ) : pdfSrc ? (
+          /* Google Drive — use iframe with preview URL */
           <iframe
             src={pdfSrc}
             className="flex-1 w-full"
             style={{ border: "none" }}
             title="Document Preview"
+            allow="autoplay"
           />
+        ) : isExcel ? (
+          <div className="flex-1 flex items-center justify-center text-slate-400">
+            <div className="text-center">
+              <FileText className="h-12 w-12 mx-auto mb-3 text-emerald-200" />
+              <p className="text-sm font-medium text-slate-500">Excel file uploaded</p>
+              <p className="text-xs mt-1">{fileName}</p>
+              {(gdriveUrl || gdriveFileId) && (
+                <Button size="sm" variant="outline" className="mt-3 text-xs"
+                  onClick={() => window.open(gdriveUrl || `https://drive.google.com/file/d/${gdriveFileId}/view`, "_blank")}>
+                  <ExternalLink className="h-3 w-3 mr-1.5" /> Open in Drive
+                </Button>
+              )}
+            </div>
+          </div>
         ) : (
           <div className="flex-1 flex items-center justify-center text-slate-400">
             <div className="text-center">
               <FileText className="h-12 w-12 mx-auto mb-3 text-slate-200" />
               <p className="text-sm font-medium">No preview available</p>
-              <p className="text-xs mt-1">Upload a PDF to see preview</p>
+              <p className="text-xs mt-1">{fileName || "Upload a PDF to see preview"}</p>
+              {(gdriveUrl || gdriveFileId) && (
+                <Button size="sm" variant="outline" className="mt-3 text-xs"
+                  onClick={() => window.open(gdriveUrl || `https://drive.google.com/file/d/${gdriveFileId}/view`, "_blank")}>
+                  <ExternalLink className="h-3 w-3 mr-1.5" /> Open in Drive
+                </Button>
+              )}
             </div>
           </div>
         )}
@@ -209,8 +264,24 @@ export function SplitDocumentViewer({
                             i % 2 === 0 ? "" : "bg-slate-50/30"
                           )}>
                             <td className="py-1.5 pr-2 font-medium text-slate-700 w-[45%]">
-                              {p.name || p.parameter}
-                              {p.code && <span className="block text-[9px] text-slate-300 font-mono">{p.code}</span>}
+                              <div className="flex items-start gap-1">
+                                {p.page && (
+                                  <span className="inline-flex items-center justify-center w-4 h-4 rounded bg-brand/10 text-brand text-[8px] font-bold flex-shrink-0 mt-0.5"
+                                    title={`Found on page ${p.page}`}>
+                                    {p.page}
+                                  </span>
+                                )}
+                                <div>
+                                  {p.name || p.parameter}
+                                  {p.code && <span className="block text-[9px] text-slate-300 font-mono">{p.code}</span>}
+                                  {p.source_text && (
+                                    <span className="block text-[8px] text-blue-400 italic mt-0.5 leading-tight truncate max-w-[200px]"
+                                      title={p.source_text}>
+                                      &ldquo;{p.source_text}&rdquo;
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
                             </td>
                             <td className="py-1.5 px-2 text-right font-semibold text-slate-800 tabular-nums w-[30%]">
                               {p.value || p.required_value}

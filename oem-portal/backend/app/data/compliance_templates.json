@@ -1,0 +1,2135 @@
+{
+  "Battery": {
+    "sheets": [
+      {
+        "name": "Cell & Module Specs",
+        "parameters": [
+          {
+            "code": "A1",
+            "parameter": "OEM Company Name",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A2",
+            "parameter": "Factory Location(s)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A3",
+            "parameter": "Annual Cell Manufacturing Capacity (GWh)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A4",
+            "parameter": "Total BESS Installations Worldwide (MWh)",
+            "requirement": "\u2265500 MWh cumulative",
+            "section": ""
+          },
+          {
+            "code": "A5",
+            "parameter": "Largest Single BESS Project Supplied (MWh)",
+            "requirement": "\u2265100 MWh single project",
+            "section": ""
+          },
+          {
+            "code": "A6",
+            "parameter": "ISO 9001 / ISO 14001 / ISO 45001 Certification",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "A7",
+            "parameter": "UL 9540A / IEC 62619 Cell-Level Certification",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "B1",
+            "parameter": "Cell Chemistry (LFP / NMC / Other)",
+            "requirement": "LFP preferred per CEA/CERC norms",
+            "section": ""
+          },
+          {
+            "code": "B2",
+            "parameter": "Cell Form Factor (Prismatic / Cylindrical / Pouch)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B3",
+            "parameter": "Nominal Voltage (V)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B4",
+            "parameter": "Rated Capacity (Ah)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B5",
+            "parameter": "Energy Density (Wh/kg)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B6",
+            "parameter": "Volumetric Energy Density (Wh/L)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B7",
+            "parameter": "Internal Resistance (m\u03a9) at 25\u00b0C",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B8",
+            "parameter": "Cycle Life at Rated DOD (cycles)",
+            "requirement": "\u22656000 cycles at rated DOD",
+            "section": ""
+          },
+          {
+            "code": "B9",
+            "parameter": "Calendar Life (years)",
+            "requirement": "\u226515 years",
+            "section": ""
+          },
+          {
+            "code": "B10",
+            "parameter": "Operating Temperature Range (\u00b0C)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B11",
+            "parameter": "Charge Rate (C-rate, continuous)",
+            "requirement": "\u22650.5C",
+            "section": ""
+          },
+          {
+            "code": "B12",
+            "parameter": "Discharge Rate (C-rate, continuous)",
+            "requirement": "\u22650.5C",
+            "section": ""
+          },
+          {
+            "code": "B13",
+            "parameter": "Self-Discharge Rate (%/month at 25\u00b0C)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B14",
+            "parameter": "Weight per Cell (kg)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B15",
+            "parameter": "Dimensions per Cell (L\u00d7W\u00d7H mm)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B16",
+            "parameter": "Cell-Level Safety Certifications",
+            "requirement": "IEC 62619, UL 1973, UL 9540A",
+            "section": ""
+          },
+          {
+            "code": "B17",
+            "parameter": "Thermal Runaway Propagation Test Result",
+            "requirement": "No propagation per UL 9540A",
+            "section": ""
+          },
+          {
+            "code": "C1",
+            "parameter": "Cells per Module",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "C2",
+            "parameter": "Module Nominal Voltage (V)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "C3",
+            "parameter": "Module Rated Capacity (kWh)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "C4",
+            "parameter": "Module Weight (kg)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "C5",
+            "parameter": "Module Dimensions (L\u00d7W\u00d7H mm)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "C6",
+            "parameter": "Module-Level BMS Features",
+            "requirement": "Cell voltage, temp, SOC, SOH monitoring",
+            "section": ""
+          },
+          {
+            "code": "C7",
+            "parameter": "Module IP Rating",
+            "requirement": "\u2265IP55 recommended",
+            "section": ""
+          },
+          {
+            "code": "C8",
+            "parameter": "Module Certifications",
+            "requirement": "IEC 62619, UL 1973",
+            "section": ""
+          },
+          {
+            "code": "C9",
+            "parameter": "Cell Balancing Method (Active/Passive)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "C10",
+            "parameter": "Module Communication Protocol",
+            "requirement": "CAN / RS485 / Modbus",
+            "section": ""
+          },
+          {
+            "code": "D1",
+            "parameter": "Modules per Rack",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "D2",
+            "parameter": "Rack Nominal Voltage Range (V DC)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "D3",
+            "parameter": "Rack Rated Energy (kWh)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "D4",
+            "parameter": "Rack Rated Power (kW)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "D5",
+            "parameter": "Rack Weight (kg)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "D6",
+            "parameter": "Rack Dimensions (L\u00d7W\u00d7H mm)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "D7",
+            "parameter": "Rack-Level BMS Functions",
+            "requirement": "String monitoring, fault isolation, SOC/SOH",
+            "section": ""
+          },
+          {
+            "code": "D8",
+            "parameter": "DC Disconnector / Fuse per Rack",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "D9",
+            "parameter": "Rack-Level Protection Features",
+            "requirement": "Over-voltage, under-voltage, over-current, over-temp, ground fault",
+            "section": ""
+          },
+          {
+            "code": "D10",
+            "parameter": "Seismic Withstand Capability",
+            "requirement": "Seismic Zone III (IS 1893:2016) \u2014 Zone Factor Z=0.16, Importance Factor I=1.5, Response Reduction R=4.0",
+            "section": ""
+          }
+        ]
+      },
+      {
+        "name": "Container Specs",
+        "parameters": [
+          {
+            "code": "E1",
+            "parameter": "Container Type (20ft/40ft ISO / Custom)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "E2",
+            "parameter": "Container External Dimensions (L\u00d7W\u00d7H mm)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "E3",
+            "parameter": "Container Weight (empty, kg)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "E4",
+            "parameter": "Container Weight (fully loaded, kg)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "E5",
+            "parameter": "Number of Racks per Container",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "E6",
+            "parameter": "Energy per Container (kWh)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "E7",
+            "parameter": "Power per Container (kW)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "E8",
+            "parameter": "Total Containers Required for 200MW/400MWh",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "E9",
+            "parameter": "Container Material / Corrosion Protection",
+            "requirement": "Corten steel / hot-dip galvanized",
+            "section": ""
+          },
+          {
+            "code": "E10",
+            "parameter": "IP Rating of Container",
+            "requirement": "\u2265IP55",
+            "section": ""
+          },
+          {
+            "code": "E11",
+            "parameter": "Ingress Protection for Electrical Compartment",
+            "requirement": "\u2265IP54",
+            "section": ""
+          },
+          {
+            "code": "E12",
+            "parameter": "Design Ambient Temperature Range (\u00b0C)",
+            "requirement": "-5\u00b0C to 50\u00b0C (site max 47\u00b0C)",
+            "section": ""
+          },
+          {
+            "code": "F1",
+            "parameter": "Cooling System Type (Active/Liquid/Hybrid)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "F2",
+            "parameter": "Cooling Capacity per Container (kW)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "F3",
+            "parameter": "Heating Provision (if applicable)",
+            "requirement": "Required for <5\u00b0C",
+            "section": ""
+          },
+          {
+            "code": "F4",
+            "parameter": "HVAC Redundancy",
+            "requirement": "N+1 recommended",
+            "section": ""
+          },
+          {
+            "code": "F5",
+            "parameter": "HVAC Power Consumption per Container (kW)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "F6",
+            "parameter": "Refrigerant Type",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "F7",
+            "parameter": "HVAC Control Integration with BMS",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "G1",
+            "parameter": "Fire Detection System Type",
+            "requirement": "Multi-level: smoke, heat, gas (CO, H2, VOC)",
+            "section": ""
+          },
+          {
+            "code": "G2",
+            "parameter": "Fire Suppression System Type",
+            "requirement": "Clean agent / Aerosol / Water mist",
+            "section": ""
+          },
+          {
+            "code": "G3",
+            "parameter": "Fire Suppression Agent",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "G4",
+            "parameter": "Automatic Activation Triggers",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "G5",
+            "parameter": "Manual Activation Provision",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "G6",
+            "parameter": "Gas Detection Sensors (H2, CO, VOC)",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "G7",
+            "parameter": "Emergency Ventilation System",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "G8",
+            "parameter": "Explosion Proof Design / Pressure Relief",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "G9",
+            "parameter": "Fire Rating of Container Walls",
+            "requirement": "\u22652 hours fire resistance",
+            "section": ""
+          },
+          {
+            "code": "G10",
+            "parameter": "NFPA 855 / UL 9540A Container-Level Compliance",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "H1",
+            "parameter": "DC Bus Voltage Range within Container",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "H2",
+            "parameter": "DC Disconnect / Circuit Breaker per Container",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "H3",
+            "parameter": "Auxiliary Power Supply (AC) per Container",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "H4",
+            "parameter": "Grounding / Earthing Arrangement",
+            "requirement": "Earthing per IS 3043:2018 & IEC 62485 \u2014 max earth resistance \u22641 \u03a9, copper earth strip, equipotential bonding of all metallic parts",
+            "section": ""
+          },
+          {
+            "code": "H5",
+            "parameter": "Lightning Protection",
+            "requirement": "Lightning protection per IEC 62305 \u2014 LPL II minimum, external air terminals + down conductors, SPDs at AC & DC entry points",
+            "section": ""
+          },
+          {
+            "code": "H6",
+            "parameter": "Cable Entry Points & Gland Provisions",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "H7",
+            "parameter": "Internal Lighting (LED, Ex-rated if needed)",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "H8",
+            "parameter": "Emergency Stop Button(s)",
+            "requirement": "Required \u2013 inside and outside",
+            "section": ""
+          }
+        ]
+      },
+      {
+        "name": "BMS Specs",
+        "parameters": [
+          {
+            "code": "I1",
+            "parameter": "BMS Topology (Distributed / Centralized / Hierarchical)",
+            "requirement": "Hierarchical (Cell-Module-Rack-System)",
+            "section": ""
+          },
+          {
+            "code": "I2",
+            "parameter": "BMS Hardware Manufacturer",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "I3",
+            "parameter": "BMS Software Version / Firmware",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "I4",
+            "parameter": "Number of BMS Hierarchy Levels",
+            "requirement": "Minimum 3 levels",
+            "section": ""
+          },
+          {
+            "code": "I5",
+            "parameter": "Cell-Level Monitoring (Voltage, Temp)",
+            "requirement": "Required \u2013 each cell",
+            "section": ""
+          },
+          {
+            "code": "I6",
+            "parameter": "Module-Level BMS Functions",
+            "requirement": "Voltage, current, temp, balancing",
+            "section": ""
+          },
+          {
+            "code": "I7",
+            "parameter": "Rack-Level BMS Functions",
+            "requirement": "SOC, SOH, fault management",
+            "section": ""
+          },
+          {
+            "code": "I8",
+            "parameter": "System-Level BMS (Master Controller)",
+            "requirement": "Aggregate all racks, interface with EMS/PCS",
+            "section": ""
+          },
+          {
+            "code": "J1",
+            "parameter": "Cell Voltage Measurement Accuracy",
+            "requirement": "\u00b15 mV or better",
+            "section": ""
+          },
+          {
+            "code": "J2",
+            "parameter": "Cell Temperature Measurement Accuracy",
+            "requirement": "\u00b11\u00b0C or better",
+            "section": ""
+          },
+          {
+            "code": "J3",
+            "parameter": "SOC Estimation Accuracy",
+            "requirement": "\u00b13% or better",
+            "section": ""
+          },
+          {
+            "code": "J4",
+            "parameter": "SOH Estimation Method",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "J5",
+            "parameter": "Over-Voltage Protection (cell level)",
+            "requirement": "Required with configurable threshold",
+            "section": ""
+          },
+          {
+            "code": "J6",
+            "parameter": "Under-Voltage Protection (cell level)",
+            "requirement": "Required with configurable threshold",
+            "section": ""
+          },
+          {
+            "code": "J7",
+            "parameter": "Over-Current Protection",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "J8",
+            "parameter": "Over-Temperature Protection",
+            "requirement": "Required with configurable threshold",
+            "section": ""
+          },
+          {
+            "code": "J9",
+            "parameter": "Ground Fault Detection",
+            "requirement": "Required \u2013 IMD (Insulation Monitoring)",
+            "section": ""
+          },
+          {
+            "code": "J10",
+            "parameter": "Short Circuit Protection",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "J11",
+            "parameter": "Cell Balancing Method",
+            "requirement": "Active / Passive \u2013 specify",
+            "section": ""
+          },
+          {
+            "code": "J12",
+            "parameter": "Cell Balancing Current (mA)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "J13",
+            "parameter": "Emergency Shutdown Capability",
+            "requirement": "Required \u2013 autonomous",
+            "section": ""
+          },
+          {
+            "code": "J14",
+            "parameter": "Pre-charge Circuit",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "K1",
+            "parameter": "Communication Protocol to EMS/SCADA",
+            "requirement": "Modbus TCP/RTU, IEC 61850, DNP3",
+            "section": ""
+          },
+          {
+            "code": "K2",
+            "parameter": "Communication Protocol to PCS",
+            "requirement": "CAN / Modbus / Ethernet",
+            "section": ""
+          },
+          {
+            "code": "K3",
+            "parameter": "Internal Communication (Module to Rack)",
+            "requirement": "CAN bus / RS485",
+            "section": ""
+          },
+          {
+            "code": "K4",
+            "parameter": "Data Logging Capability",
+            "requirement": "Required \u2013 min 1 year local storage",
+            "section": ""
+          },
+          {
+            "code": "K5",
+            "parameter": "Data Sampling Rate",
+            "requirement": "\u22641 second for critical parameters",
+            "section": ""
+          },
+          {
+            "code": "K6",
+            "parameter": "Alarm & Event Management",
+            "requirement": "Required \u2013 configurable thresholds",
+            "section": ""
+          },
+          {
+            "code": "K7",
+            "parameter": "Remote Firmware Update Capability",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "K8",
+            "parameter": "Cybersecurity Features",
+            "requirement": "Per IEC 62443 \u2014 Role-based access control (RBAC), encrypted communications (TLS 1.2+), secure boot, firmware signing, audit logging, and network segmentation. Hardware security module (HSM) recommended.",
+            "section": ""
+          }
+        ]
+      },
+      {
+        "name": "Degradation & Warranty",
+        "parameters": [
+          {
+            "code": "W1",
+            "parameter": "Design Life (years)",
+            "requirement": "\u226512 years",
+            "section": ""
+          },
+          {
+            "code": "W2",
+            "parameter": "Cycle Life Guarantee at Rated DOD",
+            "requirement": "\u22656000 cycles",
+            "section": ""
+          },
+          {
+            "code": "W3",
+            "parameter": "Capacity Retention at End of 12 Years (%)",
+            "requirement": "Per degradation table above",
+            "section": ""
+          },
+          {
+            "code": "W4",
+            "parameter": "Round Trip Efficiency (AC-AC) at POI",
+            "requirement": "\u226585% (weighted avg over life)",
+            "section": ""
+          },
+          {
+            "code": "W5",
+            "parameter": "BESS Availability Guarantee (%)",
+            "requirement": "\u226597% annually",
+            "section": ""
+          },
+          {
+            "code": "W6",
+            "parameter": "Response Time (0 to full power)",
+            "requirement": "\u2264200 ms",
+            "section": ""
+          },
+          {
+            "code": "W7",
+            "parameter": "Warranty Period Offered",
+            "requirement": "12 years minimum",
+            "section": ""
+          },
+          {
+            "code": "W8",
+            "parameter": "Augmentation Strategy (if any)",
+            "requirement": "\u2014",
+            "section": ""
+          }
+        ]
+      }
+    ]
+  },
+  "PCS": {
+    "sheets": [
+      {
+        "name": "PCS Technical Data",
+        "parameters": [
+          {
+            "code": "A1",
+            "parameter": "OEM Company Name",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A2",
+            "parameter": "PCS Model / Series",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A3",
+            "parameter": "Factory Location",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A4",
+            "parameter": "Total PCS Installations for BESS (MW cumulative)",
+            "requirement": "\u2265200 MW cumulative",
+            "section": ""
+          },
+          {
+            "code": "A5",
+            "parameter": "Largest Single BESS PCS Project (MW)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A6",
+            "parameter": "PCS Topology (String / Central)",
+            "requirement": "Central preferred for 200MW",
+            "section": ""
+          },
+          {
+            "code": "B1",
+            "parameter": "Rated AC Power Output (kW per unit)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B2",
+            "parameter": "Number of PCS Units for 200 MW",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B3",
+            "parameter": "Rated AC Voltage (kV)",
+            "requirement": "33 kV (AC side interconnection voltage at POI per Single Line Diagram)",
+            "section": ""
+          },
+          {
+            "code": "B4",
+            "parameter": "AC Frequency Range (Hz)",
+            "requirement": "47.5 \u2013 51.5 Hz",
+            "section": ""
+          },
+          {
+            "code": "B5",
+            "parameter": "DC Input Voltage Range (V)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B6",
+            "parameter": "Maximum DC Input Current (A)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B7",
+            "parameter": "AC Output Current (A, rated)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B8",
+            "parameter": "Overload Capability (% and duration)",
+            "requirement": "\u2265110% for 10 min, \u2265120% for 1 min",
+            "section": ""
+          },
+          {
+            "code": "B9",
+            "parameter": "Power Factor Range (adjustable)",
+            "requirement": "0.85 leading to 0.85 lagging",
+            "section": ""
+          },
+          {
+            "code": "B10",
+            "parameter": "THD at Rated Output (%)",
+            "requirement": "\u22643% individual, \u22645% total",
+            "section": ""
+          },
+          {
+            "code": "B11",
+            "parameter": "Reactive Power Capability (kVAr)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B12",
+            "parameter": "Apparent Power Rating (kVA per unit)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "C1",
+            "parameter": "Peak Conversion Efficiency (%)",
+            "requirement": "\u226598.5%",
+            "section": ""
+          },
+          {
+            "code": "C2",
+            "parameter": "Weighted / CEC Efficiency (%)",
+            "requirement": "\u226598%",
+            "section": ""
+          },
+          {
+            "code": "C3",
+            "parameter": "Standby Power Consumption (kW)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "C4",
+            "parameter": "Auxiliary Power Consumption at Full Load (kW)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "C5",
+            "parameter": "Response Time: 0 to Full Power (ms)",
+            "requirement": "\u2264200 ms",
+            "section": ""
+          },
+          {
+            "code": "C6",
+            "parameter": "Ramp Rate (MW/s)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "C7",
+            "parameter": "Mode Transition Time (Charge \u2194 Discharge, ms)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "C8",
+            "parameter": "Black Start Capability",
+            "requirement": "Required \u2014 Black Start capability is mandatory per Technical Specification. PCS must energize 33 kV bus from battery without external grid supply.",
+            "section": ""
+          },
+          {
+            "code": "D1",
+            "parameter": "Anti-Islanding Protection",
+            "requirement": "Required per IEEE 1547 / CEA",
+            "section": ""
+          },
+          {
+            "code": "D2",
+            "parameter": "Fault Ride Through (LVRT) Capability",
+            "requirement": "Required per CEA Grid Code 2019",
+            "section": ""
+          },
+          {
+            "code": "D3",
+            "parameter": "Fault Ride Through (HVRT) Capability",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "D4",
+            "parameter": "Frequency Response / Droop Control",
+            "requirement": "Required \u2013 configurable",
+            "section": ""
+          },
+          {
+            "code": "D5",
+            "parameter": "Voltage Regulation / AVR Mode",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "D6",
+            "parameter": "Active Power Curtailment Capability",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "D7",
+            "parameter": "Grid Synchronization Method",
+            "requirement": "PLL-based, per IEC 61727",
+            "section": ""
+          },
+          {
+            "code": "D8",
+            "parameter": "Harmonic Filtering (Active/Passive)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "D9",
+            "parameter": "Compliance with CEA (Technical Standards for Grid Connectivity) 2019",
+            "requirement": "Mandatory",
+            "section": ""
+          },
+          {
+            "code": "D10",
+            "parameter": "Compliance with IEEE 1547-2018",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "D11",
+            "parameter": "Compliance with IEC 62477 / IEC 62109",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "E1",
+            "parameter": "PCS Enclosure Type (Indoor/Outdoor/Container)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "E2",
+            "parameter": "PCS Unit Dimensions (L\u00d7W\u00d7H mm)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "E3",
+            "parameter": "PCS Unit Weight (kg)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "E4",
+            "parameter": "IP Rating",
+            "requirement": "\u2265IP54 for outdoor",
+            "section": ""
+          },
+          {
+            "code": "E5",
+            "parameter": "Operating Temperature Range (\u00b0C)",
+            "requirement": "-5\u00b0C to 50\u00b0C (site max 47\u00b0C)",
+            "section": ""
+          },
+          {
+            "code": "E6",
+            "parameter": "Cooling Method (Air/Liquid)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "E7",
+            "parameter": "Noise Level (dBA at 1m)",
+            "requirement": "\u226480 dBA",
+            "section": ""
+          },
+          {
+            "code": "E8",
+            "parameter": "Altitude Rating (m above MSL)",
+            "requirement": "\u22641000m (site: ~60m)",
+            "section": ""
+          },
+          {
+            "code": "E9",
+            "parameter": "Seismic Withstand (IS 1893 Zone)",
+            "requirement": "Zone III",
+            "section": ""
+          },
+          {
+            "code": "F1",
+            "parameter": "AC Side Protections",
+            "requirement": "OV, UV, OF, UF, OC, SC, ground fault, anti-islanding",
+            "section": ""
+          },
+          {
+            "code": "F2",
+            "parameter": "DC Side Protections",
+            "requirement": "OV, UV, OC, SC, reverse polarity, arc fault",
+            "section": ""
+          },
+          {
+            "code": "F3",
+            "parameter": "Surge Protection (AC & DC)",
+            "requirement": "Required \u2013 Type I+II SPD",
+            "section": ""
+          },
+          {
+            "code": "F4",
+            "parameter": "Communication Protocols",
+            "requirement": "Modbus TCP/RTU, IEC 61850, DNP3, CAN",
+            "section": ""
+          },
+          {
+            "code": "F5",
+            "parameter": "HMI / Local Display",
+            "requirement": "Required \u2013 touchscreen",
+            "section": ""
+          },
+          {
+            "code": "F6",
+            "parameter": "Remote Monitoring Capability",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "F7",
+            "parameter": "Data Logging (local storage)",
+            "requirement": "Required \u2013 min 1 year",
+            "section": ""
+          },
+          {
+            "code": "F8",
+            "parameter": "Cybersecurity Compliance",
+            "requirement": "IEC 62443",
+            "section": ""
+          },
+          {
+            "code": "G1",
+            "parameter": "Transformer Type (Dry/Oil)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "G2",
+            "parameter": "Transformer Rating (kVA)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "G3",
+            "parameter": "Primary Voltage (V)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "G4",
+            "parameter": "Secondary Voltage (kV)",
+            "requirement": "33 kV",
+            "section": ""
+          },
+          {
+            "code": "G5",
+            "parameter": "Impedance (%)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "G6",
+            "parameter": "Cooling Method (ONAN/ONAF)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "G7",
+            "parameter": "Transformer Standards Compliance",
+            "requirement": "IS 2026 / IEC 60076",
+            "section": ""
+          },
+          {
+            "code": "H1",
+            "parameter": "Type Test Reports Available (list)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "H2",
+            "parameter": "IEC 62477-1 (Power Electronic Converter Systems)",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "H3",
+            "parameter": "IEC 62109-1 & 62109-2 (PV Inverter Safety)",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "H4",
+            "parameter": "IEC 61000 (EMC Compliance)",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "H5",
+            "parameter": "UL 1741 / UL 1741 SA (if applicable)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "H6",
+            "parameter": "CEA Type Test Compliance",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "H7",
+            "parameter": "Make in India Classification",
+            "requirement": "Specify % local content",
+            "section": ""
+          }
+        ]
+      }
+    ]
+  },
+  "EMS_SCADA": {
+    "sheets": [
+      {
+        "name": "EMS-SCADA Technical Data",
+        "parameters": [
+          {
+            "code": "A1",
+            "parameter": "EMS OEM / Software Developer Name",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A2",
+            "parameter": "EMS Software Platform / Version",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A3",
+            "parameter": "Total EMS Installations for BESS (MW cumulative)",
+            "requirement": "\u2265100 MW",
+            "section": ""
+          },
+          {
+            "code": "A4",
+            "parameter": "Largest Single BESS EMS Project (MW)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A5",
+            "parameter": "EMS Architecture (Centralized / Distributed / Cloud-Edge)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A6",
+            "parameter": "EMS Hardware Platform (Server specs)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A7",
+            "parameter": "Operating System",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B1",
+            "parameter": "Real-Time Monitoring of all BESS Parameters",
+            "requirement": "Required \u2013 \u22641 sec refresh",
+            "section": ""
+          },
+          {
+            "code": "B2",
+            "parameter": "Active Power Dispatch Control",
+            "requirement": "Required \u2013 MW setpoint from SLDC/NLDC",
+            "section": ""
+          },
+          {
+            "code": "B3",
+            "parameter": "Reactive Power / Voltage Control",
+            "requirement": "Required \u2013 kVAr setpoint",
+            "section": ""
+          },
+          {
+            "code": "B4",
+            "parameter": "Automatic Generation Control (AGC) Interface",
+            "requirement": "Required per CERC regulations",
+            "section": ""
+          },
+          {
+            "code": "B5",
+            "parameter": "Frequency Regulation Mode (Primary/Secondary/Tertiary)",
+            "requirement": "Required \u2013 all three",
+            "section": ""
+          },
+          {
+            "code": "B6",
+            "parameter": "Peak Shaving / Load Leveling Mode",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "B7",
+            "parameter": "Ramp Rate Control",
+            "requirement": "Required \u2013 configurable",
+            "section": ""
+          },
+          {
+            "code": "B8",
+            "parameter": "SOC Management & Optimization",
+            "requirement": "Required \u2013 predictive algorithms",
+            "section": ""
+          },
+          {
+            "code": "B9",
+            "parameter": "Degradation-Aware Dispatch",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "B10",
+            "parameter": "Scheduling & Forecasting Module",
+            "requirement": "Required \u2013 day-ahead, intra-day",
+            "section": ""
+          },
+          {
+            "code": "B11",
+            "parameter": "Multi-Unit Coordination (all PCS + containers)",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "B12",
+            "parameter": "Black Start Sequence Management",
+            "requirement": "Required if applicable",
+            "section": ""
+          },
+          {
+            "code": "B13",
+            "parameter": "Islanding Detection & Management",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "C1",
+            "parameter": "SCADA Software Platform",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "C2",
+            "parameter": "Number of I/O Points Supported",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "C3",
+            "parameter": "HMI Screens (Operator Workstation)",
+            "requirement": "Required \u2013 min 2 redundant",
+            "section": ""
+          },
+          {
+            "code": "C4",
+            "parameter": "Alarm Management System",
+            "requirement": "Required \u2013 configurable, multi-level priority",
+            "section": ""
+          },
+          {
+            "code": "C5",
+            "parameter": "Event & Sequence of Events (SOE) Recording",
+            "requirement": "Required \u2013 \u22641 ms resolution",
+            "section": ""
+          },
+          {
+            "code": "C6",
+            "parameter": "Trending & Historical Data Storage",
+            "requirement": "Required \u2013 min 5 years",
+            "section": ""
+          },
+          {
+            "code": "C7",
+            "parameter": "Report Generation (daily/monthly/annual)",
+            "requirement": "Required \u2013 auto & manual",
+            "section": ""
+          },
+          {
+            "code": "C8",
+            "parameter": "Web-Based Remote Access",
+            "requirement": "Required \u2013 role-based access",
+            "section": ""
+          },
+          {
+            "code": "C9",
+            "parameter": "Mobile App / Dashboard",
+            "requirement": "Preferred",
+            "section": ""
+          },
+          {
+            "code": "D1",
+            "parameter": "Protocol to BMS",
+            "requirement": "Modbus TCP/RTU, CAN",
+            "section": ""
+          },
+          {
+            "code": "D2",
+            "parameter": "Protocol to PCS",
+            "requirement": "Modbus TCP, IEC 61850",
+            "section": ""
+          },
+          {
+            "code": "D3",
+            "parameter": "Protocol to Plant SCADA / DCS",
+            "requirement": "IEC 61850 / DNP3 / Modbus",
+            "section": ""
+          },
+          {
+            "code": "D4",
+            "parameter": "Protocol to SLDC / NLDC / RLDC",
+            "requirement": "IEC 60870-5-104 / IEC 61850",
+            "section": ""
+          },
+          {
+            "code": "D5",
+            "parameter": "Protocol to Remote Monitoring Center",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "D6",
+            "parameter": "Metering Interface (ABT/Special Energy Meters)",
+            "requirement": "Required per CERC",
+            "section": ""
+          },
+          {
+            "code": "D7",
+            "parameter": "GPS Time Synchronization (NTP/PTP)",
+            "requirement": "Required \u2013 IEEE 1588 PTP preferred",
+            "section": ""
+          },
+          {
+            "code": "D8",
+            "parameter": "Redundant Communication Links",
+            "requirement": "Required \u2013 dual Ethernet + fiber",
+            "section": ""
+          },
+          {
+            "code": "D9",
+            "parameter": "Integration with Plant Weather Station",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "E1",
+            "parameter": "IEC 62443 Compliance Level",
+            "requirement": "Required \u2013 SL2 minimum",
+            "section": ""
+          },
+          {
+            "code": "E2",
+            "parameter": "Role-Based Access Control (RBAC)",
+            "requirement": "Required \u2013 multi-tier",
+            "section": ""
+          },
+          {
+            "code": "E3",
+            "parameter": "Audit Trail & Logging",
+            "requirement": "Required \u2013 tamper-proof",
+            "section": ""
+          },
+          {
+            "code": "E4",
+            "parameter": "Encrypted Communication (TLS/SSL)",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "E5",
+            "parameter": "Firewall & Network Segmentation",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "E6",
+            "parameter": "Intrusion Detection System (IDS)",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "E7",
+            "parameter": "Patch Management & Vulnerability Assessment",
+            "requirement": "Required \u2013 lifecycle plan",
+            "section": ""
+          },
+          {
+            "code": "F1",
+            "parameter": "Server Configuration (Primary + Standby)",
+            "requirement": "Required \u2013 hot standby",
+            "section": ""
+          },
+          {
+            "code": "F2",
+            "parameter": "Server Specifications (CPU, RAM, Storage)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "F3",
+            "parameter": "UPS for EMS/SCADA (kVA, backup duration)",
+            "requirement": "Required \u2013 min 2 hours",
+            "section": ""
+          },
+          {
+            "code": "F4",
+            "parameter": "Network Switches & Routers",
+            "requirement": "Required \u2013 managed, industrial grade",
+            "section": ""
+          },
+          {
+            "code": "F5",
+            "parameter": "Fiber Optic Network within BESS Plant",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "F6",
+            "parameter": "Operator Workstation Specifications",
+            "requirement": "Required \u2013 min 2 nos",
+            "section": ""
+          },
+          {
+            "code": "F7",
+            "parameter": "Engineering Workstation",
+            "requirement": "Required \u2013 1 no",
+            "section": ""
+          },
+          {
+            "code": "F8",
+            "parameter": "Video Wall / Large Display (if applicable)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "G1",
+            "parameter": "Factory Acceptance Test (FAT) Plan",
+            "requirement": "Required \u2013 submit with offer",
+            "section": ""
+          },
+          {
+            "code": "G2",
+            "parameter": "Site Acceptance Test (SAT) Plan",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "G3",
+            "parameter": "IEC 61850 Conformance Certificate",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "G4",
+            "parameter": "Cybersecurity Assessment Report",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "G5",
+            "parameter": "Software Documentation (SRS, SDD, User Manual)",
+            "requirement": "Required",
+            "section": ""
+          }
+        ]
+      }
+    ]
+  },
+  "HVAC_Fire": {
+    "sheets": [
+      {
+        "name": "HVAC & Fire Safety",
+        "parameters": [
+          {
+            "code": "A1",
+            "parameter": "HVAC OEM / Manufacturer Name",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A2",
+            "parameter": "HVAC System Type (Split / Packaged / Precision)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A3",
+            "parameter": "Cooling Capacity per Unit (kW)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A4",
+            "parameter": "Number of HVAC Units per Container",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A5",
+            "parameter": "Target Internal Temperature Range (\u00b0C)",
+            "requirement": "20\u00b0C \u2013 25\u00b0C (battery optimal)",
+            "section": ""
+          },
+          {
+            "code": "A6",
+            "parameter": "Maximum Ambient Temperature Design (\u00b0C)",
+            "requirement": "50\u00b0C (site max 47\u00b0C + margin)",
+            "section": ""
+          },
+          {
+            "code": "A7",
+            "parameter": "Minimum Ambient Temperature Design (\u00b0C)",
+            "requirement": "-5\u00b0C",
+            "section": ""
+          },
+          {
+            "code": "A8",
+            "parameter": "Heating Capability (kW, if applicable)",
+            "requirement": "Required for winter operation",
+            "section": ""
+          },
+          {
+            "code": "A9",
+            "parameter": "Humidity Control Range (%RH)",
+            "requirement": "30% \u2013 70% RH",
+            "section": ""
+          },
+          {
+            "code": "A10",
+            "parameter": "Airflow Rate (CFM / m\u00b3/h)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A11",
+            "parameter": "Air Filtration Class",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A12",
+            "parameter": "Refrigerant Type & GWP",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A13",
+            "parameter": "HVAC Power Consumption per Container (kW)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A14",
+            "parameter": "COP / EER at Rated Conditions",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "A15",
+            "parameter": "HVAC Control Integration",
+            "requirement": "BMS-controlled, Modbus/BACnet",
+            "section": ""
+          },
+          {
+            "code": "A16",
+            "parameter": "Emergency Ventilation Mode",
+            "requirement": "Required \u2013 triggered by gas detection",
+            "section": ""
+          },
+          {
+            "code": "A17",
+            "parameter": "IP Rating of HVAC Outdoor Unit",
+            "requirement": "\u2265IP54",
+            "section": ""
+          },
+          {
+            "code": "A18",
+            "parameter": "Noise Level (dBA at 1m)",
+            "requirement": "\u226475 dBA",
+            "section": ""
+          },
+          {
+            "code": "A19",
+            "parameter": "HVAC Certifications / Standards",
+            "requirement": "IS 1391 / IEC 60335 / ASHRAE",
+            "section": ""
+          },
+          {
+            "code": "B1",
+            "parameter": "Fire Detection OEM / Manufacturer Name",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B2",
+            "parameter": "Smoke Detection Technology",
+            "requirement": "Very Early Smoke Detection (VESDA) or equivalent",
+            "section": ""
+          },
+          {
+            "code": "B3",
+            "parameter": "Heat Detection Type & Class",
+            "requirement": "Rate-of-rise + fixed temp",
+            "section": ""
+          },
+          {
+            "code": "B4",
+            "parameter": "Gas Detection Sensors Provided",
+            "requirement": "H\u2082, CO, CO\u2082, VOC \u2013 all required",
+            "section": ""
+          },
+          {
+            "code": "B5",
+            "parameter": "Gas Detection Accuracy & Range",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B6",
+            "parameter": "Number of Detection Zones per Container",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B7",
+            "parameter": "Detection Response Time (seconds)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "B8",
+            "parameter": "Fire Alarm Control Panel (FACP) Type",
+            "requirement": "Addressable, SIL-2 rated",
+            "section": ""
+          },
+          {
+            "code": "B9",
+            "parameter": "Integration with BMS & EMS",
+            "requirement": "Required \u2013 alarm relay + Modbus",
+            "section": ""
+          },
+          {
+            "code": "B10",
+            "parameter": "Visual & Audible Alarm Devices",
+            "requirement": "Required \u2013 inside & outside container",
+            "section": ""
+          },
+          {
+            "code": "B11",
+            "parameter": "Detection System Standards",
+            "requirement": "NFPA 72 / IS 2189 / EN 54",
+            "section": ""
+          },
+          {
+            "code": "C1",
+            "parameter": "Fire Suppression OEM / Manufacturer Name",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "C2",
+            "parameter": "Suppression Agent Type",
+            "requirement": "Clean agent (Novec 1230) / Aerosol / Water mist",
+            "section": ""
+          },
+          {
+            "code": "C3",
+            "parameter": "Suppression Agent Name & Quantity per Container",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "C4",
+            "parameter": "Discharge Time (seconds)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "C5",
+            "parameter": "Hold Time after Discharge (minutes)",
+            "requirement": "\u226510 minutes",
+            "section": ""
+          },
+          {
+            "code": "C6",
+            "parameter": "Automatic Activation Logic",
+            "requirement": "Two-stage: detection alarm \u2192 suppression",
+            "section": ""
+          },
+          {
+            "code": "C7",
+            "parameter": "Manual Activation Provision",
+            "requirement": "Required \u2013 local + remote",
+            "section": ""
+          },
+          {
+            "code": "C8",
+            "parameter": "Abort Switch Provision",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "C9",
+            "parameter": "Suppression System Redundancy",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "C10",
+            "parameter": "Pressure Relief / Venting after Suppression",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "C11",
+            "parameter": "Suppression System Standards",
+            "requirement": "NFPA 855 / NFPA 2001 / UL 2775",
+            "section": ""
+          },
+          {
+            "code": "C12",
+            "parameter": "UL 9540A Container-Level Test Report",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "D1",
+            "parameter": "Emergency Ventilation Fan Capacity (CFM)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "D2",
+            "parameter": "Number of Ventilation Fans per Container",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "D3",
+            "parameter": "Activation Trigger (gas threshold)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "D4",
+            "parameter": "Explosion-Proof Rating (ATEX / IECEx)",
+            "requirement": "Required for fans & electrical",
+            "section": ""
+          },
+          {
+            "code": "D5",
+            "parameter": "Pressure Relief Panel / Deflagration Vent",
+            "requirement": "Required",
+            "section": ""
+          },
+          {
+            "code": "D6",
+            "parameter": "Gas Exhaust Duct Routing",
+            "requirement": "\u2014",
+            "section": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Guarantees": {
+    "sheets": [
+      {
+        "name": "Functional Guarantees",
+        "parameters": [
+          {
+            "code": "FG1",
+            "parameter": "Rated AC Power at POI (MW)",
+            "requirement": "200 MW",
+            "section": ""
+          },
+          {
+            "code": "FG2",
+            "parameter": "Net Dispatchable Energy at POI (MWh) at Rated DOD",
+            "requirement": "400 MWh over 12-year design life",
+            "section": ""
+          },
+          {
+            "code": "FG3",
+            "parameter": "Depth of Discharge (DOD)",
+            "requirement": "OEM to specify optimal DOD for achieving \u2265400 MWh net dispatchable energy over 12-year life with \u22656,000 cycles",
+            "section": ""
+          },
+          {
+            "code": "FG4",
+            "parameter": "Gross BESS Capacity to achieve Net 400 MWh",
+            "requirement": "To be specified by OEM",
+            "section": ""
+          },
+          {
+            "code": "FG5",
+            "parameter": "Minimum Dispatchable Energy \u2013 Year 1 (MWh)",
+            "requirement": "\u2265400 MWh at BOY",
+            "section": ""
+          },
+          {
+            "code": "FG6",
+            "parameter": "Minimum Dispatchable Energy \u2013 Year 12 (MWh)",
+            "requirement": "\u2265400 MWh at EOY (or as guaranteed)",
+            "section": ""
+          },
+          {
+            "code": "FG7",
+            "parameter": "Round Trip Efficiency (AC-DC-AC) at POI (%)",
+            "requirement": "\u226585% (weighted average over life)",
+            "section": ""
+          },
+          {
+            "code": "FG8",
+            "parameter": "PCS Conversion Efficiency (%)",
+            "requirement": "\u226598%",
+            "section": ""
+          },
+          {
+            "code": "FG9",
+            "parameter": "Auxiliary Power Consumption (% of rated)",
+            "requirement": "To be minimized, specify value",
+            "section": ""
+          },
+          {
+            "code": "FG10",
+            "parameter": "Annual BESS Availability (%)",
+            "requirement": "\u226597%",
+            "section": ""
+          },
+          {
+            "code": "FG11",
+            "parameter": "Planned Maintenance Downtime (hours/year)",
+            "requirement": "To be specified",
+            "section": ""
+          },
+          {
+            "code": "FG12",
+            "parameter": "Mean Time Between Failures (MTBF) \u2013 hours",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "FG13",
+            "parameter": "Mean Time To Repair (MTTR) \u2013 hours",
+            "requirement": "\u22644 hours for critical failures",
+            "section": ""
+          },
+          {
+            "code": "FG14",
+            "parameter": "Response Time: 0 to Full Power (ms)",
+            "requirement": "\u2264200 ms",
+            "section": ""
+          },
+          {
+            "code": "FG15",
+            "parameter": "Ramp Rate (MW/s)",
+            "requirement": "Per CEA Technical Standards (2019) & CERC Ancillary Services Regulations \u2014 OEM to specify maximum ramp rate in MW/s (typical \u226550 MW/s for BESS)",
+            "section": ""
+          },
+          {
+            "code": "FG16",
+            "parameter": "Power Factor Range at POI",
+            "requirement": "0.85 lead to 0.85 lag",
+            "section": ""
+          },
+          {
+            "code": "FG17",
+            "parameter": "Frequency Response Capability",
+            "requirement": "47.5 Hz to 51.5 Hz continuous",
+            "section": ""
+          },
+          {
+            "code": "FG18",
+            "parameter": "LVRT / HVRT Compliance",
+            "requirement": "Per CEA Grid Code 2019",
+            "section": ""
+          },
+          {
+            "code": "FG19",
+            "parameter": "Design Life (years)",
+            "requirement": "\u226512 years",
+            "section": ""
+          },
+          {
+            "code": "FG20",
+            "parameter": "Cycle Life at Rated DOD",
+            "requirement": "\u22656000 cycles",
+            "section": ""
+          },
+          {
+            "code": "FG21",
+            "parameter": "Annual Degradation Rate (%)",
+            "requirement": "To be specified year-wise",
+            "section": ""
+          },
+          {
+            "code": "FG22",
+            "parameter": "End-of-Life Capacity Retention (%)",
+            "requirement": "\u2014",
+            "section": ""
+          },
+          {
+            "code": "FG23",
+            "parameter": "Augmentation Commitment",
+            "requirement": "OEM to maintain guaranteed MWh",
+            "section": ""
+          },
+          {
+            "code": "LD1",
+            "parameter": "LD for Capacity Shortfall (MW)",
+            "requirement": "1% of contract value per 1% shortfall in MW capacity below guaranteed 200 MW; proportional for partial shortfall",
+            "section": ""
+          },
+          {
+            "code": "LD2",
+            "parameter": "LD for Energy Shortfall (MWh)",
+            "requirement": "1% of contract value per 1% shortfall in MWh energy below guaranteed 400 MWh; measured annually at POI",
+            "section": ""
+          },
+          {
+            "code": "LD3",
+            "parameter": "LD for Efficiency Shortfall",
+            "requirement": "0.5% of contract value per 0.5% shortfall below guaranteed RTE at POI; measured as annual weighted average including aux consumption",
+            "section": ""
+          },
+          {
+            "code": "LD4",
+            "parameter": "LD for Availability Shortfall",
+            "requirement": "0.5% of contract value per 1% shortfall below 97% annual availability; excludes planned maintenance per agreed schedule",
+            "section": ""
+          },
+          {
+            "code": "LD5",
+            "parameter": "LD for Delay in Delivery",
+            "requirement": "0.5% per week, max 5% of contract value",
+            "section": ""
+          },
+          {
+            "code": "LD6",
+            "parameter": "Overall LD Cap",
+            "requirement": "Aggregate LD cap: 10% of total contract value (sum of all performance LDs + delay LDs)",
+            "section": ""
+          }
+        ]
+      },
+      {
+        "name": "Mandatory Spares",
+        "parameters": [
+          {
+            "code": "S1",
+            "parameter": "Battery Cells (% of total)",
+            "requirement": "2% of total cells",
+            "section": ""
+          },
+          {
+            "code": "S2",
+            "parameter": "Battery Modules (complete)",
+            "requirement": "2% of total modules \u2014 for commissioning + 12-year O&M pool",
+            "section": ""
+          },
+          {
+            "code": "S3",
+            "parameter": "BMS Controller Cards (per level)",
+            "requirement": "1 set per BMS hierarchy level (cell/module/rack/system) \u2014 minimum 4 cards total",
+            "section": ""
+          },
+          {
+            "code": "S4",
+            "parameter": "PCS IGBT / Power Module",
+            "requirement": "1 IGBT / power module stack per PCS unit type \u2014 minimum 2 sets for 200 MW plant",
+            "section": ""
+          },
+          {
+            "code": "S5",
+            "parameter": "PCS Control Board / DSP Board",
+            "requirement": "1 per PCS unit type \u2014 minimum 2 boards",
+            "section": ""
+          },
+          {
+            "code": "S6",
+            "parameter": "PCS Cooling Fans",
+            "requirement": "2 fans per PCS unit type \u2014 minimum 4 fans total",
+            "section": ""
+          },
+          {
+            "code": "S7",
+            "parameter": "PCS Gate Driver Cards",
+            "requirement": "1 per PCS unit type \u2014 minimum 2 cards",
+            "section": ""
+          },
+          {
+            "code": "S8",
+            "parameter": "DC Contactors / Circuit Breakers",
+            "requirement": "2% of total installed contactors/breakers \u2014 minimum 4 units",
+            "section": ""
+          },
+          {
+            "code": "S9",
+            "parameter": "Fuses (DC string / module level)",
+            "requirement": "5% of total installed fuses \u2014 by rating type (string / module)",
+            "section": ""
+          },
+          {
+            "code": "S10",
+            "parameter": "Current Sensors / CTs",
+            "requirement": "2% of total installed CTs \u2014 by rating type",
+            "section": ""
+          },
+          {
+            "code": "S11",
+            "parameter": "Voltage Sensors / PTs",
+            "requirement": "2% of total installed PTs \u2014 by rating type",
+            "section": ""
+          },
+          {
+            "code": "S12",
+            "parameter": "Temperature Sensors (NTC/PTC)",
+            "requirement": "2% of total installed sensors \u2014 minimum 10 per type (NTC/PTC)",
+            "section": ""
+          },
+          {
+            "code": "S13",
+            "parameter": "HVAC Compressor / Condenser Unit",
+            "requirement": "1 per 10 containers",
+            "section": ""
+          },
+          {
+            "code": "S14",
+            "parameter": "HVAC Control PCB",
+            "requirement": "1 control PCB per 10 containers \u2014 minimum 2 units",
+            "section": ""
+          },
+          {
+            "code": "S15",
+            "parameter": "Fire Suppression Cylinders (refill/replace)",
+            "requirement": "1 refill set per 10 containers \u2014 must include agent + actuator + nozzles",
+            "section": ""
+          },
+          {
+            "code": "S16",
+            "parameter": "Gas Detection Sensors (H2, CO, VOC)",
+            "requirement": "2% of total installed sensors per type (H\u2082, CO, VOC) \u2014 minimum 4 per gas type",
+            "section": ""
+          },
+          {
+            "code": "S17",
+            "parameter": "Smoke Detectors",
+            "requirement": "2% of total installed detectors \u2014 minimum 6 units",
+            "section": ""
+          },
+          {
+            "code": "S18",
+            "parameter": "EMS/SCADA Server Components",
+            "requirement": "1 complete redundant server set (main + standby) with pre-loaded software image",
+            "section": ""
+          },
+          {
+            "code": "S19",
+            "parameter": "Communication Cards / Network Switches",
+            "requirement": "1 per switch/card type \u2014 minimum 4 units; include managed switches + media converters",
+            "section": ""
+          },
+          {
+            "code": "S20",
+            "parameter": "Surge Protection Devices (AC & DC)",
+            "requirement": "2% of total installed SPDs \u2014 both AC and DC types by rating",
+            "section": ""
+          },
+          {
+            "code": "S21",
+            "parameter": "Cable Assemblies (power & communication)",
+            "requirement": "2% of total installed cable length \u2014 power cables by cross-section; comms cables by type",
+            "section": ""
+          },
+          {
+            "code": "S22",
+            "parameter": "Special Tools & Test Equipment",
+            "requirement": "1 complete set \u2014 include insulation tester, battery impedance tester, IR thermometer, torque tools, fiber splice kit",
+            "section": ""
+          }
+        ]
+      },
+      {
+        "name": "Reference Projects",
+        "parameters": []
+      }
+    ]
+  }
+}

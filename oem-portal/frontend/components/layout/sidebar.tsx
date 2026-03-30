@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import {
   LayoutDashboard, Building2, FileText,
   GitCompare, ClipboardCheck, Settings,
-  Zap, ChevronRight
+  Zap, ChevronRight, Shield
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -16,6 +16,7 @@ const NAV_SECTIONS = [
       { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
       { href: "/oems", icon: Building2, label: "OEM Library" },
       { href: "/rfq", icon: FileText, label: "RFQ Manager", badge: "AI" },
+      { href: "/dnv", icon: Shield, label: "DNV Intelligence", badge: "NEW" },
     ],
   },
   {

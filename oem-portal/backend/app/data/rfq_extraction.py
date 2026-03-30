@@ -144,6 +144,8 @@ Return a JSON array of objects. Each object must have:
 - "required_value": string (the extracted value)
 - "unit": string (unit of measurement)
 - "section": string (category)
+- "page": number or null (approximate page number where this was found, if determinable from context)
+- "source_text": string (the exact sentence or phrase from the document where this value was found, max 100 chars)
 
 Return ONLY the JSON array, no markdown, no explanation. Start with [ and end with ]."""
 
@@ -189,7 +191,7 @@ def extract_with_claude(document_text: str, api_key: str) -> list:
         prompt = _build_ai_prompt(document_text)
 
         message = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-haiku-4-5-20251001",
             max_tokens=4096,
             messages=[{"role": "user", "content": prompt}],
         )
@@ -207,35 +209,37 @@ def extract_with_claude(document_text: str, api_key: str) -> list:
     return []
 
 
-def extract_from_text(document_text: str) -> list:
+def extract_from_text(document_text: str, pages: list = None) -> list:
     """
     Extract technical requirements from document text.
 
     Priority:
-    1. Gemini API (free, fast, 1M context) — if GEMINI_API_KEY is set
-    2. Claude API (paid) — if ANTHROPIC_API_KEY is set
+    1. Claude API (primary) — if ANTHROPIC_API_KEY is set
+    2. Gemini API (fallback) — if GEMINI_API_KEY is set
     3. Keyword extraction — always works, no API needed
+
+    If pages list is provided (text per page), AI will return page numbers for each extraction.
     """
 
-    # 1. Try Gemini first (FREE)
-    gemini_key = os.environ.get("GEMINI_API_KEY", "")
-    if gemini_key and gemini_key != "YOUR_GEMINI_KEY_HERE" and len(gemini_key) > 10:
-        print("[RFQ Extraction] Using Gemini AI...")
-        results = extract_with_gemini(document_text, gemini_key)
-        if results:
-            print(f"[RFQ Extraction] Gemini extracted {len(results)} requirements")
-            return results
-        print("[RFQ Extraction] Gemini failed, trying fallback...")
-
-    # 2. Try Claude (paid)
+    # 1. Try Claude first (primary)
     claude_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if claude_key and claude_key != "sk-placeholder" and len(claude_key) > 20:
-        print("[RFQ Extraction] Using Claude AI...")
+        print("[RFQ Extraction] Using Claude AI (primary)...")
         results = extract_with_claude(document_text, claude_key)
         if results:
             print(f"[RFQ Extraction] Claude extracted {len(results)} requirements")
             return results
         print("[RFQ Extraction] Claude failed, trying fallback...")
+
+    # 2. Try Gemini (fallback)
+    gemini_key = os.environ.get("GEMINI_API_KEY", "")
+    if gemini_key and gemini_key != "YOUR_GEMINI_KEY_HERE" and len(gemini_key) > 10:
+        print("[RFQ Extraction] Using Gemini AI (fallback)...")
+        results = extract_with_gemini(document_text, gemini_key)
+        if results:
+            print(f"[RFQ Extraction] Gemini extracted {len(results)} requirements")
+            return results
+        print("[RFQ Extraction] Gemini failed, trying keyword fallback...")
 
     # 3. Keyword extraction (always works)
     print("[RFQ Extraction] Using keyword extraction...")

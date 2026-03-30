@@ -1081,6 +1081,28 @@ export default function OEMsPage() {
                               </div>
                             )}
 
+                            {/* Split Document View — Compare with PDF */}
+                            {(comp.gdrive_file_id || comp.gdrive_url) && (
+                              <div className="p-4 border-b">
+                                <SplitDocumentViewer
+                                  gdriveFileId={comp.gdrive_file_id}
+                                  gdriveUrl={comp.gdrive_url}
+                                  fileName={comp.datasheet}
+                                  parameters={params}
+                                  mode="datasheet"
+                                  summary={{
+                                    oem_name: comp.oem_name,
+                                    model_name: comp.model_name,
+                                    category: comp.component_type_name,
+                                    compliance_score: comp.compliance_score,
+                                    pass: comp.pass,
+                                    fail: comp.fail,
+                                    total: params.length,
+                                  }}
+                                />
+                              </div>
+                            )}
+
                             {/* Charts Row */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-50/50">
                               {/* Electrical Bar Chart */}

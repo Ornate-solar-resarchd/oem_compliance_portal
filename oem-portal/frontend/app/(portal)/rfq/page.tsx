@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { getRFQs, uploadRFQ, createRFQ } from "@/lib/api"
+import { getRFQs, uploadRFQ, uploadRFQMulti, createRFQ } from "@/lib/api"
 import { DriveFetcherModal } from "@/components/shared/drive-fetcher-modal"
 import { SplitDocumentViewer } from "@/components/shared/split-document-viewer"
 import { cn } from "@/lib/utils"
@@ -46,6 +46,7 @@ export default function RFQManagerPage() {
   const [customerName, setCustomerName] = useState("")
   const [projectName, setProjectName] = useState("")
   const [file, setFile] = useState<File | null>(null)
+  const [files, setFiles] = useState<File[]>([])
   const [dragOver, setDragOver] = useState(false)
 
   // Extraction state
@@ -73,6 +74,7 @@ export default function RFQManagerPage() {
     setCustomerName("")
     setProjectName("")
     setFile(null)
+    setFiles([])
     setExtractionProgress(0)
     setExtractionPhase("")
     setExtractedData(null)
@@ -83,14 +85,37 @@ export default function RFQManagerPage() {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     setDragOver(false)
-    const f = e.dataTransfer.files[0]
-    if (f && (f.type === "application/pdf" || f.name.match(/\.(pdf|xlsx?|csv)$/i))) {
-      setFile(f)
+    const droppedFiles = Array.from(e.dataTransfer.files).filter(
+      f => f.type === "application/pdf" || f.name.match(/\.(pdf|xlsx?|csv)$/i)
+    )
+    if (droppedFiles.length > 0) {
+      setFiles(prev => [...prev, ...droppedFiles])
+      setFile(droppedFiles[0]) // keep first file for backward compat
     }
   }
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(e.target.files || []).filter(
+      f => f.type === "application/pdf" || f.name.match(/\.(pdf|xlsx?|csv)$/i)
+    )
+    if (selected.length > 0) {
+      setFiles(prev => [...prev, ...selected])
+      if (!file) setFile(selected[0])
+    }
+  }
+
+  const removeFile = (index: number) => {
+    setFiles(prev => {
+      const next = prev.filter((_, i) => i !== index)
+      if (next.length === 0) setFile(null)
+      else setFile(next[0])
+      return next
+    })
+  }
+
   const handleUpload = async () => {
-    if (!file || !customerName.trim() || !projectName.trim()) return
+    const uploadFiles = files.length > 0 ? files : file ? [file] : []
+    if (uploadFiles.length === 0 || !customerName.trim() || !projectName.trim()) return
 
     try {
       setUploading(true)
@@ -98,35 +123,34 @@ export default function RFQManagerPage() {
       setExtractedData(null)
 
       // Phase 1: Upload
-      setExtractionPhase("Uploading document...")
-      setExtractionProgress(10)
+      setExtractionPhase(`Uploading ${uploadFiles.length} compliance sheet(s)...`)
+      setExtractionProgress(15)
       await new Promise(r => setTimeout(r, 400))
 
       // Phase 2: Parsing
-      setExtractionPhase("Parsing document structure...")
-      setExtractionProgress(25)
-      await new Promise(r => setTimeout(r, 600))
-
-      // Phase 3: AI extraction
-      setExtractionPhase("AI extracting technical requirements...")
-      setExtractionProgress(45)
-      await new Promise(r => setTimeout(r, 800))
-
-      // Actually upload to backend
-      const result = await uploadRFQ(file, customerName, projectName)
-
-      // Phase 4: Validating
-      setExtractionPhase("Validating extracted parameters...")
-      setExtractionProgress(75)
+      setExtractionPhase("Parsing all documents...")
+      setExtractionProgress(30)
       await new Promise(r => setTimeout(r, 500))
 
-      // Phase 5: Cross-referencing
+      // Phase 3: Send ALL files in ONE request
+      setExtractionPhase(`Extracting from ${uploadFiles.length} file(s) — matching 344 compliance parameters...`)
+      setExtractionProgress(50)
+
+      let result: any
+      if (uploadFiles.length > 1) {
+        // Multi-file: one API call, one RFQ
+        result = await uploadRFQMulti(uploadFiles, customerName, projectName)
+      } else {
+        // Single file
+        result = await uploadRFQ(uploadFiles[0], customerName, projectName)
+      }
+
+      // Phase 4: Done
       setExtractionPhase("Cross-referencing with compliance standards...")
-      setExtractionProgress(90)
+      setExtractionProgress(85)
       await new Promise(r => setTimeout(r, 400))
 
-      // Done
-      setExtractionPhase("Extraction complete!")
+      setExtractionPhase(`Done! ${result.requirements_extracted} parameters from ${uploadFiles.length} file(s)`)
       setExtractionProgress(100)
       setExtractedData(result)
 
@@ -232,17 +256,19 @@ export default function RFQManagerPage() {
                   </div>
                 </div>
 
-                {/* File Upload Zone */}
+                {/* File Upload Zone — Multiple Files */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">RFQ Document</label>
+                  <label className="text-sm font-medium text-slate-700">
+                    Compliance Sheets <span className="text-slate-400 font-normal">(upload multiple: Battery, PCS, EMS, HVAC, etc.)</span>
+                  </label>
                   <div
                     onDragOver={e => { e.preventDefault(); setDragOver(true) }}
                     onDragLeave={() => setDragOver(false)}
                     onDrop={handleDrop}
                     onClick={() => !uploading && fileInputRef.current?.click()}
                     className={cn(
-                      "relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all",
-                      dragOver ? "border-brand bg-brand/5" : file ? "border-emerald-300 bg-emerald-50" : "border-slate-200 hover:border-slate-300 bg-slate-50",
+                      "relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all",
+                      dragOver ? "border-brand bg-brand/5" : files.length > 0 ? "border-emerald-300 bg-emerald-50/50" : "border-slate-200 hover:border-slate-300 bg-slate-50",
                       uploading && "pointer-events-none opacity-60"
                     )}
                   >
@@ -250,27 +276,37 @@ export default function RFQManagerPage() {
                       ref={fileInputRef}
                       type="file"
                       accept=".pdf,.xls,.xlsx,.csv"
+                      multiple
                       className="hidden"
-                      onChange={e => setFile(e.target.files?.[0] || null)}
+                      onChange={handleFileSelect}
                       disabled={uploading}
                     />
 
-                    {file ? (
-                      <div className="flex items-center justify-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                          <File className="h-5 w-5 text-emerald-600" />
-                        </div>
-                        <div className="text-left">
-                          <div className="text-sm font-semibold text-emerald-700">{file.name}</div>
-                          <div className="text-xs text-emerald-500">{(file.size / 1024).toFixed(1)} KB</div>
-                        </div>
+                    {files.length > 0 ? (
+                      <div className="space-y-2">
+                        {files.map((f, i) => (
+                          <div key={f.name + i} className="flex items-center gap-3 bg-white rounded-lg p-2.5 border border-emerald-200">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
+                              <File className="h-4 w-4 text-emerald-600" />
+                            </div>
+                            <div className="text-left flex-1 min-w-0">
+                              <div className="text-xs font-semibold text-emerald-700 truncate">{f.name}</div>
+                              <div className="text-[10px] text-emerald-500">{(f.size / 1024).toFixed(1)} KB</div>
+                            </div>
+                            {!uploading && (
+                              <button
+                                onClick={e => { e.stopPropagation(); removeFile(i) }}
+                                className="p-1 rounded-full hover:bg-red-100 transition-colors shrink-0"
+                              >
+                                <X className="h-3.5 w-3.5 text-red-400" />
+                              </button>
+                            )}
+                          </div>
+                        ))}
                         {!uploading && (
-                          <button
-                            onClick={e => { e.stopPropagation(); setFile(null) }}
-                            className="ml-2 p-1 rounded-full hover:bg-emerald-200 transition-colors"
-                          >
-                            <X className="h-4 w-4 text-emerald-600" />
-                          </button>
+                          <div className="text-xs text-emerald-600 font-medium pt-1">
+                            + Drop or click to add more files
+                          </div>
                         )}
                       </div>
                     ) : (
@@ -280,10 +316,10 @@ export default function RFQManagerPage() {
                         </div>
                         <div>
                           <div className="text-sm font-medium text-slate-600">
-                            Drop your RFQ document here or <span className="text-brand font-semibold">browse</span>
+                            Drop compliance sheets here or <span className="text-brand font-semibold">browse</span>
                           </div>
                           <div className="text-xs text-slate-400 mt-1">
-                            Supports PDF, Excel (.xls, .xlsx), CSV — Max 50MB
+                            Upload multiple files: Battery, PCS, EMS, HVAC, Guarantees — PDF/Excel
                           </div>
                         </div>
                       </div>
@@ -325,7 +361,7 @@ export default function RFQManagerPage() {
                   </Button>
                   <Button
                     className="flex-1"
-                    disabled={!file || !customerName.trim() || !projectName.trim() || uploading}
+                    disabled={(files.length === 0 && !file) || !customerName.trim() || !projectName.trim() || uploading}
                     onClick={handleUpload}
                   >
                     {uploading ? (

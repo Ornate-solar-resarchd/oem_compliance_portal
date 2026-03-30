@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { getRFQ } from "@/lib/api"
+import { getRFQ, getRFQCompliance, uploadRFQComplianceSheet } from "@/lib/api"
+import { SplitDocumentViewer } from "@/components/shared/split-document-viewer"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
@@ -31,6 +32,8 @@ interface RFQ {
   file_size?: number
   extraction_method?: string
   text_length?: number
+  gdrive_url?: string
+  gdrive_file_id?: string
   project_meta?: {
     rfq_ref?: string
     capacity?: string
@@ -49,16 +52,41 @@ export default function RFQDetailPage() {
 
   const [rfq, setRfq] = useState<RFQ | null>(null)
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState<"requirements" | "compliance">("requirements")
+  const [compliance, setCompliance] = useState<any>(null)
+  const [complianceLoading, setComplianceLoading] = useState(false)
+  const [uploadingCompliance, setUploadingCompliance] = useState(false)
 
   useEffect(() => {
     getRFQ(id).then(d => { setRfq(d); setLoading(false) }).catch(() => setLoading(false))
   }, [id])
 
+  const loadCompliance = async () => {
+    if (compliance) return // already loaded
+    setComplianceLoading(true)
+    try {
+      const data = await getRFQCompliance(id)
+      setCompliance(data)
+    } catch (e) { console.error("Failed to load compliance:", e) }
+    finally { setComplianceLoading(false) }
+  }
+
+  const handleUploadCompliance = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingCompliance(true)
+    try {
+      const result = await uploadRFQComplianceSheet(file, id, rfq?.customer_name)
+      setCompliance({ rfq_id: id, uploaded_sheets: result })
+    } catch (err) { console.error("Upload failed:", err) }
+    finally { setUploadingCompliance(false) }
+  }
+
   // Group requirements by section
   const groupedReqs = useMemo(() => {
     if (!rfq) return new Map<string, Requirement[]>()
     const map = new Map<string, Requirement[]>()
-    for (const r of rfq.requirements) {
+    for (const r of (rfq.requirements || [])) {
       const section = r.section || "General"
       if (!map.has(section)) map.set(section, [])
       map.get(section)!.push(r)
@@ -96,7 +124,7 @@ export default function RFQDetailPage() {
             <div className="text-slate-300 mt-1">{rfq.customer_name}</div>
           </div>
           <div className="text-right">
-            <div className="text-4xl font-bold text-brand">{rfq.requirements.length}</div>
+            <div className="text-4xl font-bold text-brand">{(rfq.requirements || []).length}</div>
             <div className="text-xs text-slate-400 mt-1">Requirements Extracted</div>
           </div>
         </div>
@@ -152,6 +180,200 @@ export default function RFQDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Split View: PDF + Extracted Requirements */}
+      {(rfq.gdrive_url || rfq.gdrive_file_id || rfq.source_file) && (
+        <SplitDocumentViewer
+          gdriveUrl={rfq.gdrive_url}
+          gdriveFileId={rfq.gdrive_file_id}
+          fileName={rfq.source_file}
+          parameters={(rfq.requirements || []).map(r => ({
+            name: r.parameter,
+            code: r.code,
+            required_value: r.required_value,
+            unit: r.unit,
+            section: r.section,
+          }))}
+          mode="rfq"
+          summary={{
+            customer_name: rfq.customer_name,
+            project_name: rfq.project_name,
+            total: (rfq.requirements || []).length,
+          }}
+        />
+      )}
+
+      {/* Tabs: Requirements / Compliance Sheets */}
+      <div className="flex items-center gap-1 bg-white border rounded-xl p-1">
+        <button
+          onClick={() => setActiveTab("requirements")}
+          className={cn("flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all",
+            activeTab === "requirements" ? "bg-brand text-white shadow-sm" : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+          )}
+        >
+          <FileText className="w-4 h-4 inline mr-2" />
+          Extracted Requirements ({(rfq.requirements || []).length})
+        </button>
+        <button
+          onClick={() => { setActiveTab("compliance"); loadCompliance() }}
+          className={cn("flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all",
+            activeTab === "compliance" ? "bg-brand text-white shadow-sm" : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+          )}
+        >
+          <ClipboardList className="w-4 h-4 inline mr-2" />
+          Compliance Sheets (344 params)
+        </button>
+      </div>
+
+      {/* TAB: Compliance Sheets */}
+      {activeTab === "compliance" && (
+        <div className="space-y-4">
+          {/* Upload filled compliance sheet */}
+          <Card>
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-800">Upload Filled Compliance Sheet</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">Upload an OEM-filled Excel compliance sheet to extract responses</p>
+                </div>
+                <label className={cn("inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer transition-all",
+                  uploadingCompliance ? "bg-slate-100 text-slate-400" : "bg-brand text-white hover:bg-brand-dark"
+                )}>
+                  {uploadingCompliance ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                  {uploadingCompliance ? "Processing..." : "Upload Excel"}
+                  <input type="file" accept=".xlsx,.xls" className="hidden" onChange={handleUploadCompliance} disabled={uploadingCompliance} />
+                </label>
+              </div>
+            </CardContent>
+          </Card>
+
+          {complianceLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+              <span className="ml-3 text-sm text-slate-500">Generating compliance sheets from RFQ...</span>
+            </div>
+          ) : compliance?.compliance_sheets ? (
+            /* Auto-generated compliance from RFQ */
+            Object.entries(compliance.compliance_sheets as Record<string, any>).map(([category, data]: [string, any]) => (
+              <Card key={category}>
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-base">{category.replace(/_/g, " / ")}</CardTitle>
+                      <CardDescription className="text-xs">
+                        {data.total_found} of {data.total_params} parameters found in RFQ
+                      </CardDescription>
+                    </div>
+                    <Badge variant={data.total_found > data.total_params / 2 ? "pass" : "pending"}>
+                      {Math.round((data.total_found / Math.max(data.total_params, 1)) * 100)}% coverage
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {data.sheets?.map((sheet: any) => (
+                    <div key={sheet.name} className="mb-4 last:mb-0">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 pb-1 border-b">
+                        {sheet.name} ({sheet.parameters?.length || 0} params)
+                      </div>
+                      <div className="rounded-lg border overflow-hidden">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr className="bg-slate-50 border-b">
+                              <th className="py-2 px-3 text-left font-semibold text-slate-500 w-16">Code</th>
+                              <th className="py-2 px-3 text-left font-semibold text-slate-500">Parameter</th>
+                              <th className="py-2 px-3 text-left font-semibold text-slate-500">RFQ Requirement</th>
+                              <th className="py-2 px-3 text-center font-semibold text-slate-500 w-16">Found</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(sheet.parameters || []).map((p: any, i: number) => (
+                              <tr key={p.code + i} className={cn("border-b last:border-0", i % 2 ? "bg-slate-50/30" : "", p.found ? "" : "opacity-50")}>
+                                <td className="py-1.5 px-3 font-mono text-slate-400">{p.code}</td>
+                                <td className="py-1.5 px-3 font-medium text-slate-700">{p.parameter}</td>
+                                <td className="py-1.5 px-3 text-slate-600">{p.rfq_requirement || "—"}</td>
+                                <td className="py-1.5 px-3 text-center">
+                                  {p.found ?
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mx-auto" /> :
+                                    <span className="text-slate-300">—</span>
+                                  }
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            ))
+          ) : compliance?.uploaded_sheets ? (
+            /* Uploaded compliance sheet results */
+            <Card>
+              <CardHeader>
+                <CardTitle>Uploaded Compliance Sheet Results</CardTitle>
+                <CardDescription>
+                  {compliance.uploaded_sheets.total_parameters} params · {compliance.uploaded_sheets.total_filled} filled · {compliance.uploaded_sheets.total_compliant} compliant
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {Object.entries(compliance.uploaded_sheets.sheets || {}).map(([sheetName, data]: [string, any]) => (
+                  <div key={sheetName} className="mb-4 last:mb-0">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-sm font-bold text-slate-800">{sheetName}</div>
+                      <div className="flex items-center gap-3 text-xs">
+                        <span className="text-emerald-600 font-semibold">{data.compliance_rate}% compliant</span>
+                        <span className="text-slate-400">{data.filled}/{data.total} filled</span>
+                      </div>
+                    </div>
+                    <div className="rounded-lg border overflow-hidden">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="bg-slate-50 border-b">
+                            <th className="py-2 px-3 text-left font-semibold text-slate-500 w-16">Code</th>
+                            <th className="py-2 px-3 text-left font-semibold text-slate-500">Parameter</th>
+                            <th className="py-2 px-3 text-left font-semibold text-slate-500">RFQ Req</th>
+                            <th className="py-2 px-3 text-left font-semibold text-slate-500">OEM Response</th>
+                            <th className="py-2 px-3 text-center font-semibold text-slate-500 w-12">Y/N</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(data.parameters || []).map((p: any, i: number) => (
+                            <tr key={p.code + i} className={cn("border-b last:border-0",
+                              p.compliance === "Y" ? "bg-emerald-50/30" : p.compliance === "N" ? "bg-red-50/30" : "",
+                              !p.has_response ? "opacity-40" : ""
+                            )}>
+                              <td className="py-1.5 px-3 font-mono text-slate-400">{p.code}</td>
+                              <td className="py-1.5 px-3 font-medium text-slate-700">{p.parameter}</td>
+                              <td className="py-1.5 px-3 text-slate-500">{p.rfq_requirement || "—"}</td>
+                              <td className="py-1.5 px-3 text-slate-800 font-medium">{p.oem_response || "—"}</td>
+                              <td className="py-1.5 px-3 text-center">
+                                {p.compliance === "Y" ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mx-auto" /> :
+                                 p.compliance === "N" ? <span className="text-red-500 font-bold">N</span> :
+                                 <span className="text-slate-300">—</span>}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="py-12">
+              <CardContent className="text-center">
+                <ClipboardList className="w-12 h-12 mx-auto text-slate-200 mb-3" />
+                <p className="text-slate-500">No compliance data yet. Click the tab to auto-generate from RFQ requirements.</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* TAB: Requirements */}
+      {activeTab === "requirements" && <>
 
       {/* Requirements Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -226,6 +448,8 @@ export default function RFQDetailPage() {
           <Download className="mr-2 h-4 w-4" /> Download / Print
         </Button>
       </div>
+
+      </>}
     </div>
   )
 }

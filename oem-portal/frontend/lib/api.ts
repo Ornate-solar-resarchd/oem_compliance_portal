@@ -98,6 +98,23 @@ export const getRFQs = () => get("/rfq/")
 export const getRFQ = (id: string) => get(`/rfq/${id}`)
 export const matchRFQ = (id: string) => get(`/rfq/${id}/match`)
 export const createRFQ = (body: any) => post("/rfq/", body)
+export const uploadRFQMulti = (files: File[], customerName: string, projectName: string) => {
+  const fd = new FormData()
+  files.forEach(f => fd.append("files", f))
+  fd.append("customer_name", customerName)
+  fd.append("project_name", projectName)
+  return uploadFile("/rfq/upload-multi", fd)
+}
+export const getRFQCompliance = (id: string, categories?: string) =>
+  get(`/rfq/${id}/compliance${categories ? `?categories=${categories}` : ""}`)
+export const getComplianceTemplates = () => get("/rfq/compliance-templates")
+export const uploadRFQComplianceSheet = (file: File, rfqId?: string, customerName?: string) => {
+  const fd = new FormData()
+  fd.append("file", file)
+  if (rfqId) fd.append("rfq_id", rfqId)
+  if (customerName) fd.append("customer_name", customerName)
+  return uploadFile("/rfq/upload-compliance", fd)
+}
 export const uploadRFQ = (file: File, customerName: string, projectName: string) => {
   const fd = new FormData()
   fd.append("file", file)
@@ -133,3 +150,16 @@ export const fetchAndExtract = (body: {
 export const batchImportFromDrive = (oem_searches: Array<{
   search: string; oem_name: string; category: string
 }>) => post("/gdrive/batch-import", { oem_searches })
+
+// DNV Intelligence
+export const getDNVReports = (type?: string) => get(`/dnv/${type ? `?type=${type}` : ""}`)
+export const getDNVPrimer = (cat?: string) => get(`/dnv/primer${cat ? `?cat=${cat}` : ""}`)
+export const getDNVReport = (id: string) => get(`/dnv/${id}`)
+export const uploadDNVReport = (file: File, name: string, model: string, reportType: string) => {
+  const fd = new FormData()
+  fd.append("file", file)
+  fd.append("name", name)
+  fd.append("model", model)
+  fd.append("report_type", reportType)
+  return uploadFile("/dnv/upload", fd)
+}
