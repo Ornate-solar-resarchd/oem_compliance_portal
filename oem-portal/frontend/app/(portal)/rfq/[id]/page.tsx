@@ -10,7 +10,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Badge } from "@/components/ui/badge"
 import {
   ArrowLeft, Loader2, FileText, MapPin, Zap, Calendar, Building2,
-  Download, ClipboardList, ExternalLink, CheckCircle2
+  Download, ClipboardList, ExternalLink, CheckCircle2, ChevronDown, ChevronRight
 } from "lucide-react"
 
 interface Requirement {
@@ -56,6 +56,25 @@ export default function RFQDetailPage() {
   const [compliance, setCompliance] = useState<any>(null)
   const [complianceLoading, setComplianceLoading] = useState(false)
   const [uploadingCompliance, setUploadingCompliance] = useState(false)
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set())
+
+  const toggleSection = (key: string) => {
+    setCollapsedSections(prev => {
+      const next = new Set(prev)
+      next.has(key) ? next.delete(key) : next.add(key)
+      return next
+    })
+  }
+
+  const collapseAll = (keys: string[]) => {
+    setCollapsedSections(prev => {
+      const allCollapsed = keys.every(k => prev.has(k))
+      const next = new Set(prev)
+      if (allCollapsed) keys.forEach(k => next.delete(k))
+      else keys.forEach(k => next.add(k))
+      return next
+    })
+  }
 
   useEffect(() => {
     getRFQ(id).then(d => { setRfq(d); setLoading(false) }).catch(() => setLoading(false))
@@ -254,113 +273,193 @@ export default function RFQDetailPage() {
             </div>
           ) : compliance?.compliance_sheets ? (
             /* Auto-generated compliance from RFQ */
-            Object.entries(compliance.compliance_sheets as Record<string, any>).map(([category, data]: [string, any]) => (
-              <Card key={category}>
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-base">{category.replace(/_/g, " / ")}</CardTitle>
-                      <CardDescription className="text-xs">
-                        {data.total_found} of {data.total_params} parameters found in RFQ
-                      </CardDescription>
-                    </div>
-                    <Badge variant={data.total_found > data.total_params / 2 ? "pass" : "pending"}>
-                      {Math.round((data.total_found / Math.max(data.total_params, 1)) * 100)}% coverage
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {data.sheets?.map((sheet: any) => (
-                    <div key={sheet.name} className="mb-4 last:mb-0">
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 pb-1 border-b">
-                        {sheet.name} ({sheet.parameters?.length || 0} params)
+            <>
+              <div className="flex items-center justify-between">
+                <div className="text-xs text-slate-500">
+                  {Object.keys(compliance.compliance_sheets).length} categories
+                </div>
+                <button
+                  onClick={() => collapseAll(Object.keys(compliance.compliance_sheets).map(c => `compliance-${c}`))}
+                  className="text-xs text-brand font-medium hover:underline"
+                >
+                  {Object.keys(compliance.compliance_sheets).every((c: string) => collapsedSections.has(`compliance-${c}`)) ? "Expand All" : "Collapse All"}
+                </button>
+              </div>
+              {Object.entries(compliance.compliance_sheets as Record<string, any>).map(([category, data]: [string, any]) => {
+                const key = `compliance-${category}`
+                const isCollapsed = collapsedSections.has(key)
+                const coveragePct = Math.round((data.total_found / Math.max(data.total_params, 1)) * 100)
+                return (
+                  <Card key={category} className="overflow-hidden">
+                    <button
+                      onClick={() => toggleSection(key)}
+                      className="w-full text-left px-5 py-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={cn(
+                          "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors",
+                          coveragePct > 50 ? "bg-emerald-50" : "bg-amber-50"
+                        )}>
+                          {isCollapsed
+                            ? <ChevronRight className={cn("w-4 h-4", coveragePct > 50 ? "text-emerald-500" : "text-amber-500")} />
+                            : <ChevronDown className={cn("w-4 h-4", coveragePct > 50 ? "text-emerald-500" : "text-amber-500")} />
+                          }
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-sm font-semibold text-slate-900 truncate">{category.replace(/_/g, " / ")}</div>
+                          <div className="text-xs text-slate-500">
+                            {data.total_found} of {data.total_params} parameters found
+                          </div>
+                        </div>
                       </div>
-                      <div className="rounded-lg border overflow-hidden">
-                        <table className="w-full text-xs">
-                          <thead>
-                            <tr className="bg-slate-50 border-b">
-                              <th className="py-2 px-3 text-left font-semibold text-slate-500 w-16">Code</th>
-                              <th className="py-2 px-3 text-left font-semibold text-slate-500">Parameter</th>
-                              <th className="py-2 px-3 text-left font-semibold text-slate-500">RFQ Requirement</th>
-                              <th className="py-2 px-3 text-center font-semibold text-slate-500 w-16">Found</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {(sheet.parameters || []).map((p: any, i: number) => (
-                              <tr key={p.code + i} className={cn("border-b last:border-0", i % 2 ? "bg-slate-50/30" : "", p.found ? "" : "opacity-50")}>
-                                <td className="py-1.5 px-3 font-mono text-slate-400">{p.code}</td>
-                                <td className="py-1.5 px-3 font-medium text-slate-700">{p.parameter}</td>
-                                <td className="py-1.5 px-3 text-slate-600">{p.rfq_requirement || "—"}</td>
-                                <td className="py-1.5 px-3 text-center">
-                                  {p.found ?
-                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mx-auto" /> :
-                                    <span className="text-slate-300">—</span>
-                                  }
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden hidden sm:block">
+                          <div
+                            className={cn("h-full rounded-full transition-all", coveragePct > 50 ? "bg-emerald-400" : "bg-amber-400")}
+                            style={{ width: `${coveragePct}%` }}
+                          />
+                        </div>
+                        <Badge variant={coveragePct > 50 ? "pass" : "pending"} className="tabular-nums">
+                          {coveragePct}%
+                        </Badge>
                       </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            ))
+                    </button>
+
+                    {!isCollapsed && (
+                      <CardContent className="pt-0 pb-4 border-t">
+                        {data.sheets?.map((sheet: any) => (
+                          <div key={sheet.name} className="mb-4 last:mb-0 mt-4">
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 pb-1 border-b">
+                              {sheet.name} ({sheet.parameters?.length || 0} params)
+                            </div>
+                            <div className="rounded-lg border overflow-hidden">
+                              <table className="w-full text-xs">
+                                <thead>
+                                  <tr className="bg-slate-50 border-b">
+                                    <th className="py-2 px-3 text-left font-semibold text-slate-500 w-16">Code</th>
+                                    <th className="py-2 px-3 text-left font-semibold text-slate-500">Parameter</th>
+                                    <th className="py-2 px-3 text-left font-semibold text-slate-500">RFQ Requirement</th>
+                                    <th className="py-2 px-3 text-center font-semibold text-slate-500 w-16">Found</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {(sheet.parameters || []).map((p: any, i: number) => (
+                                    <tr key={p.code + i} className={cn("border-b last:border-0", i % 2 ? "bg-slate-50/30" : "", p.found ? "" : "opacity-50")}>
+                                      <td className="py-1.5 px-3 font-mono text-slate-400">{p.code}</td>
+                                      <td className="py-1.5 px-3 font-medium text-slate-700">{p.parameter}</td>
+                                      <td className="py-1.5 px-3 text-slate-600">{p.rfq_requirement || "—"}</td>
+                                      <td className="py-1.5 px-3 text-center">
+                                        {p.found ?
+                                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mx-auto" /> :
+                                          <span className="text-slate-300">—</span>
+                                        }
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        ))}
+                      </CardContent>
+                    )}
+                  </Card>
+                )
+              })}
+            </>
           ) : compliance?.uploaded_sheets ? (
             /* Uploaded compliance sheet results */
-            <Card>
-              <CardHeader>
-                <CardTitle>Uploaded Compliance Sheet Results</CardTitle>
-                <CardDescription>
-                  {compliance.uploaded_sheets.total_parameters} params · {compliance.uploaded_sheets.total_filled} filled · {compliance.uploaded_sheets.total_compliant} compliant
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {Object.entries(compliance.uploaded_sheets.sheets || {}).map(([sheetName, data]: [string, any]) => (
-                  <div key={sheetName} className="mb-4 last:mb-0">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="text-sm font-bold text-slate-800">{sheetName}</div>
-                      <div className="flex items-center gap-3 text-xs">
-                        <span className="text-emerald-600 font-semibold">{data.compliance_rate}% compliant</span>
-                        <span className="text-slate-400">{data.filled}/{data.total} filled</span>
-                      </div>
-                    </div>
-                    <div className="rounded-lg border overflow-hidden">
-                      <table className="w-full text-xs">
-                        <thead>
-                          <tr className="bg-slate-50 border-b">
-                            <th className="py-2 px-3 text-left font-semibold text-slate-500 w-16">Code</th>
-                            <th className="py-2 px-3 text-left font-semibold text-slate-500">Parameter</th>
-                            <th className="py-2 px-3 text-left font-semibold text-slate-500">RFQ Req</th>
-                            <th className="py-2 px-3 text-left font-semibold text-slate-500">OEM Response</th>
-                            <th className="py-2 px-3 text-center font-semibold text-slate-500 w-12">Y/N</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {(data.parameters || []).map((p: any, i: number) => (
-                            <tr key={p.code + i} className={cn("border-b last:border-0",
-                              p.compliance === "Y" ? "bg-emerald-50/30" : p.compliance === "N" ? "bg-red-50/30" : "",
-                              !p.has_response ? "opacity-40" : ""
-                            )}>
-                              <td className="py-1.5 px-3 font-mono text-slate-400">{p.code}</td>
-                              <td className="py-1.5 px-3 font-medium text-slate-700">{p.parameter}</td>
-                              <td className="py-1.5 px-3 text-slate-500">{p.rfq_requirement || "—"}</td>
-                              <td className="py-1.5 px-3 text-slate-800 font-medium">{p.oem_response || "—"}</td>
-                              <td className="py-1.5 px-3 text-center">
-                                {p.compliance === "Y" ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mx-auto" /> :
-                                 p.compliance === "N" ? <span className="text-red-500 font-bold">N</span> :
-                                 <span className="text-slate-300">—</span>}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+            <>
+              <Card className="bg-slate-50/50">
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base">Uploaded Compliance Results</CardTitle>
+                    <div className="flex items-center gap-4 text-xs">
+                      <span className="text-slate-500">{compliance.uploaded_sheets.total_parameters} params</span>
+                      <span className="text-brand font-semibold">{compliance.uploaded_sheets.total_filled} filled</span>
+                      <Badge variant="pass">{compliance.uploaded_sheets.total_compliant} compliant</Badge>
                     </div>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+              {Object.entries(compliance.uploaded_sheets.sheets || {}).map(([sheetName, data]: [string, any]) => {
+                const key = `uploaded-${sheetName}`
+                const isCollapsed = collapsedSections.has(key)
+                return (
+                  <Card key={sheetName} className="overflow-hidden">
+                    <button
+                      onClick={() => toggleSection(key)}
+                      className="w-full text-left px-5 py-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={cn(
+                          "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
+                          data.compliance_rate >= 70 ? "bg-emerald-50" : data.compliance_rate >= 40 ? "bg-amber-50" : "bg-red-50"
+                        )}>
+                          {isCollapsed
+                            ? <ChevronRight className={cn("w-4 h-4", data.compliance_rate >= 70 ? "text-emerald-500" : data.compliance_rate >= 40 ? "text-amber-500" : "text-red-500")} />
+                            : <ChevronDown className={cn("w-4 h-4", data.compliance_rate >= 70 ? "text-emerald-500" : data.compliance_rate >= 40 ? "text-amber-500" : "text-red-500")} />
+                          }
+                        </div>
+                        <div>
+                          <div className="text-sm font-semibold text-slate-900">{sheetName}</div>
+                          <div className="text-xs text-slate-500">{data.filled}/{data.total} filled</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden hidden sm:block">
+                          <div
+                            className={cn("h-full rounded-full transition-all",
+                              data.compliance_rate >= 70 ? "bg-emerald-400" : data.compliance_rate >= 40 ? "bg-amber-400" : "bg-red-400"
+                            )}
+                            style={{ width: `${data.compliance_rate}%` }}
+                          />
+                        </div>
+                        <Badge variant={data.compliance_rate >= 70 ? "pass" : data.compliance_rate >= 40 ? "pending" : "fail"} className="tabular-nums">
+                          {data.compliance_rate}%
+                        </Badge>
+                      </div>
+                    </button>
+
+                    {!isCollapsed && (
+                      <CardContent className="pt-0 pb-4 border-t">
+                        <div className="rounded-lg border overflow-hidden mt-4">
+                          <table className="w-full text-xs">
+                            <thead>
+                              <tr className="bg-slate-50 border-b">
+                                <th className="py-2 px-3 text-left font-semibold text-slate-500 w-16">Code</th>
+                                <th className="py-2 px-3 text-left font-semibold text-slate-500">Parameter</th>
+                                <th className="py-2 px-3 text-left font-semibold text-slate-500">RFQ Req</th>
+                                <th className="py-2 px-3 text-left font-semibold text-slate-500">OEM Response</th>
+                                <th className="py-2 px-3 text-center font-semibold text-slate-500 w-12">Y/N</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {(data.parameters || []).map((p: any, i: number) => (
+                                <tr key={p.code + i} className={cn("border-b last:border-0",
+                                  p.compliance === "Y" ? "bg-emerald-50/30" : p.compliance === "N" ? "bg-red-50/30" : "",
+                                  !p.has_response ? "opacity-40" : ""
+                                )}>
+                                  <td className="py-1.5 px-3 font-mono text-slate-400">{p.code}</td>
+                                  <td className="py-1.5 px-3 font-medium text-slate-700">{p.parameter}</td>
+                                  <td className="py-1.5 px-3 text-slate-500">{p.rfq_requirement || "—"}</td>
+                                  <td className="py-1.5 px-3 text-slate-800 font-medium">{p.oem_response || "—"}</td>
+                                  <td className="py-1.5 px-3 text-center">
+                                    {p.compliance === "Y" ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mx-auto" /> :
+                                     p.compliance === "N" ? <span className="text-red-500 font-bold">N</span> :
+                                     <span className="text-slate-300">—</span>}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </CardContent>
+                    )}
+                  </Card>
+                )
+              })}
+            </>
           ) : (
             <Card className="py-12">
               <CardContent className="text-center">
@@ -396,50 +495,81 @@ export default function RFQDetailPage() {
 
       {/* Requirements by Section */}
       <div className="space-y-4">
-        {Array.from(groupedReqs.entries()).map(([section, reqs]) => (
-          <Card key={section}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-brand" />
-                {section}
-              </CardTitle>
-              <CardDescription className="text-xs">{reqs.length} requirements</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="rounded-lg border overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-slate-50 border-b text-[10px] uppercase tracking-wider text-slate-500">
-                      <th className="py-2.5 px-4 text-left font-semibold">Parameter</th>
-                      <th className="py-2.5 px-4 text-left font-semibold">Code</th>
-                      <th className="py-2.5 px-4 text-left font-semibold">Required Value</th>
-                      <th className="py-2.5 px-4 text-left font-semibold">Unit</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {reqs.map((r, i) => (
-                      <tr key={r.code + i} className={cn("border-b last:border-0 table-row-hover", i % 2 ? "bg-slate-50/50" : "")}>
-                        <td className="py-2.5 px-4 font-medium text-slate-700">{r.parameter}</td>
-                        <td className="py-2.5 px-4 font-mono text-xs text-slate-400">{r.code}</td>
-                        <td className="py-2.5 px-4">
-                          <span className={cn("font-semibold",
-                            r.required_value.startsWith(">=") ? "text-emerald-600" :
-                            r.required_value.startsWith("<=") ? "text-blue-600" :
-                            r.required_value === "Yes" || r.required_value === "Required" || r.required_value === "Mandatory" ? "text-brand" :
-                            "text-slate-800"
-                          )}>
-                            {r.required_value}
-                          </span>
-                        </td>
-                        <td className="py-2.5 px-4 text-slate-400 text-xs">{r.unit}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <div className="flex items-center justify-between">
+          <div className="text-xs text-slate-500">
+            {groupedReqs.size} sections · {rfq.requirements?.length || 0} total
+          </div>
+          <button
+            onClick={() => collapseAll(Array.from(groupedReqs.keys()).map(s => `req-${s}`))}
+            className="text-xs text-brand font-medium hover:underline"
+          >
+            {Array.from(groupedReqs.keys()).every(s => collapsedSections.has(`req-${s}`)) ? "Expand All" : "Collapse All"}
+          </button>
+        </div>
+        {Array.from(groupedReqs.entries()).map(([section, reqs]) => {
+          const key = `req-${section}`
+          const isCollapsed = collapsedSections.has(key)
+          return (
+            <Card key={section} className="overflow-hidden">
+              <button
+                onClick={() => toggleSection(key)}
+                className="w-full text-left px-5 py-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-brand/10 flex items-center justify-center shrink-0">
+                    {isCollapsed
+                      ? <ChevronRight className="w-4 h-4 text-brand" />
+                      : <ChevronDown className="w-4 h-4 text-brand" />
+                    }
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-slate-900">{section}</div>
+                    <div className="text-xs text-slate-500">{reqs.length} requirements</div>
+                  </div>
+                </div>
+                <Badge variant="outline" className="tabular-nums shrink-0">
+                  {reqs.length}
+                </Badge>
+              </button>
+
+              {!isCollapsed && (
+                <CardContent className="pt-0 pb-4 border-t">
+                  <div className="rounded-lg border overflow-hidden mt-4">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="bg-slate-50 border-b text-[10px] uppercase tracking-wider text-slate-500">
+                          <th className="py-2.5 px-4 text-left font-semibold">Parameter</th>
+                          <th className="py-2.5 px-4 text-left font-semibold">Code</th>
+                          <th className="py-2.5 px-4 text-left font-semibold">Required Value</th>
+                          <th className="py-2.5 px-4 text-left font-semibold">Unit</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {reqs.map((r, i) => (
+                          <tr key={r.code + i} className={cn("border-b last:border-0 table-row-hover", i % 2 ? "bg-slate-50/50" : "")}>
+                            <td className="py-2.5 px-4 font-medium text-slate-700">{r.parameter}</td>
+                            <td className="py-2.5 px-4 font-mono text-xs text-slate-400">{r.code}</td>
+                            <td className="py-2.5 px-4">
+                              <span className={cn("font-semibold",
+                                r.required_value.startsWith(">=") ? "text-emerald-600" :
+                                r.required_value.startsWith("<=") ? "text-blue-600" :
+                                r.required_value === "Yes" || r.required_value === "Required" || r.required_value === "Mandatory" ? "text-brand" :
+                                "text-slate-800"
+                              )}>
+                                {r.required_value}
+                              </span>
+                            </td>
+                            <td className="py-2.5 px-4 text-slate-400 text-xs">{r.unit}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              )}
+            </Card>
+          )
+        })}
       </div>
 
       {/* Download / Actions */}

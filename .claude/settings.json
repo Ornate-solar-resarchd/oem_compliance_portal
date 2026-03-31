@@ -18,7 +18,14 @@
       "Read(//Users/priyankrajput/Downloads/**)",
       "Bash(ls /Users/priyankrajput/Downloads/A_Compliance_Sheets for rfq*)",
       "Bash(ls /Users/priyankrajput/Downloads/*Compliance*)",
-      "Bash(wc -l \"/Users/priyankrajput/Ornate/Claude 2 - OEM Portal/Claude 2 - OEM Portal/oem-portal/frontend/app/\\(portal\\)/rfq/[id]/page.tsx\")"
+      "Bash(wc -l \"/Users/priyankrajput/Ornate/Claude 2 - OEM Portal/Claude 2 - OEM Portal/oem-portal/frontend/app/\\(portal\\)/rfq/[id]/page.tsx\")",
+      "Read(//Users/priyankrajput/Ornate/**)",
+      "Bash(grep -r \"dnv\\\\|DNV\" '/Users/priyankrajput/Ornate/Claude 2 - OEM Portal/Claude 2 - OEM Portal/oem-portal/backend/app' --include=*.py)",
+      "Bash(wc -l *.py)",
+      "Bash(find '/Users/priyankrajput/Ornate/Claude 2 - OEM Portal/Claude 2 - OEM Portal/oem-portal/frontend' -type f \\\\\\(-name *.tsx -o -name *.ts -o -name *.jsx -o -name *.js \\\\\\))",
+      "Bash(python -c \"from app.api.v1.endpoints import dnv; print\\(''DNV import OK''\\); print\\(''Routes:'', [r.path for r in dnv.router.routes]\\)\")",
+      "Bash(npx tsc:*)",
+      "Bash(node -e \":*)"
     ],
     "additionalDirectories": [
       "/Users/priyankrajput/Ornate/Claude 2 - OEM Portal/Claude 2 - OEM Portal/OEM - anushthaFatehPortal/frontend/app/(portal)/oems"
