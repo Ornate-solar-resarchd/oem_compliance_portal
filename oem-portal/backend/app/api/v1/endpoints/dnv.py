@@ -47,18 +47,12 @@ async def upload_dnv_report(
     contents = await file.read()
     file_ext = (file.filename or "").rsplit(".", 1)[-1].lower()
 
-    # Extract text
-    text = ""
-    if file_ext == "pdf":
-        try:
-            from PyPDF2 import PdfReader
-            reader = PdfReader(io.BytesIO(contents))
-            text = "\n".join(p.extract_text() or "" for p in reader.pages)
-        except Exception as e:
-            print(f"PDF error: {e}")
+    # Extract text using PyMuPDF + Camelot (shared engine)
+    from app.data.datasheet_extraction import extract_text_from_file
+    text = extract_text_from_file(contents, file.filename or "report.pdf")
 
-    # Try AI extraction
-    extracted = _extract_dnv_with_ai(text, name) if text else {}
+    # Keyword extraction — no AI needed
+    extracted = _extract_dnv_keywords(text, name) if text else {}
 
     # Build report structure
     new_id = name.lower().replace(" ", "_") + f"_{len(DNV_REPORTS)+1}"

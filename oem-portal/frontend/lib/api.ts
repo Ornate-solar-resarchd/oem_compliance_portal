@@ -105,16 +105,6 @@ export const uploadRFQMulti = (files: File[], customerName: string, projectName:
   fd.append("project_name", projectName)
   return uploadFile("/rfq/upload-multi", fd)
 }
-export const getRFQCompliance = (id: string, categories?: string) =>
-  get(`/rfq/${id}/compliance${categories ? `?categories=${categories}` : ""}`)
-export const getComplianceTemplates = () => get("/rfq/compliance-templates")
-export const uploadRFQComplianceSheet = (file: File, rfqId?: string, customerName?: string) => {
-  const fd = new FormData()
-  fd.append("file", file)
-  if (rfqId) fd.append("rfq_id", rfqId)
-  if (customerName) fd.append("customer_name", customerName)
-  return uploadFile("/rfq/upload-compliance", fd)
-}
 export const uploadRFQ = (file: File, customerName: string, projectName: string) => {
   const fd = new FormData()
   fd.append("file", file)

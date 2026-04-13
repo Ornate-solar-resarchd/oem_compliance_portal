@@ -123,7 +123,7 @@ export default function RFQManagerPage() {
       setExtractedData(null)
 
       // Phase 1: Upload
-      setExtractionPhase(`Uploading ${uploadFiles.length} compliance sheet(s)...`)
+      setExtractionPhase(`Uploading ${uploadFiles.length} document(s)...`)
       setExtractionProgress(15)
       await new Promise(r => setTimeout(r, 400))
 
@@ -133,7 +133,7 @@ export default function RFQManagerPage() {
       await new Promise(r => setTimeout(r, 500))
 
       // Phase 3: Send ALL files in ONE request
-      setExtractionPhase(`Extracting from ${uploadFiles.length} file(s) — matching 344 compliance parameters...`)
+      setExtractionPhase(`Extracting from ${uploadFiles.length} file(s) — matching 80+ technical parameters...`)
       setExtractionProgress(50)
 
       let result: any
@@ -146,7 +146,7 @@ export default function RFQManagerPage() {
       }
 
       // Phase 4: Done
-      setExtractionPhase("Cross-referencing with compliance standards...")
+      setExtractionPhase("Cross-referencing technical requirements...")
       setExtractionProgress(85)
       await new Promise(r => setTimeout(r, 400))
 
@@ -182,7 +182,7 @@ export default function RFQManagerPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">RFQ Manager</h1>
           <p className="text-sm text-slate-500 mt-1">
-            Upload RFQ documents and AI will extract compliance requirements automatically
+            Upload RFQ documents and extract technical requirements automatically
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -259,7 +259,7 @@ export default function RFQManagerPage() {
                 {/* File Upload Zone — Multiple Files */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">
-                    Compliance Sheets <span className="text-slate-400 font-normal">(upload multiple: Battery, PCS, EMS, HVAC, etc.)</span>
+                    Multiple Documents <span className="text-slate-400 font-normal">(upload multiple: Battery, PCS, EMS, HVAC, etc.)</span>
                   </label>
                   <div
                     onDragOver={e => { e.preventDefault(); setDragOver(true) }}
@@ -316,7 +316,7 @@ export default function RFQManagerPage() {
                         </div>
                         <div>
                           <div className="text-sm font-medium text-slate-600">
-                            Drop compliance sheets here or <span className="text-brand font-semibold">browse</span>
+                            Drop RFQ documents here or <span className="text-brand font-semibold">browse</span>
                           </div>
                           <div className="text-xs text-slate-400 mt-1">
                             Upload multiple files: Battery, PCS, EMS, HVAC, Guarantees — PDF/Excel
@@ -456,7 +456,7 @@ export default function RFQManagerPage() {
             </div>
             <h3 className="text-lg font-semibold text-slate-700">No RFQs yet</h3>
             <p className="text-sm text-slate-400 mt-1 max-w-sm">
-              Upload your first RFQ document and AI will extract technical requirements for compliance matching.
+              Upload your first RFQ document to extract technical requirements automatically.
             </p>
             <Button className="mt-6" onClick={() => setDialogOpen(true)}>
               <Upload className="mr-2 h-4 w-4" />

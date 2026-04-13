@@ -25,7 +25,15 @@
       "Bash(find '/Users/priyankrajput/Ornate/Claude 2 - OEM Portal/Claude 2 - OEM Portal/oem-portal/frontend' -type f \\\\\\(-name *.tsx -o -name *.ts -o -name *.jsx -o -name *.js \\\\\\))",
       "Bash(python -c \"from app.api.v1.endpoints import dnv; print\\(''DNV import OK''\\); print\\(''Routes:'', [r.path for r in dnv.router.routes]\\)\")",
       "Bash(npx tsc:*)",
-      "Bash(node -e \":*)"
+      "Bash(node -e \":*)",
+      "Bash(ls -d */)",
+      "Bash(python3 -c \":*)",
+      "Read(//Users/priyankrajput/Desktop/RFQ/**)",
+      "Read(//Users/priyankrajput/Desktop/**)",
+      "Bash(find /Users/priyankrajput/Desktop/RFQ -type f \\\\\\(-name *.pdf -o -name *.xlsx -o -name *.xls -o -name *.csv -o -name *.docx \\\\\\))",
+      "Bash(source venv/bin/activate)",
+      "Bash(pip install:*)",
+      "Bash(ls *.py)"
     ],
     "additionalDirectories": [
       "/Users/priyankrajput/Ornate/Claude 2 - OEM Portal/Claude 2 - OEM Portal/OEM - anushthaFatehPortal/frontend/app/(portal)/oems"

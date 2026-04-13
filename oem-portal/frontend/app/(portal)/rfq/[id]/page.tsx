@@ -2,15 +2,15 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { getRFQ, getRFQCompliance, uploadRFQComplianceSheet } from "@/lib/api"
+import { getRFQ } from "@/lib/api"
 import { SplitDocumentViewer } from "@/components/shared/split-document-viewer"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
   ArrowLeft, Loader2, FileText, MapPin, Zap, Calendar, Building2,
-  Download, ClipboardList, ExternalLink, CheckCircle2, ChevronDown, ChevronRight
+  Download, ClipboardList, CheckCircle2, ChevronDown, ChevronRight
 } from "lucide-react"
 
 interface Requirement {
@@ -52,10 +52,6 @@ export default function RFQDetailPage() {
 
   const [rfq, setRfq] = useState<RFQ | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<"requirements" | "compliance">("requirements")
-  const [compliance, setCompliance] = useState<any>(null)
-  const [complianceLoading, setComplianceLoading] = useState(false)
-  const [uploadingCompliance, setUploadingCompliance] = useState(false)
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set())
 
   const toggleSection = (key: string) => {
@@ -79,27 +75,6 @@ export default function RFQDetailPage() {
   useEffect(() => {
     getRFQ(id).then(d => { setRfq(d); setLoading(false) }).catch(() => setLoading(false))
   }, [id])
-
-  const loadCompliance = async () => {
-    if (compliance) return // already loaded
-    setComplianceLoading(true)
-    try {
-      const data = await getRFQCompliance(id)
-      setCompliance(data)
-    } catch (e) { console.error("Failed to load compliance:", e) }
-    finally { setComplianceLoading(false) }
-  }
-
-  const handleUploadCompliance = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setUploadingCompliance(true)
-    try {
-      const result = await uploadRFQComplianceSheet(file, id, rfq?.customer_name)
-      setCompliance({ rfq_id: id, uploaded_sheets: result })
-    } catch (err) { console.error("Upload failed:", err) }
-    finally { setUploadingCompliance(false) }
-  }
 
   // Group requirements by section
   const groupedReqs = useMemo(() => {
@@ -222,257 +197,23 @@ export default function RFQDetailPage() {
         />
       )}
 
-      {/* Tabs: Requirements / Compliance Sheets */}
-      <div className="flex items-center gap-1 bg-white border rounded-xl p-1">
-        <button
-          onClick={() => setActiveTab("requirements")}
-          className={cn("flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all",
-            activeTab === "requirements" ? "bg-brand text-white shadow-sm" : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
-          )}
-        >
-          <FileText className="w-4 h-4 inline mr-2" />
+      {/* Section Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <FileText className="w-5 h-5 text-brand" />
           Extracted Requirements ({(rfq.requirements || []).length})
-        </button>
-        <button
-          onClick={() => { setActiveTab("compliance"); loadCompliance() }}
-          className={cn("flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all",
-            activeTab === "compliance" ? "bg-brand text-white shadow-sm" : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
-          )}
-        >
-          <ClipboardList className="w-4 h-4 inline mr-2" />
-          Compliance Sheets (344 params)
-        </button>
+        </h2>
+        <div className="flex items-center gap-2">
+          <Badge variant="brand" className="text-xs">{Array.from(groupedReqs.keys()).length} sections</Badge>
+          <button
+            onClick={() => collapseAll(Array.from(groupedReqs.keys()))}
+            className="text-xs text-brand font-medium hover:underline"
+          >
+            {Array.from(groupedReqs.keys()).every(k => collapsedSections.has(k)) ? "Expand All" : "Collapse All"}
+          </button>
+        </div>
       </div>
 
-      {/* TAB: Compliance Sheets */}
-      {activeTab === "compliance" && (
-        <div className="space-y-4">
-          {/* Upload filled compliance sheet */}
-          <Card>
-            <CardContent className="pt-4 pb-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-bold text-slate-800">Upload Filled Compliance Sheet</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">Upload an OEM-filled Excel compliance sheet to extract responses</p>
-                </div>
-                <label className={cn("inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer transition-all",
-                  uploadingCompliance ? "bg-slate-100 text-slate-400" : "bg-brand text-white hover:bg-brand-dark"
-                )}>
-                  {uploadingCompliance ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                  {uploadingCompliance ? "Processing..." : "Upload Excel"}
-                  <input type="file" accept=".xlsx,.xls" className="hidden" onChange={handleUploadCompliance} disabled={uploadingCompliance} />
-                </label>
-              </div>
-            </CardContent>
-          </Card>
-
-          {complianceLoading ? (
-            <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
-              <span className="ml-3 text-sm text-slate-500">Generating compliance sheets from RFQ...</span>
-            </div>
-          ) : compliance?.compliance_sheets ? (
-            /* Auto-generated compliance from RFQ */
-            <>
-              <div className="flex items-center justify-between">
-                <div className="text-xs text-slate-500">
-                  {Object.keys(compliance.compliance_sheets).length} categories
-                </div>
-                <button
-                  onClick={() => collapseAll(Object.keys(compliance.compliance_sheets).map(c => `compliance-${c}`))}
-                  className="text-xs text-brand font-medium hover:underline"
-                >
-                  {Object.keys(compliance.compliance_sheets).every((c: string) => collapsedSections.has(`compliance-${c}`)) ? "Expand All" : "Collapse All"}
-                </button>
-              </div>
-              {Object.entries(compliance.compliance_sheets as Record<string, any>).map(([category, data]: [string, any]) => {
-                const key = `compliance-${category}`
-                const isCollapsed = collapsedSections.has(key)
-                const coveragePct = Math.round((data.total_found / Math.max(data.total_params, 1)) * 100)
-                return (
-                  <Card key={category} className="overflow-hidden">
-                    <button
-                      onClick={() => toggleSection(key)}
-                      className="w-full text-left px-5 py-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors"
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className={cn(
-                          "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors",
-                          coveragePct > 50 ? "bg-emerald-50" : "bg-amber-50"
-                        )}>
-                          {isCollapsed
-                            ? <ChevronRight className={cn("w-4 h-4", coveragePct > 50 ? "text-emerald-500" : "text-amber-500")} />
-                            : <ChevronDown className={cn("w-4 h-4", coveragePct > 50 ? "text-emerald-500" : "text-amber-500")} />
-                          }
-                        </div>
-                        <div className="min-w-0">
-                          <div className="text-sm font-semibold text-slate-900 truncate">{category.replace(/_/g, " / ")}</div>
-                          <div className="text-xs text-slate-500">
-                            {data.total_found} of {data.total_params} parameters found
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 shrink-0">
-                        <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden hidden sm:block">
-                          <div
-                            className={cn("h-full rounded-full transition-all", coveragePct > 50 ? "bg-emerald-400" : "bg-amber-400")}
-                            style={{ width: `${coveragePct}%` }}
-                          />
-                        </div>
-                        <Badge variant={coveragePct > 50 ? "pass" : "pending"} className="tabular-nums">
-                          {coveragePct}%
-                        </Badge>
-                      </div>
-                    </button>
-
-                    {!isCollapsed && (
-                      <CardContent className="pt-0 pb-4 border-t">
-                        {data.sheets?.map((sheet: any) => (
-                          <div key={sheet.name} className="mb-4 last:mb-0 mt-4">
-                            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 pb-1 border-b">
-                              {sheet.name} ({sheet.parameters?.length || 0} params)
-                            </div>
-                            <div className="rounded-lg border overflow-hidden">
-                              <table className="w-full text-xs">
-                                <thead>
-                                  <tr className="bg-slate-50 border-b">
-                                    <th className="py-2 px-3 text-left font-semibold text-slate-500 w-16">Code</th>
-                                    <th className="py-2 px-3 text-left font-semibold text-slate-500">Parameter</th>
-                                    <th className="py-2 px-3 text-left font-semibold text-slate-500">RFQ Requirement</th>
-                                    <th className="py-2 px-3 text-center font-semibold text-slate-500 w-16">Found</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {(sheet.parameters || []).map((p: any, i: number) => (
-                                    <tr key={p.code + i} className={cn("border-b last:border-0", i % 2 ? "bg-slate-50/30" : "", p.found ? "" : "opacity-50")}>
-                                      <td className="py-1.5 px-3 font-mono text-slate-400">{p.code}</td>
-                                      <td className="py-1.5 px-3 font-medium text-slate-700">{p.parameter}</td>
-                                      <td className="py-1.5 px-3 text-slate-600">{p.rfq_requirement || "—"}</td>
-                                      <td className="py-1.5 px-3 text-center">
-                                        {p.found ?
-                                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mx-auto" /> :
-                                          <span className="text-slate-300">—</span>
-                                        }
-                                      </td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                        ))}
-                      </CardContent>
-                    )}
-                  </Card>
-                )
-              })}
-            </>
-          ) : compliance?.uploaded_sheets ? (
-            /* Uploaded compliance sheet results */
-            <>
-              <Card className="bg-slate-50/50">
-                <CardContent className="pt-4 pb-4">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-base">Uploaded Compliance Results</CardTitle>
-                    <div className="flex items-center gap-4 text-xs">
-                      <span className="text-slate-500">{compliance.uploaded_sheets.total_parameters} params</span>
-                      <span className="text-brand font-semibold">{compliance.uploaded_sheets.total_filled} filled</span>
-                      <Badge variant="pass">{compliance.uploaded_sheets.total_compliant} compliant</Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              {Object.entries(compliance.uploaded_sheets.sheets || {}).map(([sheetName, data]: [string, any]) => {
-                const key = `uploaded-${sheetName}`
-                const isCollapsed = collapsedSections.has(key)
-                return (
-                  <Card key={sheetName} className="overflow-hidden">
-                    <button
-                      onClick={() => toggleSection(key)}
-                      className="w-full text-left px-5 py-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={cn(
-                          "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
-                          data.compliance_rate >= 70 ? "bg-emerald-50" : data.compliance_rate >= 40 ? "bg-amber-50" : "bg-red-50"
-                        )}>
-                          {isCollapsed
-                            ? <ChevronRight className={cn("w-4 h-4", data.compliance_rate >= 70 ? "text-emerald-500" : data.compliance_rate >= 40 ? "text-amber-500" : "text-red-500")} />
-                            : <ChevronDown className={cn("w-4 h-4", data.compliance_rate >= 70 ? "text-emerald-500" : data.compliance_rate >= 40 ? "text-amber-500" : "text-red-500")} />
-                          }
-                        </div>
-                        <div>
-                          <div className="text-sm font-semibold text-slate-900">{sheetName}</div>
-                          <div className="text-xs text-slate-500">{data.filled}/{data.total} filled</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 shrink-0">
-                        <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden hidden sm:block">
-                          <div
-                            className={cn("h-full rounded-full transition-all",
-                              data.compliance_rate >= 70 ? "bg-emerald-400" : data.compliance_rate >= 40 ? "bg-amber-400" : "bg-red-400"
-                            )}
-                            style={{ width: `${data.compliance_rate}%` }}
-                          />
-                        </div>
-                        <Badge variant={data.compliance_rate >= 70 ? "pass" : data.compliance_rate >= 40 ? "pending" : "fail"} className="tabular-nums">
-                          {data.compliance_rate}%
-                        </Badge>
-                      </div>
-                    </button>
-
-                    {!isCollapsed && (
-                      <CardContent className="pt-0 pb-4 border-t">
-                        <div className="rounded-lg border overflow-hidden mt-4">
-                          <table className="w-full text-xs">
-                            <thead>
-                              <tr className="bg-slate-50 border-b">
-                                <th className="py-2 px-3 text-left font-semibold text-slate-500 w-16">Code</th>
-                                <th className="py-2 px-3 text-left font-semibold text-slate-500">Parameter</th>
-                                <th className="py-2 px-3 text-left font-semibold text-slate-500">RFQ Req</th>
-                                <th className="py-2 px-3 text-left font-semibold text-slate-500">OEM Response</th>
-                                <th className="py-2 px-3 text-center font-semibold text-slate-500 w-12">Y/N</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {(data.parameters || []).map((p: any, i: number) => (
-                                <tr key={p.code + i} className={cn("border-b last:border-0",
-                                  p.compliance === "Y" ? "bg-emerald-50/30" : p.compliance === "N" ? "bg-red-50/30" : "",
-                                  !p.has_response ? "opacity-40" : ""
-                                )}>
-                                  <td className="py-1.5 px-3 font-mono text-slate-400">{p.code}</td>
-                                  <td className="py-1.5 px-3 font-medium text-slate-700">{p.parameter}</td>
-                                  <td className="py-1.5 px-3 text-slate-500">{p.rfq_requirement || "—"}</td>
-                                  <td className="py-1.5 px-3 text-slate-800 font-medium">{p.oem_response || "—"}</td>
-                                  <td className="py-1.5 px-3 text-center">
-                                    {p.compliance === "Y" ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mx-auto" /> :
-                                     p.compliance === "N" ? <span className="text-red-500 font-bold">N</span> :
-                                     <span className="text-slate-300">—</span>}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </CardContent>
-                    )}
-                  </Card>
-                )
-              })}
-            </>
-          ) : (
-            <Card className="py-12">
-              <CardContent className="text-center">
-                <ClipboardList className="w-12 h-12 mx-auto text-slate-200 mb-3" />
-                <p className="text-slate-500">No compliance data yet. Click the tab to auto-generate from RFQ requirements.</p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      )}
-
-      {/* TAB: Requirements */}
-      {activeTab === "requirements" && <>
 
       {/* Requirements Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -579,7 +320,6 @@ export default function RFQDetailPage() {
         </Button>
       </div>
 
-      </>}
     </div>
   )
 }

@@ -64,12 +64,14 @@ async def upload_datasheet(
     from app.data.datasheet_extraction import extract_from_datasheet
     extracted_params = extract_from_datasheet(contents, file.filename or "", category)
 
-    # Calculate compliance
+    # Calculate compliance — only count pass+fail (not info) for real score
     pass_count = sum(1 for p in extracted_params if p.get("status") == "pass")
     fail_count = sum(1 for p in extracted_params if p.get("status") == "fail")
+    info_count = sum(1 for p in extracted_params if p.get("status") == "info")
+    checked = pass_count + fail_count
     total = len(extracted_params)
-    score = round((pass_count / total) * 100, 1) if total > 0 else 0
-    fill_rate = 100 if total > 0 else 0
+    score = round((pass_count / checked) * 100, 1) if checked > 0 else 0
+    fill_rate = round(((pass_count + info_count) / total) * 100, 1) if total > 0 else 0
 
     # Add confidence if missing
     for p in extracted_params:
@@ -119,8 +121,10 @@ async def upload_datasheet(
         "compliance_score": score,
         "pass": pass_count,
         "fail": fail_count,
+        "info": info_count,
+        "fill_rate": fill_rate,
         "parameters": extracted_params,
-        "message": f"Extracted {total} {category} specs from '{file.filename}'",
+        "message": f"Extracted {total} {category} specs — {pass_count} pass, {fail_count} fail, {info_count} info ({score}% compliance)",
         "gdrive_url": gdrive_url,
         "gdrive_saved": bool(gdrive_url),
     }

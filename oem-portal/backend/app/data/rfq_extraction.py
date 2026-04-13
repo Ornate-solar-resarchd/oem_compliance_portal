@@ -1,10 +1,7 @@
 """
 BESS RFQ Technical Extraction Engine
-
-Priority order:
-1. Gemini API (free, powerful, 1M context) — if GEMINI_API_KEY is set
-2. Claude API — if ANTHROPIC_API_KEY is set
-3. Keyword extraction — always works, no API needed
+Uses comprehensive keyword/regex pattern matching against STANDARD_PARAMETERS.
+No AI API dependency — works offline with deterministic results.
 """
 import os
 import json
@@ -211,40 +208,12 @@ def extract_with_claude(document_text: str, api_key: str) -> list:
 
 def extract_from_text(document_text: str, pages: list = None) -> list:
     """
-    Extract technical requirements from document text.
-
-    Priority:
-    1. Claude API (primary) — if ANTHROPIC_API_KEY is set
-    2. Gemini API (fallback) — if GEMINI_API_KEY is set
-    3. Keyword extraction — always works, no API needed
-
-    If pages list is provided (text per page), AI will return page numbers for each extraction.
+    Extract technical requirements from document text using keyword matching.
+    Uses comprehensive regex patterns against STANDARD_PARAMETERS — no AI needed.
     """
-
-    # 1. Try Claude first (primary)
-    claude_key = os.environ.get("ANTHROPIC_API_KEY", "")
-    if claude_key and claude_key != "sk-placeholder" and len(claude_key) > 20:
-        print("[RFQ Extraction] Using Claude AI (primary)...")
-        results = extract_with_claude(document_text, claude_key)
-        if results:
-            print(f"[RFQ Extraction] Claude extracted {len(results)} requirements")
-            return results
-        print("[RFQ Extraction] Claude failed, trying fallback...")
-
-    # 2. Try Gemini (fallback)
-    gemini_key = os.environ.get("GEMINI_API_KEY", "")
-    if gemini_key and gemini_key != "YOUR_GEMINI_KEY_HERE" and len(gemini_key) > 10:
-        print("[RFQ Extraction] Using Gemini AI (fallback)...")
-        results = extract_with_gemini(document_text, gemini_key)
-        if results:
-            print(f"[RFQ Extraction] Gemini extracted {len(results)} requirements")
-            return results
-        print("[RFQ Extraction] Gemini failed, trying keyword fallback...")
-
-    # 3. Keyword extraction (always works)
-    print("[RFQ Extraction] Using keyword extraction...")
+    print("[RFQ Extraction] Using keyword extraction engine...")
     results = _keyword_extraction(document_text)
-    print(f"[RFQ Extraction] Keywords extracted {len(results)} requirements")
+    print(f"[RFQ Extraction] Extracted {len(results)} requirements from {len(document_text)} chars")
     return results
 
 
@@ -255,29 +224,54 @@ def _keyword_extraction(text: str) -> list:
 
     # ── BESS System ──
     _try_extract(extracted, text, text_lower, "BESS_CAPACITY_MW", "BESS Rated Power Capacity", "MW", "BESS System",
-                 [r"(\d+)\s*MW\s*/", r"(\d+)\s*MW\b(?!\s*h)"])
+                 [r"(\d[\d,]+)\s*MW\s*/", r"(\d[\d,]+)\s*MW\b(?!\s*h)"])
+    # MWh — prefer MW/MWh format first (most precise), then BESS context
     _try_extract(extracted, text, text_lower, "BESS_CAPACITY_MWH", "BESS Energy Capacity", "MWh", "BESS System",
-                 [r"(\d+)\s*MWh"])
+                 [r"MW\s*/\s*(\d[\d,.]+)\s*MWh",
+                  r"(\d[\d,]+)\s*MWh\s*(?:BESS|ESS|storage|battery)",
+                  r"(?:BESS|ESS|storage|battery)\s*(?:project|system|plant|capacity).*?(\d[\d,]+)\s*MWh"])
     _try_extract(extracted, text, text_lower, "BESS_NAMEPLATE_MWH", "Min Nameplate Capacity", "MWh", "BESS System",
-                 [r"nameplate.*?(\d+)\s*MWh", r"min.*nameplate.*?(\d+)"])
+                 [r"(?:nameplate|installed|gross|initial|day[\s-]*one|day\s*1|BOL)\s*(?:capacity|energy|rating)?.*?(\d[\d,]*)\s*MWh",
+                  r"min.*?(?:nameplate|installed).*?(\d[\d,]*)\s*MWh"])
     _try_extract(extracted, text, text_lower, "BESS_DISCHARGE_HRS", "Discharge Duration", "hours", "BESS System",
-                 [r"(\d+)[\s-]*hour\s*discharge", r"single\s*cycle\s*(\d+)[\s-]*hour"])
+                 [r"(\d+(?:\.\d+)?)[\s-]*(?:hour|hr|h)\s*(?:discharge|duration|storage|backup)",
+                  r"(?:discharge|duration|storage)\s*(?:duration|time|of)?.*?(\d+(?:\.\d+)?)\s*(?:hour|hr|h)\b",
+                  r"single\s*cycle\s*(\d+)[\s-]*hour",
+                  r"(\d+)[\s-]*(?:hour|hr|h)\s*BESS"])
     _try_extract(extracted, text, text_lower, "BESS_DESIGN_LIFE", "Design Life", "years", "BESS System",
-                 [r"design\s*life.*?(\d+)\s*years", r"(\d+)\s*years.*design\s*life"], prefix=">=")
+                 [r"(?:design|service|operational|useful|expected|project|plant|system|asset|economic)\s*life.*?(\d+)\s*years?",
+                  r"(\d+)\s*years?\s*(?:design|service|operational|useful|expected|project|plant|system)\s*life",
+                  r"life\s*(?:of|expectancy).*?(\d+)\s*years?"], prefix=">=")
     _try_keyword(extracted, text_lower, "CELL_CHEMISTRY", "Battery Chemistry", "", "BESS System",
-                 {"lfp": "LFP", "lithium iron phosphate": "LFP", "nmc": "NMC", "lithium": "Lithium-ion"})
+                 {"lfp": "LFP", "lifepo4": "LFP", "lithium iron phosphate": "LFP",
+                  "li-fepo4": "LFP", "iron phosphate": "LFP",
+                  "nmc": "NMC", "nickel manganese cobalt": "NMC",
+                  "lto": "LTO", "lithium titanate": "LTO",
+                  "sodium-ion": "Sodium-ion", "sodium ion": "Sodium-ion",
+                  "lithium-ion": "Lithium-ion", "lithium ion": "Lithium-ion", "li-ion": "Lithium-ion",
+                  "lithium": "Lithium-ion"})
     _try_keyword(extracted, text_lower, "BESS_COOLING", "Cooling System", "", "BESS System",
-                 {"liquid cool": "Liquid Cooled", "air cool": "Air Cooled"})
+                 {"liquid cool": "Liquid Cooled", "liquid-cool": "Liquid Cooled", "water cool": "Liquid Cooled",
+                  "glycol cool": "Liquid Cooled", "immersion cool": "Immersion Cooled",
+                  "air cool": "Air Cooled", "air-cool": "Air Cooled", "forced air": "Forced Air Cooled",
+                  "hvac": "HVAC Cooled"})
     _try_extract(extracted, text, text_lower, "BESS_GRID_KV", "Grid Voltage Level", "kV", "BESS System",
-                 [r"(\d+)\s*(?:kV|KV)"])
-    if "turnkey" in text_lower or "epc" in text_lower:
-        extracted.append({"parameter": "Scope", "code": "BESS_SCOPE", "required_value": "Turnkey EPC" if "turnkey" in text_lower else "EPC", "unit": "", "section": "BESS System"})
+                 [r"(?:grid|interconnection|POI|point\s*of\s*interconnection|HV|MV|evacuation|transmission)\s*(?:level|voltage)?.*?(\d+)\s*(?:kV|KV)",
+                  r"(\d+)\s*(?:kV|KV)\s*(?:grid|interconnection|level|line|substation|busbar)"])
+    if any(kw in text_lower for kw in ["turnkey", "engineering procurement construction", "engineering, procurement"]):
+        extracted.append({"parameter": "Scope", "code": "BESS_SCOPE", "required_value": "Turnkey EPC", "unit": "", "section": "BESS System"})
+    elif any(kw in text_lower for kw in ["epc", "epcm", "design build", "design-build", "supply install commission"]):
+        extracted.append({"parameter": "Scope", "code": "BESS_SCOPE", "required_value": "EPC", "unit": "", "section": "BESS System"})
 
     # ── BESS Performance ──
     _try_extract(extracted, text, text_lower, "CELL_ENERGY_EFF", "Round-Trip Efficiency (RTE)", "%", "BESS Performance",
-                 [r"(?:RTE|round[\s-]*trip[\s-]*efficiency).*?(\d+)\s*%", r"(\d+)\s*%.*?(?:RTE|round[\s-]*trip)"], prefix=">=")
+                 [r"(?:round[\s-]*trip|roundtrip|AC[\s-]*to[\s-]*AC|DC[\s-]*to[\s-]*DC|energy|cycle|system)\s*efficiency.*?[≥>=]*\s*((?:8|9)\d(?:\.\d+)?)\s*%",
+                  r"RTE.*?[≥>=]*\s*((?:8|9)\d(?:\.\d+)?)\s*%",
+                  r"η.*?[≥>=]*\s*((?:8|9)\d(?:\.\d+)?)\s*%"], prefix=">=")
     _try_extract(extracted, text, text_lower, "BESS_AVAILABILITY", "Monthly Availability", "%", "BESS Performance",
-                 [r"(?:monthly\s*)?availability.*?(\d+(?:\.\d+)?)\s*%"], prefix=">=")
+                 [r"(?:monthly|annual|system|plant|guaranteed|minimum|min)\s*availability.*?(\d+(?:\.\d+)?)\s*%",
+                  r"availability\s*(?:factor|guarantee|target)?.*?[≥>=]*\s*(\d+(?:\.\d+)?)\s*%",
+                  r"uptime.*?[≥>=]*\s*(\d+(?:\.\d+)?)\s*%"], prefix=">=")
     _try_extract(extracted, text, text_lower, "BESS_PEAK_SUPPLY", "Min Monthly Peak Supply", "%", "BESS Performance",
                  [r"(\d+)\s*%.*?(?:peak|assured|dispatchable)"], prefix=">=")
     _try_extract(extracted, text, text_lower, "BESS_HANDOVER_PCT", "Dispatchable Capacity at Handover", "%", "BESS Performance",
@@ -289,11 +283,187 @@ def _keyword_extraction(text: str) -> list:
     _try_extract(extracted, text, text_lower, "BESS_LINE_LOSS", "Transmission Line Losses", "%", "BESS Performance",
                  [r"(?:transmission|line)\s*loss.*?(\d+(?:\.\d+)?)\s*%"])
 
-    # ── Cell Specs ──
+    # ── Cell / Battery Specs ──
     _try_extract(extracted, text, text_lower, "CELL_CYCLE_LIFE", "Minimum Cycle Life", "cycles", "Cell Specs",
-                 [r"(?:minimum|min|rated for).*?(\d[\d,]*)\s*cycles", r"(\d[\d,]*)\s*cycles"], prefix=">=")
+                 [r"(?:cycle\s*life|equivalent\s*full\s*cycles?|EFC|life\s*cycles?|charge[\s-]*discharge\s*cycles?).*?(\d[\d,]{3,})",
+                  r"(?:minimum|min|guaranteed|rated\s*for|at\s*least).*?(\d[\d,]{3,})\s*cycles?",
+                  r"(\d{4,})\s*(?:cycles?|EFC)"], prefix=">=")
+    _try_extract(extracted, text, text_lower, "CELL_CAPACITY_AH", "Cell Nominal Capacity", "Ah", "Cell Specs",
+                 [r"(?:cell\s*)?(?:nominal|rated|typical|minimum)\s*capacity.*?(\d+(?:\.\d+)?)\s*Ah",
+                  r"(\d+(?:\.\d+)?)\s*Ah\s*(?:cell|capacity|nominal|rated)",
+                  r"capacity\s*(?:of|=)?\s*(\d+(?:\.\d+)?)\s*Ah"])
+    _try_extract(extracted, text, text_lower, "CELL_VOLTAGE_V", "Cell Nominal Voltage", "V", "Cell Specs",
+                 [r"cell\s*(?:nominal\s*)?voltage.*?(\d+(?:\.\d+)?)\s*V\b",
+                  r"(?:nominal\s*)?voltage.*?(\d+(?:\.\d+)?)\s*V\b.*?cell",
+                  r"(\d\.\d+)\s*V\s*(?:and|,)\s*\d+\s*Ah"])
+    _try_extract(extracted, text, text_lower, "CELL_DOD", "Depth of Discharge (DOD)", "%", "Cell Specs",
+                 [r"(?:DOD|depth[\s-]*of[\s-]*discharge|usable\s*capacity|usable\s*DOD).*?(\d+)\s*%",
+                  r"(\d+)\s*%\s*(?:DOD|depth)"])
+    # SOC range needs special handling - capture both min and max
+    soc_match = re.search(r"SOC.*?(\d+)\s*%?\s*(?:to|–|-|~)\s*(\d+)\s*%", text, re.IGNORECASE)
+    if soc_match:
+        extracted.append({"parameter": "SOC Operating Range", "code": "CELL_SOC_RANGE",
+                         "required_value": f"{soc_match.group(1)}% to {soc_match.group(2)}%",
+                         "unit": "%", "section": "Cell Specs"})
+    _try_extract(extracted, text, text_lower, "CELL_CALENDAR_LIFE", "Calendar Life", "years", "Cell Specs",
+                 [r"(?:calendar|shelf|storage|float)\s*life.*?(\d+)\s*years?",
+                  r"(\d+)\s*years?.*?(?:calendar|shelf|float)\s*life"])
+    _try_extract(extracted, text, text_lower, "CELL_ENERGY_DENSITY", "Energy Density", "Wh/kg", "Cell Specs",
+                 [r"energy\s*density.*?(\d+(?:\.\d+)?)\s*Wh/kg"])
+    _try_extract(extracted, text, text_lower, "CELL_SELF_DISCHARGE", "Self Discharge Rate", "%/month", "Cell Specs",
+                 [r"self[\s-]*discharge.*?(\d+(?:\.\d+)?)\s*%"])
+    _try_extract(extracted, text, text_lower, "CELL_EOL_RETENTION", "End-of-Life Capacity Retention", "%", "Cell Specs",
+                 [r"(?:EOL|end[\s-]*of[\s-]*life|end[\s-]*of[\s-]*warranty|EOW|end[\s-]*of[\s-]*contract|EOC|state[\s-]*of[\s-]*health|SOH).*?(?:capacity|retention|residual)?.*?(\d+(?:\.\d+)?)\s*%",
+                  r"(\d+(?:\.\d+)?)\s*%.*?(?:EOL|end[\s-]*of[\s-]*life|SOH|residual\s*capacity)",
+                  r"(?:guaranteed|minimum|min)\s*(?:residual|remaining)\s*capacity.*?(\d+(?:\.\d+)?)\s*%"])
+    _try_extract(extracted, text, text_lower, "CELL_C_RATE", "C-Rate", "C", "Cell Specs",
+                 [r"(?:c[\s-]*rate|charge[\s-]*rate).*?(\d+(?:\.\d+)?)\s*C"])
+    _try_extract(extracted, text, text_lower, "CELL_INTERNAL_RES", "Internal Resistance", "mΩ", "Cell Specs",
+                 [r"internal\s*resistance.*?(\d+(?:\.\d+)?)\s*(?:mΩ|mohm|m[oO]hm)"])
+    _try_extract(extracted, text, text_lower, "CELL_AVAILABILITY", "Cell-Level Availability", "%", "Cell Specs",
+                 [r"cell[\s-]*(?:level\s*)?availability.*?(\d+(?:\.\d+)?)\s*%"], prefix=">=")
     if "new" in text_lower and ("refurbished" in text_lower or "prohibit" in text_lower):
         extracted.append({"parameter": "New Cells Only (No Refurbished)", "code": "CELL_NEW_ONLY", "required_value": "Yes — Refurbished Prohibited", "unit": "", "section": "Cell Specs"})
+    _try_keyword(extracted, text_lower, "CELL_FORMAT", "Cell Form Factor", "", "Cell Specs",
+                 {"prismatic": "Prismatic", "cylindrical": "Cylindrical", "pouch": "Pouch", "blade": "Blade"})
+
+    # ── DC Block / Container Specs ──
+    _try_extract(extracted, text, text_lower, "DC_VOLTAGE_NOM", "DC Bus Voltage (Nominal)", "V", "DC Block",
+                 [r"(?:dc\s*bus|battery\s*bus|nominal\s*dc).*?voltage.*?(\d+(?:\.\d+)?)\s*V",
+                  r"(?:dc|system)\s*voltage.*?(\d+)\s*V"])
+    _try_extract(extracted, text, text_lower, "DC_VOLTAGE_MAX", "DC Voltage Max", "V", "DC Block",
+                 [r"(?:max|maximum)\s*(?:dc\s*)?(?:system\s*)?voltage.*?(\d+(?:\.\d+)?)\s*V"])
+    _try_extract(extracted, text, text_lower, "DC_VOLTAGE_MIN", "DC Voltage Min", "V", "DC Block",
+                 [r"(?:min|minimum)\s*(?:dc\s*)?(?:system\s*)?voltage.*?(\d+(?:\.\d+)?)\s*V"])
+    _try_extract(extracted, text, text_lower, "DC_CONTAINER_COUNT", "Number of BESS Containers", "", "DC Block",
+                 [r"(\d+)\s*(?:BESS\s*)?container"])
+    _try_keyword(extracted, text_lower, "DC_CONTAINER_TYPE", "Container Type", "", "DC Block",
+                 {"20ft": "20ft ISO", "20 ft": "20ft ISO", "40ft": "40ft ISO", "40 ft": "40ft ISO",
+                  "high cube": "High-Cube", "high-cube": "High-Cube"})
+    _try_extract(extracted, text, text_lower, "DC_IP_RATING", "Protection Rating (IP)", "", "DC Block",
+                 [r"(IP\s*\d{2}\w?)"])
+    _try_extract(extracted, text, text_lower, "DC_NOISE", "Noise Level", "dBA", "DC Block",
+                 [r"(?:noise|sound).*?(?:≤|<=|less\s*than)?\s*(\d+)\s*dB"])
+    if any(kw in text_lower for kw in ["thermal runaway", "tr propagation"]):
+        extracted.append({"parameter": "Thermal Runaway Protection", "code": "DC_TR_PROTECT", "required_value": "Required", "unit": "", "section": "DC Block"})
+    if any(kw in text_lower for kw in ["explosion proof", "explosion-proof", "deflagration vent"]):
+        extracted.append({"parameter": "Explosion-Proof Vent / Deflagration Panel", "code": "DC_EXPLOSION_VENT", "required_value": "Required", "unit": "", "section": "DC Block"})
+    if any(kw in text_lower for kw in ["vesda", "very early smoke"]):
+        extracted.append({"parameter": "VESDA Smoke Detection", "code": "DC_VESDA", "required_value": "Required", "unit": "", "section": "DC Block"})
+    _try_keyword(extracted, text_lower, "DC_FIRE_AGENT", "Fire Suppression Agent", "", "DC Block",
+                 {"novec 1230": "Novec 1230", "novec": "Novec 1230", "fm200": "FM200", "fm-200": "FM200",
+                  "aerosol": "Aerosol", "water mist": "Water Mist", "water sprinkler": "Water Sprinkler"})
+    if any(kw in text_lower for kw in ["h2 detect", "hydrogen detect", "h₂"]):
+        extracted.append({"parameter": "H₂ Gas Detection", "code": "DC_H2_DETECT", "required_value": "Required", "unit": "", "section": "DC Block"})
+    if any(kw in text_lower for kw in ["co detect", "carbon monoxide"]):
+        extracted.append({"parameter": "CO Gas Detection", "code": "DC_CO_DETECT", "required_value": "Required", "unit": "", "section": "DC Block"})
+    _try_keyword(extracted, text_lower, "DC_BMS_ARCH", "BMS Architecture", "", "DC Block",
+                 {"3-tier": "3-Tier", "3 tier": "3-Tier", "three-tier": "3-Tier", "2-tier": "2-Tier"})
+
+    # ── PCS Specs ──
+    _try_extract(extracted, text, text_lower, "PCS_RATED_POWER", "PCS Rated AC Power", "kW", "PCS",
+                 [r"PCS.*?(?:rated|nominal)\s*(?:ac\s*)?(?:power|output).*?(\d+(?:\.\d+)?)\s*(?:MW|kW)",
+                  r"(?:rated|nominal)\s*(?:ac\s*)?power.*?PCS.*?(\d+(?:\.\d+)?)\s*(?:MW|kW)"])
+    _try_extract(extracted, text, text_lower, "PCS_EFFICIENCY", "PCS Peak Conversion Efficiency", "%", "PCS",
+                 [r"PCS\s*(?:conversion\s*)?efficiency.*?(\d+(?:\.\d+)?)\s*%",
+                  r"(?:peak|max)\s*(?:conversion\s*)?efficiency.*?(\d+(?:\.\d+)?)\s*%"], prefix=">=")
+    _try_extract(extracted, text, text_lower, "PCS_WEIGHTED_EFF", "PCS Weighted / CEC Efficiency", "%", "PCS",
+                 [r"(?:weighted|CEC|euro)\s*efficiency.*?(\d+(?:\.\d+)?)\s*%"], prefix=">=")
+    _try_extract(extracted, text, text_lower, "PCS_THD", "PCS THD at Rated Output", "%", "PCS",
+                 [r"THD.*?[<≤<=]?\s*(\d+(?:\.\d+)?)\s*%"])
+    _try_extract(extracted, text, text_lower, "PCS_POWER_FACTOR", "PCS Power Factor Range", "", "PCS",
+                 [r"power\s*factor.*?(\d+(?:\.\d+)?)\s*(?:lead|lag|leading|lagging)"])
+    _try_extract(extracted, text, text_lower, "PCS_RESPONSE_TIME", "PCS Response Time (0 to Full Power)", "ms", "PCS",
+                 [r"(?:response\s*time|0\s*to\s*full).*?[<≤<=]?\s*(\d+)\s*(?:ms|milli)"])
+    _try_extract(extracted, text, text_lower, "PCS_RAMP_RATE", "PCS Ramp Rate", "MW/s", "PCS",
+                 [r"ramp\s*rate.*?(\d+(?:\.\d+)?)\s*(?:MW/s|%/s|kW/s)"])
+    _try_extract(extracted, text, text_lower, "PCS_OVERLOAD", "PCS Overload Capability", "%", "PCS",
+                 [r"overload.*?(\d+)\s*%.*?(\d+)\s*(?:min|sec|s\b)"])
+    _try_extract(extracted, text, text_lower, "PCS_DC_INJECTION", "PCS DC Injection Limit", "%", "PCS",
+                 [r"DC\s*injection.*?(\d+(?:\.\d+)?)\s*%"])
+    _try_extract(extracted, text, text_lower, "PCS_AC_VOLTAGE", "PCS AC Voltage", "kV", "PCS",
+                 [r"(?:ac|output)\s*(?:side\s*)?(?:interconnection\s*)?voltage.*?(\d+(?:\.\d+)?)\s*kV"])
+    _try_extract(extracted, text, text_lower, "PCS_FREQ_RANGE", "PCS Operational Frequency Range", "Hz", "PCS",
+                 [r"(?:frequency|freq)\s*range.*?(\d+(?:\.\d+)?)\s*Hz\s*(?:to|–|-)\s*(\d+(?:\.\d+)?)\s*Hz"])
+    _try_extract(extracted, text, text_lower, "PCS_REACTIVE_KVAR", "PCS Reactive Power Capability", "kVAr", "PCS",
+                 [r"reactive\s*(?:power)?\s*(?:capability|capacity).*?(\d+(?:\.\d+)?)\s*(?:kVAr|MVAr)"])
+    _try_extract(extracted, text, text_lower, "PCS_UPTIME", "PCS Uptime Guarantee", "%", "PCS",
+                 [r"(?:PCS|inverter)\s*(?:uptime|availability).*?(\d+(?:\.\d+)?)\s*%"], prefix=">=")
+    _try_extract(extracted, text, text_lower, "PCS_AUX_CONSUMPTION", "PCS Auxiliary Consumption", "%", "PCS",
+                 [r"(?:aux|auxiliary)\s*(?:power\s*)?consumption.*?(?:less\s*than|[<≤<=])\s*(\d+(?:\.\d+)?)\s*%",
+                  r"(?:aux|auxiliary)\s*consumption\s*(?:shall\s*)?(?:not\s*)?(?:exceed\s*)?(\d+(?:\.\d+)?)\s*%"])
+    _try_extract(extracted, text, text_lower, "PCS_UNITS_COUNT", "Number of PCS Units", "", "PCS",
+                 [r"(\d+)\s*(?:PCS\s*)?(?:units|inverter)"])
+    _try_keyword(extracted, text_lower, "PCS_TOPOLOGY", "PCS Topology", "", "PCS",
+                 {"central": "Central", "string": "String", "npc": "NPC", "3-level": "3-Level",
+                  "h-bridge": "H-Bridge", "t-type": "T-Type"})
+    _try_keyword(extracted, text_lower, "PCS_COOLING", "PCS Cooling Type", "", "PCS",
+                 {"liquid cool": "Liquid Cooled", "air cool": "Air Cooled", "forced air": "Forced Air"})
+    if any(kw in text_lower for kw in ["lvrt", "low voltage ride"]):
+        extracted.append({"parameter": "LVRT (Low Voltage Ride Through)", "code": "PCS_LVRT", "required_value": "Required per CEA Grid Code", "unit": "", "section": "PCS"})
+    if any(kw in text_lower for kw in ["hvrt", "high voltage ride"]):
+        extracted.append({"parameter": "HVRT (High Voltage Ride Through)", "code": "PCS_HVRT", "required_value": "Required", "unit": "", "section": "PCS"})
+    if "anti-island" in text_lower or "anti island" in text_lower:
+        extracted.append({"parameter": "Anti-Islanding Protection", "code": "PCS_ANTI_ISLAND", "required_value": "Required per IEEE 1547 / CEA", "unit": "", "section": "PCS"})
+    if "grid forming" in text_lower or "grid-forming" in text_lower:
+        extracted.append({"parameter": "Grid-Forming Capability", "code": "PCS_GRID_FORMING", "required_value": "Required", "unit": "", "section": "PCS"})
+    if any(kw in text_lower for kw in ["droop control", "frequency droop"]):
+        extracted.append({"parameter": "Frequency Droop Control", "code": "PCS_DROOP", "required_value": "Required — configurable", "unit": "", "section": "PCS"})
+    if any(kw in text_lower for kw in ["avr", "voltage regulation", "voltage regulator"]):
+        extracted.append({"parameter": "Voltage Regulation / AVR Mode", "code": "PCS_AVR", "required_value": "Required", "unit": "", "section": "PCS"})
+    # PCS Transformer
+    _try_extract(extracted, text, text_lower, "PCS_TRAFO_RATING", "PCS Transformer Rating", "MVA", "PCS",
+                 [r"transformer.*?(?:rating|capacity).*?(\d+(?:\.\d+)?)\s*(?:MVA|kVA)",
+                  r"(\d+(?:\.\d+)?)\s*(?:MVA|kVA).*?transformer"])
+    _try_extract(extracted, text, text_lower, "PCS_TRAFO_VOLTAGE", "PCS Transformer Secondary Voltage", "kV", "PCS",
+                 [r"(?:secondary|HV|MV)\s*(?:side\s*)?voltage.*?(\d+(?:\.\d+)?)\s*kV"])
+
+    # ── Thermal / HVAC ──
+    _try_extract(extracted, text, text_lower, "THERMAL_AMBIENT_MAX", "Max Ambient Temperature", "°C", "Thermal / HVAC",
+                 [r"(?:max|maximum)\s*ambient\s*(?:temp|temperature).*?(\d+)\s*[°℃C]",
+                  r"ambient.*?(?:max|maximum).*?(\d+)\s*[°℃C]"])
+    _try_extract(extracted, text, text_lower, "THERMAL_AMBIENT_MIN", "Min Ambient Temperature", "°C", "Thermal / HVAC",
+                 [r"(?:min|minimum)\s*ambient.*?(-?\d+)\s*[°℃C]",
+                  r"ambient.*?(?:min|minimum).*?(-?\d+)\s*[°℃C]"])
+    _try_extract(extracted, text, text_lower, "THERMAL_HUMIDITY", "Humidity Range", "%RH", "Thermal / HVAC",
+                 [r"humidity.*?(?:up\s*to\s*)?(\d+)\s*%"])
+    _try_extract(extracted, text, text_lower, "THERMAL_ALTITUDE", "Site Altitude", "m", "Thermal / HVAC",
+                 [r"altitude.*?(\d[\d,]*)\s*m", r"(\d[\d,]*)\s*m.*?(?:altitude|above\s*(?:MSL|sea))"])
+    _try_extract(extracted, text, text_lower, "THERMAL_SEISMIC", "Seismic Zone", "", "Thermal / HVAC",
+                 [r"(?:seismic|earthquake)\s*(?:zone|IS\s*1893).*?((?:zone\s*)?(?:II|III|IV|V|2|3|4|5))",
+                  r"IS\s*1893.*?(?:zone\s*)?(\w+)"])
+    _try_extract(extracted, text, text_lower, "HVAC_COOLING_KW", "HVAC Cooling Capacity per Container", "kW", "Thermal / HVAC",
+                 [r"(?:HVAC|cooling)\s*(?:capacity|power).*?(\d+(?:\.\d+)?)\s*kW"])
+    _try_keyword(extracted, text_lower, "HVAC_COOLING_TYPE", "Cooling System Type", "", "Thermal / HVAC",
+                 {"liquid cool": "Liquid Cooling", "liquid-cool": "Liquid Cooling",
+                  "air cool": "Air Cooling", "air-cool": "Air Cooling",
+                  "precision cool": "Precision Cooling"})
+
+    # ── Guarantees / Performance ──
+    _try_extract(extracted, text, text_lower, "GUAR_DISPATCHABLE_MWH", "Dispatchable Energy at POI", "MWh", "Guarantees",
+                 [r"(?:dispatchable|net)\s*(?:energy|capacity).*?(\d+(?:\.\d+)?)\s*MWh",
+                  r"(\d+(?:\.\d+)?)\s*MWh.*?(?:dispatchable|net\s*deliverable)"])
+    _try_extract(extracted, text, text_lower, "GUAR_ANNUAL_DEGRADATION", "Annual Capacity Degradation", "%/year", "Guarantees",
+                 [r"(?:annual\s*)?degradation\s*(?:rate|limit)?.*?[≤<=]?\s*(\d+(?:\.\d+)?)\s*%\s*(?:per\s*(?:year|annum))",
+                  r"degradation.*?(?:shall\s*)?(?:not\s*)?(?:exceed\s*)(\d+(?:\.\d+)?)\s*%\s*per\s*(?:year|annum)"])
+    _try_extract(extracted, text, text_lower, "GUAR_EOL_CAPACITY", "End-of-Life Capacity", "%", "Guarantees",
+                 [r"(?:end\s*of\s*life|EOL).*?(?:capacity|retention).*?(\d+)\s*%",
+                  r"(\d+)\s*%.*?(?:end\s*of\s*life|EOL)"])
+    _try_extract(extracted, text, text_lower, "GUAR_MTBF", "Mean Time Between Failures (MTBF)", "hours", "Guarantees",
+                 [r"MTBF.*?(\d[\d,]*)\s*(?:hour|hr)"])
+    _try_extract(extracted, text, text_lower, "GUAR_MTTR", "Mean Time To Repair (MTTR)", "hours", "Guarantees",
+                 [r"MTTR.*?[<≤<=]?\s*(\d+)\s*(?:hour|hr)"])
+    _try_extract(extracted, text, text_lower, "GUAR_LD_CAP", "Liquidated Damages Cap", "%", "Guarantees",
+                 [r"(?:LD|liquidated\s*damages?)\s*(?:cap|maximum|aggregate).*?(\d+(?:\.\d+)?)\s*%"])
+    _try_extract(extracted, text, text_lower, "GUAR_PLANNED_DOWNTIME", "Planned Maintenance Downtime", "hours/year", "Guarantees",
+                 [r"(?:planned|scheduled)\s*(?:maintenance\s*)?downtime.*?(\d+)\s*(?:hour|day)"])
+    _try_extract(extracted, text, text_lower, "GUAR_CYCLES_PER_DAY", "Max Cycles Per Day", "cycles/day", "Guarantees",
+                 [r"(\d+)\s*(?:cycle|shift)s?\s*per\s*day"])
+    _try_extract(extracted, text, text_lower, "GUAR_FIRST_DISCHARGE", "Capacity on First Discharge", "%", "Guarantees",
+                 [r"first\s*discharge.*?(\d{2}(?:\.\d+)?)\s*%", r"(\d{2}(?:\.\d+)?)\s*%.*?first\s*discharge"], prefix=">=")
+    _try_extract(extracted, text, text_lower, "INTERCONNECT_VOLTAGE", "Interconnection Voltage at POI", "kV", "System",
+                 [r"(?:interconnection|POI|point\s*of\s*interconnection).*?(\d+)\s*kV",
+                  r"(\d+)\s*kV.*?(?:interconnection|at\s*POI)"])
 
     # ── Certifications (check ALL) ──
     cert_checks = [
@@ -307,6 +477,17 @@ def _keyword_extraction(text: str) -> list:
         ("CERT_IEC61000", "IEC 61000 (EMC)", ["iec 61000", "61000"]),
         ("CELL_BIS_CERT", "BIS Registration", ["bis", "bureau of indian standards"]),
         ("CERT_CEA_CERC", "CEA / CERC / Grid Code Compliance", ["cea", "cerc", "indian grid code", "grid code"]),
+        ("CERT_IEC62109", "IEC 62109 (PV Inverter Safety)", ["iec 62109", "62109"]),
+        ("CERT_IEEE1547", "IEEE 1547 (Grid Interconnection)", ["ieee 1547", "1547"]),
+        ("CERT_UL1741", "UL 1741 (Inverter Safety)", ["ul 1741", "ul1741"]),
+        ("CERT_IEC62443", "IEC 62443 (Cybersecurity)", ["iec 62443", "62443"]),
+        ("CERT_IS1893", "IS 1893 (Seismic)", ["is 1893", "is1893"]),
+        ("CERT_IS2026", "IS 2026 (Transformer)", ["is 2026"]),
+        ("CERT_IEC60076", "IEC 60076 (Power Transformers)", ["iec 60076", "60076"]),
+        ("CERT_NFPA855", "NFPA 855 (ESS Fire Safety)", ["nfpa 855"]),
+        ("CERT_ISO9001", "ISO 9001 (Quality Management)", ["iso 9001"]),
+        ("CERT_ISO14001", "ISO 14001 (Environmental)", ["iso 14001"]),
+        ("CERT_ISO45001", "ISO 45001 (Safety)", ["iso 45001"]),
     ]
     for code, param, keywords in cert_checks:
         for kw in keywords:
@@ -315,19 +496,19 @@ def _keyword_extraction(text: str) -> list:
                 break
 
     # ── Fire Safety ──
-    if any(kw in text_lower for kw in ["fire detection", "fire alarm"]):
+    if any(kw in text_lower for kw in ["fire detection", "fire alarm", "smoke detect", "heat detect", "vesda"]):
         extracted.append({"parameter": "Fire Detection & Alarm System", "code": "FIRE_DETECTION", "required_value": "Required", "unit": "", "section": "Fire Safety"})
-    if any(kw in text_lower for kw in ["fire suppression", "fire protection"]):
+    if any(kw in text_lower for kw in ["fire suppression", "fire protection", "fire fighting", "fire safety system", "fire extinguish"]):
         extracted.append({"parameter": "Fire Suppression System", "code": "FIRE_SUPPRESSION", "required_value": "Required", "unit": "", "section": "Fire Safety"})
     if "nfpa" in text_lower:
         extracted.append({"parameter": "NFPA Standards", "code": "FIRE_NFPA", "required_value": "Required", "unit": "", "section": "Fire Safety"})
 
     # ── EMS / SCADA ──
-    if any(kw in text_lower for kw in ["energy management system", "ems", "scada"]):
+    if any(kw in text_lower for kw in ["energy management system", "ems", "scada", "supervisory control", "plant controller", "power plant controller", "ppc"]):
         extracted.append({"parameter": "Energy Management System", "code": "EMS_REQUIRED", "required_value": "Required", "unit": "", "section": "EMS / SCADA"})
-    if "hybrid ems" in text_lower or ("solar" in text_lower and "ems" in text_lower and "bess" in text_lower):
+    if "hybrid ems" in text_lower or "hybrid energy management" in text_lower or ("solar" in text_lower and "ems" in text_lower and "bess" in text_lower):
         extracted.append({"parameter": "Hybrid EMS (Solar + BESS)", "code": "EMS_HYBRID", "required_value": "Required", "unit": "", "section": "EMS / SCADA"})
-    if "indigenous" in text_lower or "make in india" in text_lower:
+    if any(kw in text_lower for kw in ["indigenous", "make in india", "atmanirbhar", "developed in india", "domestic content", "local content"]):
         extracted.append({"parameter": "EMS Software — Indigenous / Make in India", "code": "EMS_ORIGIN", "required_value": "Mandatory — Developed in India", "unit": "", "section": "EMS / SCADA"})
     _try_extract(extracted, text, text_lower, "EMS_REFRESH", "SCADA Data Refresh Rate", "seconds", "EMS / SCADA",
                  [r"(?:refresh|data).*?(?:≤|<=)?\s*(\d+)\s*second"])
@@ -347,12 +528,12 @@ def _keyword_extraction(text: str) -> list:
 
     # ── Grid Support ──
     grid_checks = [
-        ("GRID_PFR", "Primary Frequency Response (PFR)", ["primary frequency", "pfr"]),
-        ("GRID_SFR", "Secondary Frequency Response (SFR)", ["secondary frequency", "sfr"]),
-        ("GRID_TFR", "Tertiary Frequency Response", ["tertiary frequency"]),
-        ("GRID_INERTIA", "Synthetic / Virtual Inertia", ["synthetic inertia", "virtual inertia"]),
-        ("GRID_BLACK_START", "Black Start Capability", ["black start"]),
-        ("GRID_REACTIVE", "Reactive Power Compensation", ["reactive power"]),
+        ("GRID_PFR", "Primary Frequency Response (PFR)", ["primary frequency", "pfr", "primary response", "fast frequency response", "ffr"]),
+        ("GRID_SFR", "Secondary Frequency Response (SFR)", ["secondary frequency", "sfr", "agc", "automatic generation control"]),
+        ("GRID_TFR", "Tertiary Frequency Response", ["tertiary frequency", "tertiary reserve", "manual frequency"]),
+        ("GRID_INERTIA", "Synthetic / Virtual Inertia", ["synthetic inertia", "virtual inertia", "synthetic rotational", "grid inertia"]),
+        ("GRID_BLACK_START", "Black Start Capability", ["black start", "blackstart", "system restoration"]),
+        ("GRID_REACTIVE", "Reactive Power Compensation", ["reactive power", "kvar support", "var support", "voltage support", "stat com", "statcom"]),
     ]
     for code, param, keywords in grid_checks:
         for kw in keywords:
@@ -362,16 +543,19 @@ def _keyword_extraction(text: str) -> list:
 
     # ── O&M / Warranty ──
     _try_extract(extracted, text, text_lower, "OM_PERIOD", "O&M / AMC Period", "years", "O&M / Warranty",
-                 [r"O&M.*?(\d+)\s*years", r"(\d+)\s*years.*?(?:O&M|maintenance|AMC)"])
+                 [r"(?:O&M|O\s*&\s*M|AMC|operation[s]?\s*(?:and|&)\s*maintenance|long[\s-]*term\s*service\s*agreement|LTSA|FSA|CAMC|comprehensive\s*(?:annual\s*)?maintenance)\s*(?:period|duration|term|contract)?.*?(\d+)\s*years?",
+                  r"(\d+)\s*years?\s*(?:O&M|AMC|LTSA|FSA|CAMC|comprehensive\s*maintenance)"])
     _try_extract(extracted, text, text_lower, "OM_WARRANTY", "Comprehensive Warranty", "years", "O&M / Warranty",
-                 [r"(?:comprehensive\s*)?warranty.*?(\d+)\s*years?", r"(\d+)\s*year.*?(?:comprehensive\s*)?warranty"])
-    if "augmentation" in text_lower:
+                 [r"(?:comprehensive|extended|product|equipment|standard)\s*warranty\s*(?:period|duration|term)?.*?(\d+)\s*years?",
+                  r"warranty\s*(?:period|term|duration)\s*(?:of)?\s*(\d+)\s*years?",
+                  r"(\d+)\s*years?\s*(?:comprehensive\s*)?warranty"])
+    if any(kw in text_lower for kw in ["augmentation", "capacity addition", "capacity refresh", "battery refresh", "top-up", "top up", "replacement of cells"]):
         extracted.append({"parameter": "Augmentation in Scope", "code": "OM_AUGMENTATION", "required_value": "Included in bidder scope", "unit": "", "section": "O&M / Warranty"})
-    if any(kw in text_lower for kw in ["performance guarantee", "energy throughput warranty"]):
+    if any(kw in text_lower for kw in ["performance guarantee", "energy throughput warranty", "throughput guarantee", "capacity guarantee", "energy guarantee", "performance warranty"]):
         extracted.append({"parameter": "Performance Guarantee", "code": "OM_PERF_GUARANTEE", "required_value": "Required for full design life", "unit": "", "section": "O&M / Warranty"})
-    if "insurance" in text_lower:
+    if any(kw in text_lower for kw in ["insurance", "all risk policy", "CAR policy", "EAR policy"]):
         extracted.append({"parameter": "Insurance", "code": "OM_INSURANCE", "required_value": "Included in scope", "unit": "", "section": "O&M / Warranty"})
-    if "training" in text_lower:
+    if any(kw in text_lower for kw in ["operator training", "training of operator", "training of personnel", "training programme", "training program", "skill development"]):
         extracted.append({"parameter": "Operator Training", "code": "OM_TRAINING", "required_value": "Required", "unit": "", "section": "O&M / Warranty"})
 
     # ── Solar Integration ──

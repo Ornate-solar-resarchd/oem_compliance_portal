@@ -2,7 +2,7 @@
 Compliance Sheet Extraction Engine
 Uses the 5 standard compliance templates (Battery, PCS, EMS, HVAC, Guarantees)
 to extract RFQ requirements in the exact format needed for compliance sheets.
-Uses Gemini (free) as primary, keyword fallback if unavailable.
+Keyword/regex pattern matching — no AI dependency.
 ALL 344 parameters are always returned — marked as found/not found.
 Case-insensitive matching throughout.
 """
@@ -35,21 +35,14 @@ def get_all_template_parameters() -> list:
 
 def extract_compliance_from_rfq(document_text: str, categories: list = None) -> dict:
     """
-    Extract compliance sheet data from an RFQ document.
+    Extract compliance sheet data from an RFQ document using keyword matching.
     Returns ALL 344 parameters — each marked as found or not found.
-    Case-insensitive matching.
+    Case-insensitive matching throughout.
     """
     if categories is None:
         categories = list(_TEMPLATES.keys())
 
-    # Try Gemini first (free), then keyword fallback
-    gemini_key = os.environ.get("GEMINI_API_KEY", "")
-    if gemini_key and gemini_key != "sk-placeholder" and len(gemini_key) > 10:
-        result = _extract_with_gemini(document_text, categories, gemini_key)
-        if result:
-            return result
-
-    # Fallback to keyword extraction
+    print(f"[Compliance] Keyword extraction for {len(categories)} categories...")
     return _extract_with_keywords(document_text, categories)
 
 
