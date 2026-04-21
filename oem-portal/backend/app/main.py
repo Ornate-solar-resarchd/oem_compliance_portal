@@ -2,6 +2,7 @@
 UnityESS Technical Compliance Portal — FastAPI Application
 In-memory seed data mode — no database required.
 """
+import os
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -20,9 +21,16 @@ app = FastAPI(
     description="BESS component technical approval lifecycle management",
 )
 
+# Read allowed origins from env — supports comma-separated list
+_raw = os.environ.get(
+    "CORS_ORIGINS",
+    "http://localhost:3000,http://localhost:3003,https://compliance.unityess.cloud,https://marketing.unityess.cloud"
+)
+allowed_origins = [o.strip() for o in _raw.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
