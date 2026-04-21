@@ -8,6 +8,8 @@ load_dotenv()
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+import os
 
 from app.api.v1.endpoints import (
     auth, oems, components, projects, sheets,
@@ -53,6 +55,19 @@ app.include_router(comparison.router, prefix=prefix, tags=["Comparison"])
 app.include_router(pipeline.router, prefix=prefix, tags=["Pipeline"])
 app.include_router(gdrive.router, prefix=prefix, tags=["Google Drive"])
 app.include_router(dnv.router, prefix=prefix, tags=["DNV Intelligence"])
+
+
+@app.get("/api/v1/datasheets/{component_id}")
+async def serve_datasheet(component_id: str):
+    """Serve the original datasheet PDF for a component."""
+    from app.data.seed import COMPONENTS
+    comp = next((c for c in COMPONENTS if c["id"] == component_id), None)
+    if not comp:
+        return {"error": "Component not found"}
+    path = comp.get("datasheet_path", "")
+    if path and os.path.exists(path):
+        return FileResponse(path, media_type="application/pdf", filename=comp.get("datasheet", "datasheet.pdf"))
+    return {"error": "Datasheet file not found"}
 
 
 @app.get("/api/v1/health")
