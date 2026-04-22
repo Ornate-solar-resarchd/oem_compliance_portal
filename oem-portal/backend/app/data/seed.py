@@ -5,11 +5,14 @@ DNV seed data is in app/data/dnv_seed.py (kept separately).
 Cell seed data is in app/data/cell_seed.py (6 OEMs, 6 cell models).
 """
 from app.data.cell_seed import CELL_OEMS, CELL_COMPONENTS, CELL_PARAMETERS
+from app.data.pcs_seed import PCS_OEMS, PCS_COMPONENTS, PCS_PARAMETERS
+from app.data.ems_seed import EMS_OEMS, EMS_COMPONENTS, EMS_PARAMETERS
+from app.data.dcblock_seed import DCBLOCK_OEMS, DCBLOCK_COMPONENTS, DCBLOCK_PARAMETERS
 
-# ─── OEM Library (pre-loaded with cell data + populated by uploads) ───
-OEMS = list(CELL_OEMS)
-COMPONENTS = list(CELL_COMPONENTS)
-PARAMETERS = dict(CELL_PARAMETERS)  # keyed by component_id
+# ─── OEM Library (cell + PCS + EMS + DC Block data, populated further by uploads) ───
+OEMS = list(CELL_OEMS) + list(PCS_OEMS) + list(EMS_OEMS) + list(DCBLOCK_OEMS)
+COMPONENTS = list(CELL_COMPONENTS) + list(PCS_COMPONENTS) + list(EMS_COMPONENTS) + list(DCBLOCK_COMPONENTS)
+PARAMETERS = {**CELL_PARAMETERS, **PCS_PARAMETERS, **EMS_PARAMETERS, **DCBLOCK_PARAMETERS}
 
 # ─── Projects & Workflow ───
 PROJECTS = []

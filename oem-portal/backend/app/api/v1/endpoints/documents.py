@@ -31,7 +31,7 @@ async def generate_technical_signal(req: TechnicalSignalRequest):
         "oem_name": comp["oem_name"],
         "format": req.format,
         "parameters_count": len(params),
-        "compliance_score": comp["compliance_score"],
+        "compliance_score": comp.get("compliance_score", 0),
         "file_size": "3.2 MB",
         "message": f"Technical Signal for {comp['model_name']} generated successfully",
     }

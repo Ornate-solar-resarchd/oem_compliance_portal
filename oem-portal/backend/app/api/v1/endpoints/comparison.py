@@ -61,7 +61,7 @@ async def comparison_matrix(model_ids: str = Query(..., description="Comma-separ
         rows.append(row)
 
     return {
-        "models": [{"id": m["id"], "model_name": m["model_name"], "oem_name": m["oem_name"], "score": m["compliance_score"]} for m in models],
+        "models": [{"id": m["id"], "model_name": m["model_name"], "oem_name": m["oem_name"], "score": m.get("compliance_score", 0)} for m in models],
         "rows": rows,
         "total_parameters": len(rows),
     }

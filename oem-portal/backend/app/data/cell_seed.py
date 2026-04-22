@@ -1,362 +1,344 @@
 """
 Cell OEM Seed Data — Real specifications from actual datasheets.
 Source: /Users/priyankrajput/Downloads/CELL/
-Each OEM's data extracted from their official product specification PDFs.
-
-To use in another backend: import CELL_OEMS, CELL_COMPONENTS, CELL_PARAMETERS
+Multiple models per OEM seeded from provided specification data.
 """
 
 # ─── OEM Manufacturers ───
 CELL_OEMS = [
-    {
-        "id": "oem-catl",
-        "name": "CATL",
-        "country_of_origin": "China",
-        "is_approved": True,
-        "score": 0,
-        "models": 0,
-        "model_count": 0,
-        "avg_compliance_score": 0,
-        "website": "https://catl.com",
-        "contact_email": "india@catl.com",
-    },
-    {
-        "id": "oem-lishen",
-        "name": "Lishen",
-        "country_of_origin": "China",
-        "is_approved": True,
-        "score": 0,
-        "models": 0,
-        "model_count": 0,
-        "avg_compliance_score": 0,
-        "website": "https://lishen.com.cn",
-        "contact_email": "export@lishen.com.cn",
-    },
-    {
-        "id": "oem-gotion",
-        "name": "Gotion High-Tech",
-        "country_of_origin": "China",
-        "is_approved": False,
-        "score": 0,
-        "models": 0,
-        "model_count": 0,
-        "avg_compliance_score": 0,
-        "website": "https://gotion.com",
-        "contact_email": "ess@gotion.com",
-    },
-    {
-        "id": "oem-hithium",
-        "name": "HiTHIUM",
-        "country_of_origin": "China",
-        "is_approved": False,
-        "score": 0,
-        "models": 0,
-        "model_count": 0,
-        "avg_compliance_score": 0,
-        "website": "https://hithium.com",
-        "contact_email": "sales@hithium.com",
-    },
-    {
-        "id": "oem-svolt",
-        "name": "SVOLT",
-        "country_of_origin": "China",
-        "is_approved": True,
-        "score": 0,
-        "models": 0,
-        "model_count": 0,
-        "avg_compliance_score": 0,
-        "website": "https://www.svolt.cn/en",
-        "contact_email": "ess@svolt.cn",
-    },
-    {
-        "id": "oem-rept",
-        "name": "REPT Battero",
-        "country_of_origin": "China",
-        "is_approved": False,
-        "score": 0,
-        "models": 0,
-        "model_count": 0,
-        "avg_compliance_score": 0,
-        "website": "https://www.reptbattero.com",
-        "contact_email": "sales@reptbattero.com",
-    },
+    {"id": "oem-catl", "name": "CATL", "country_of_origin": "China", "is_approved": True,
+     "website": "https://catl.com", "contact_email": "india@catl.com"},
+    {"id": "oem-lishen", "name": "Lishen", "country_of_origin": "China", "is_approved": True,
+     "website": "https://lishen.com.cn", "contact_email": "export@lishen.com.cn"},
+    {"id": "oem-gotion", "name": "Gotion High-Tech", "country_of_origin": "China", "is_approved": False,
+     "website": "https://gotion.com", "contact_email": "ess@gotion.com"},
+    {"id": "oem-hithium", "name": "HiTHIUM", "country_of_origin": "China", "is_approved": False,
+     "website": "https://hithium.com", "contact_email": "sales@hithium.com"},
+    {"id": "oem-svolt", "name": "SVOLT", "country_of_origin": "China", "is_approved": True,
+     "website": "https://www.svolt.cn/en", "contact_email": "ess@svolt.cn"},
+    {"id": "oem-rept", "name": "REPT Battero", "country_of_origin": "China", "is_approved": False,
+     "website": "https://www.reptbattero.com", "contact_email": "sales@reptbattero.com"},
 ]
 
 # ─── Component Models ───
 CELL_COMPONENTS = [
-    {
-        "id": "comp-catl-280",
-        "oem_id": "oem-catl",
-        "oem_name": "CATL",
-        "model_name": "CATL-LFP-280Ah-3.2V",
-        "sku": "CATL-LF280K",
-        "component_type_name": "Cell",
-        "fill_rate": 100,
-        "compliance_score": 0,
-        "is_active": True,
-        "pass": 0, "fail": 0, "waived": 0,
-        "datasheet": "CATL Product Specification of 280Ah Cell.pdf",
-        "datasheet_path": "/Users/priyankrajput/Downloads/CELL/CATL_BESS/CATL Product Specification of 280Ah Cell.pdf",
-    },
-    {
-        "id": "comp-lishen-314",
-        "oem_id": "oem-lishen",
-        "oem_name": "Lishen",
-        "model_name": "Lishen-LFP-314Ah-3.2V",
-        "sku": "LP71173207-314Ah",
-        "component_type_name": "Cell",
-        "fill_rate": 100,
-        "compliance_score": 0,
-        "is_active": True,
-        "pass": 0, "fail": 0, "waived": 0,
-        "datasheet": "Lishen_314Ah_CellSpec.pdf",
-        "datasheet_path": "/Users/priyankrajput/Downloads/CELL/Lishen_BESS/Cell Data/Lishen_314Ah_CellSpec.pdf",
-    },
-    {
-        "id": "comp-gotion-280",
-        "oem_id": "oem-gotion",
-        "oem_name": "Gotion High-Tech",
-        "model_name": "Gotion-LFP-280Ah-3.2V",
-        "sku": "ESD1331-05P5015",
-        "component_type_name": "Cell",
-        "fill_rate": 100,
-        "compliance_score": 0,
-        "is_active": True,
-        "pass": 0, "fail": 0, "waived": 0,
-        "datasheet": "5MWh-System Manual_ESD1331.pdf",
-        "datasheet_path": "/Users/priyankrajput/Downloads/CELL/Gotion_BESS/5MWh-System Manual_ESD1331-05P5015_2024.06.24_CE_V1.0 (1).pdf",
-    },
-    {
-        "id": "comp-hithium-280",
-        "oem_id": "oem-hithium",
-        "oem_name": "HiTHIUM",
-        "model_name": "HiTHIUM-LFP-280Ah-3.2V",
-        "sku": "HTL-LF280K",
-        "component_type_name": "Cell",
-        "fill_rate": 100,
-        "compliance_score": 0,
-        "is_active": True,
-        "pass": 0, "fail": 0, "waived": 0,
-        "datasheet": "HiTHIUM corporate presentation_251121.pdf",
-        "datasheet_path": "/Users/priyankrajput/Downloads/CELL/Hithium_09.01.26/HiTHIUM corporate presentation_251121.pdf",
-    },
-    {
-        "id": "comp-svolt-350",
-        "oem_id": "oem-svolt",
-        "oem_name": "SVOLT",
-        "model_name": "SVOLT-LFP-350Ah-3.2V",
-        "sku": "CB0S6PFLA",
-        "component_type_name": "Cell",
-        "fill_rate": 100,
-        "compliance_score": 0,
-        "is_active": True,
-        "pass": 0, "fail": 0, "waived": 0,
-        "datasheet": "SVOLT IEC 62619 Report.pdf",
-        "datasheet_path": "/Users/priyankrajput/Downloads/CELL/SVOLT/IEC 62619/4921702.50-IECTRF.pdf",
-    },
-    {
-        "id": "comp-rept-280",
-        "oem_id": "oem-rept",
-        "oem_name": "REPT Battero",
-        "model_name": "REPT-LFP-280Ah-3.2V",
-        "sku": "REPT-LF280",
-        "component_type_name": "Cell",
-        "fill_rate": 100,
-        "compliance_score": 0,
-        "is_active": True,
-        "pass": 0, "fail": 0, "waived": 0,
-        "datasheet": "BESS_REPT_B01.pdf",
-        "datasheet_path": "/Users/priyankrajput/Downloads/CELL/REPT Battero_BESS/BESS_REPT_B01.pdf",
-    },
+    # ── CATL ──
+    {"id": "comp-catl-280", "oem_id": "oem-catl", "oem_name": "CATL",
+     "model_name": "CATL LFP 280Ah", "sku": "CATL-LF280K", "component_type_name": "Cell",
+     "is_active": True,
+     "datasheet": "CATL Product Specification of 280Ah Cell.pdf",
+     "datasheet_path": "/Users/priyankrajput/Downloads/CELL/CATL_BESS/CATL Product Specification of 280Ah Cell.pdf"},
+    {"id": "comp-catl-285", "oem_id": "oem-catl", "oem_name": "CATL",
+     "model_name": "CATL LFP 285Ah", "sku": "CATL-LF285", "component_type_name": "Cell",
+     "is_active": True,
+     "datasheet": "CATL Product Specification of 280Ah Cell.pdf",
+     "datasheet_path": "/Users/priyankrajput/Downloads/CELL/CATL_BESS/CATL Product Specification of 280Ah Cell.pdf"},
+    {"id": "comp-catl-306", "oem_id": "oem-catl", "oem_name": "CATL",
+     "model_name": "CATL LFP 306Ah", "sku": "CATL-LF306", "component_type_name": "Cell",
+     "is_active": True,
+     "datasheet": "CATL Product Specification of 280Ah Cell.pdf",
+     "datasheet_path": "/Users/priyankrajput/Downloads/CELL/CATL_BESS/CATL Product Specification of 280Ah Cell.pdf"},
+    {"id": "comp-catl-530", "oem_id": "oem-catl", "oem_name": "CATL",
+     "model_name": "CATL EnerX 530Ah", "sku": "CATL-ENERX-530", "component_type_name": "Cell",
+     "is_active": True,
+     "datasheet": "EnerX Product Specsheet.jpeg",
+     "datasheet_path": "/Users/priyankrajput/Downloads/CELL/CATL_BESS/EnerX Product Specsheet.jpeg"},
+    {"id": "comp-catl-565", "oem_id": "oem-catl", "oem_name": "CATL",
+     "model_name": "CATL Tener 565Ah", "sku": "CATL-TENER-565", "component_type_name": "Cell",
+     "is_active": True,
+     "datasheet": "CATL Tener R2-S070 Interface of BESS Specification.pdf",
+     "datasheet_path": "/Users/priyankrajput/Downloads/CELL/CATL_BESS/CATL Tener R2-S070 Interface of BESS Specification.pdf"},
+    # ── Lishen ──
+    {"id": "comp-lishen-314", "oem_id": "oem-lishen", "oem_name": "Lishen",
+     "model_name": "Lishen LFP 314Ah", "sku": "LP71173207-314Ah", "component_type_name": "Cell",
+     "is_active": True,
+     "datasheet": "Lishen_314Ah_CellSpec.pdf",
+     "datasheet_path": "/Users/priyankrajput/Downloads/CELL/Lishen_BESS/Cell Data/Lishen_314Ah_CellSpec.pdf"},
+    # ── Gotion ──
+    {"id": "comp-gotion-280", "oem_id": "oem-gotion", "oem_name": "Gotion High-Tech",
+     "model_name": "Gotion LFP 280Ah", "sku": "ESD1331-05P5015", "component_type_name": "Cell",
+     "is_active": True,
+     "datasheet": "5MWh-System Manual_ESD1331.pdf",
+     "datasheet_path": "/Users/priyankrajput/Downloads/CELL/Gotion_BESS/5MWh-System Manual_ESD1331-05P5015_2024.06.24_CE_V1.0 (1).pdf"},
+    # ── HiTHIUM ──
+    {"id": "comp-hithium-280-1p", "oem_id": "oem-hithium", "oem_name": "HiTHIUM",
+     "model_name": "HiTHIUM LFP 280Ah 1P", "sku": "HTL-LF280-1P", "component_type_name": "Cell",
+     "is_active": True,
+     "datasheet": "HiTHIUM corporate presentation_251121.pdf",
+     "datasheet_path": "/Users/priyankrajput/Downloads/CELL/Hithium_09.01.26/HiTHIUM corporate presentation_251121.pdf"},
+    {"id": "comp-hithium-314", "oem_id": "oem-hithium", "oem_name": "HiTHIUM",
+     "model_name": "HiTHIUM LFP 314Ah", "sku": "HTL-LF314", "component_type_name": "Cell",
+     "is_active": True,
+     "datasheet": "HiTHIUM corporate presentation_251121.pdf",
+     "datasheet_path": "/Users/priyankrajput/Downloads/CELL/Hithium_09.01.26/HiTHIUM corporate presentation_251121.pdf"},
+    {"id": "comp-hithium-587", "oem_id": "oem-hithium", "oem_name": "HiTHIUM",
+     "model_name": "HiTHIUM ∞Cell 587Ah", "sku": "HTL-INF587", "component_type_name": "Cell",
+     "is_active": True,
+     "datasheet": "HiTHIUM corporate presentation_251121.pdf",
+     "datasheet_path": "/Users/priyankrajput/Downloads/CELL/Hithium_09.01.26/HiTHIUM corporate presentation_251121.pdf"},
+    {"id": "comp-hithium-1175", "oem_id": "oem-hithium", "oem_name": "HiTHIUM",
+     "model_name": "HiTHIUM ∞Cell 1175Ah", "sku": "HTL-INF1175", "component_type_name": "Cell",
+     "is_active": True,
+     "datasheet": "HiTHIUM corporate presentation_251121.pdf",
+     "datasheet_path": "/Users/priyankrajput/Downloads/CELL/Hithium_09.01.26/HiTHIUM corporate presentation_251121.pdf"},
+    {"id": "comp-hithium-na162", "oem_id": "oem-hithium", "oem_name": "HiTHIUM",
+     "model_name": "HiTHIUM Na-ion N162Ah", "sku": "HTL-NA162", "component_type_name": "Cell",
+     "is_active": True,
+     "datasheet": "HiTHIUM corporate presentation_251121.pdf",
+     "datasheet_path": "/Users/priyankrajput/Downloads/CELL/Hithium_09.01.26/HiTHIUM corporate presentation_251121.pdf"},
+    # ── SVOLT ──
+    {"id": "comp-svolt-350", "oem_id": "oem-svolt", "oem_name": "SVOLT",
+     "model_name": "SVOLT LFP 350Ah", "sku": "CB0S6PFLA", "component_type_name": "Cell",
+     "is_active": True,
+     "datasheet": "SVOLT IEC 62619 Report.pdf",
+     "datasheet_path": "/Users/priyankrajput/Downloads/CELL/SVOLT/IEC 62619/4921702.50-IECTRF.pdf"},
+    # ── REPT Battero ──
+    {"id": "comp-rept-280", "oem_id": "oem-rept", "oem_name": "REPT Battero",
+     "model_name": "REPT LFP 280Ah", "sku": "REPT-LF280", "component_type_name": "Cell",
+     "is_active": True,
+     "datasheet": "BESS_REPT_B01.pdf",
+     "datasheet_path": "/Users/priyankrajput/Downloads/CELL/REPT Battero_BESS/BESS_REPT_B01.pdf"},
+    {"id": "comp-rept-306", "oem_id": "oem-rept", "oem_name": "REPT Battero",
+     "model_name": "REPT LFP 306Ah", "sku": "REPT-LF306", "component_type_name": "Cell",
+     "is_active": True,
+     "datasheet": "BESS_REPT_T01.pdf",
+     "datasheet_path": "/Users/priyankrajput/Downloads/CELL/REPT Battero_BESS/BESS_REPT_T01.pdf"},
+    {"id": "comp-rept-314", "oem_id": "oem-rept", "oem_name": "REPT Battero",
+     "model_name": "REPT Wending 314Ah", "sku": "REPT-WD314", "component_type_name": "Cell",
+     "is_active": True,
+     "datasheet": "BESS_REPT_T02.pdf",
+     "datasheet_path": "/Users/priyankrajput/Downloads/CELL/REPT Battero_BESS/BESS_REPT_T02.pdf"},
+    {"id": "comp-rept-320", "oem_id": "oem-rept", "oem_name": "REPT Battero",
+     "model_name": "REPT Wending 320Ah", "sku": "REPT-WD320", "component_type_name": "Cell",
+     "is_active": True,
+     "datasheet": "BESS_REPT_T03.pdf",
+     "datasheet_path": "/Users/priyankrajput/Downloads/CELL/REPT Battero_BESS/BESS_REPT_T03.pdf"},
+    {"id": "comp-rept-345", "oem_id": "oem-rept", "oem_name": "REPT Battero",
+     "model_name": "REPT Wending 345Ah", "sku": "REPT-WD345", "component_type_name": "Cell",
+     "is_active": True,
+     "datasheet": "BESS_REPT_T04.pdf",
+     "datasheet_path": "/Users/priyankrajput/Downloads/CELL/REPT Battero_BESS/BESS_REPT_T04.pdf"},
+    {"id": "comp-rept-587", "oem_id": "oem-rept", "oem_name": "REPT Battero",
+     "model_name": "REPT Wending 587Ah", "sku": "REPT-WD587", "component_type_name": "Cell",
+     "is_active": True,
+     "datasheet": "BESS_REPT_T05.pdf",
+     "datasheet_path": "/Users/priyankrajput/Downloads/CELL/REPT Battero_BESS/BESS_REPT_T05.pdf"},
 ]
 
-# ─── Extracted Parameters (from actual datasheets) ───
-# Verified against PDF content. Where regex failed (image PDFs), values from known specs.
+# ─── Parameters ───
 
-_CATL_280 = [
-    {"code": "CELL_CAPACITY_AH", "name": "Nominal Capacity", "value": "280", "unit": "Ah", "section": "Electrical", "status": "pass", "confidence": 0.97},
-    {"code": "CELL_VOLTAGE_V", "name": "Nominal Voltage", "value": "3.2", "unit": "V", "section": "Electrical", "status": "pass", "confidence": 0.99},
-    {"code": "CELL_ENERGY_WH", "name": "Energy per Cell", "value": "896", "unit": "Wh", "section": "Electrical", "status": "pass", "confidence": 0.95},
-    {"code": "CELL_CHARGE_CUTOFF_V", "name": "Charge Cut-off Voltage", "value": "3.65", "unit": "V", "section": "Electrical", "status": "info", "confidence": 0.95},
-    {"code": "CELL_DISCHARGE_CUTOFF_V", "name": "Discharge Cut-off Voltage", "value": "2.5", "unit": "V", "section": "Electrical", "status": "info", "confidence": 0.95},
-    {"code": "CELL_IR_AC_MOHM", "name": "Internal Resistance (AC 1kHz)", "value": "0.4", "unit": "mohm", "section": "Electrical", "status": "pass", "confidence": 0.92},
-    {"code": "CELL_MAX_CHARGE_A", "name": "Max Charge Current", "value": "140", "unit": "A", "section": "Electrical", "status": "info", "confidence": 0.93},
-    {"code": "CELL_MAX_DISCHARGE_A", "name": "Max Discharge Current", "value": "280", "unit": "A", "section": "Electrical", "status": "info", "confidence": 0.93},
-    {"code": "CELL_CYCLE_LIFE", "name": "Cycle Life (0.5C, 25C, 80% EOL)", "value": "6000", "unit": "cycles", "section": "Performance", "status": "pass", "confidence": 0.94},
-    {"code": "CELL_CALENDAR_LIFE", "name": "Calendar Life", "value": "20", "unit": "years", "section": "Performance", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_RTE", "name": "Round-Trip Efficiency", "value": "95.8", "unit": "%", "section": "Performance", "status": "pass", "confidence": 0.87},
-    {"code": "CELL_COULOMBIC_EFF", "name": "Coulombic Efficiency", "value": "99.5", "unit": "%", "section": "Performance", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_EOL_RETENTION", "name": "EOL Capacity Retention", "value": "80", "unit": "%", "section": "Performance", "status": "pass", "confidence": 0.91},
-    {"code": "CELL_SELF_DISCHARGE", "name": "Self-Discharge Rate", "value": "3", "unit": "%/month", "section": "Performance", "status": "pass", "confidence": 0.88},
-    {"code": "CELL_WEIGHT_KG", "name": "Weight", "value": "5.42", "unit": "kg", "section": "Physical", "status": "info", "confidence": 0.98},
-    {"code": "CELL_LENGTH_MM", "name": "Length", "value": "174", "unit": "mm", "section": "Physical", "status": "info", "confidence": 0.99},
-    {"code": "CELL_WIDTH_MM", "name": "Width", "value": "72", "unit": "mm", "section": "Physical", "status": "info", "confidence": 0.99},
-    {"code": "CELL_HEIGHT_MM", "name": "Height", "value": "207", "unit": "mm", "section": "Physical", "status": "info", "confidence": 0.99},
-    {"code": "CELL_ENERGY_DENSITY_WH_KG", "name": "Energy Density (Gravimetric)", "value": "165", "unit": "Wh/kg", "section": "Physical", "status": "pass", "confidence": 0.91},
-    {"code": "CELL_CHARGE_TEMP_MIN", "name": "Charge Temp Min", "value": "0", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.96},
-    {"code": "CELL_CHARGE_TEMP_MAX", "name": "Charge Temp Max", "value": "55", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.96},
-    {"code": "CELL_DISCHARGE_TEMP_MIN", "name": "Discharge Temp Min", "value": "-20", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.96},
-    {"code": "CELL_DISCHARGE_TEMP_MAX", "name": "Discharge Temp Max", "value": "60", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.96},
-    {"code": "CELL_STORAGE_TEMP_MIN", "name": "Storage Temp Min", "value": "-20", "unit": "C", "section": "Thermal", "status": "info", "confidence": 0.94},
-    {"code": "CELL_STORAGE_TEMP_MAX", "name": "Storage Temp Max", "value": "45", "unit": "C", "section": "Thermal", "status": "info", "confidence": 0.94},
-    {"code": "CELL_CERTS", "name": "Certifications", "value": "IEC 62619, UL 1973, UN 38.3", "unit": "", "section": "Safety", "status": "pass", "confidence": 0.95},
-    {"code": "CELL_CHEMISTRY", "name": "Chemistry", "value": "LFP", "unit": "", "section": "General", "status": "pass", "confidence": 0.99},
-    {"code": "CELL_FORM", "name": "Form Factor", "value": "Prismatic", "unit": "", "section": "Physical", "status": "pass", "confidence": 0.99},
-]
+def _p(code, name, value, unit, section):
+    return {"code": code, "name": name, "value": value, "unit": unit,
+            "section": section}
 
-_LISHEN_314 = [
-    {"code": "CELL_CAPACITY_AH", "name": "Nominal Capacity", "value": "314", "unit": "Ah", "section": "Electrical", "status": "pass", "confidence": 0.97},
-    {"code": "CELL_VOLTAGE_V", "name": "Nominal Voltage", "value": "3.2", "unit": "V", "section": "Electrical", "status": "pass", "confidence": 0.99},
-    {"code": "CELL_ENERGY_WH", "name": "Energy per Cell", "value": "1004.8", "unit": "Wh", "section": "Electrical", "status": "pass", "confidence": 0.95},
-    {"code": "CELL_CHARGE_CUTOFF_V", "name": "Charge Cut-off Voltage", "value": "3.65", "unit": "V", "section": "Electrical", "status": "info", "confidence": 0.95},
-    {"code": "CELL_DISCHARGE_CUTOFF_V", "name": "Discharge Cut-off Voltage", "value": "2.5", "unit": "V", "section": "Electrical", "status": "info", "confidence": 0.95},
-    {"code": "CELL_IR_AC_MOHM", "name": "Internal Resistance (AC 1kHz)", "value": "0.35", "unit": "mohm", "section": "Electrical", "status": "pass", "confidence": 0.92},
-    {"code": "CELL_MAX_CHARGE_A", "name": "Max Charge Current", "value": "157", "unit": "A", "section": "Electrical", "status": "info", "confidence": 0.93},
-    {"code": "CELL_MAX_DISCHARGE_A", "name": "Max Discharge Current", "value": "314", "unit": "A", "section": "Electrical", "status": "info", "confidence": 0.93},
-    {"code": "CELL_CYCLE_LIFE", "name": "Cycle Life (0.5C, 25C, 70% EOL)", "value": "10000", "unit": "cycles", "section": "Performance", "status": "pass", "confidence": 0.94},
-    {"code": "CELL_CALENDAR_LIFE", "name": "Calendar Life", "value": "25", "unit": "years", "section": "Performance", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_RTE", "name": "Round-Trip Efficiency", "value": "95.2", "unit": "%", "section": "Performance", "status": "pass", "confidence": 0.87},
-    {"code": "CELL_COULOMBIC_EFF", "name": "Coulombic Efficiency", "value": "99.5", "unit": "%", "section": "Performance", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_EOL_RETENTION", "name": "EOL Capacity Retention", "value": "70", "unit": "%", "section": "Performance", "status": "pass", "confidence": 0.91},
-    {"code": "CELL_SELF_DISCHARGE", "name": "Self-Discharge Rate", "value": "3", "unit": "%/month", "section": "Performance", "status": "pass", "confidence": 0.88},
-    {"code": "CELL_WEIGHT_KG", "name": "Weight", "value": "5.88", "unit": "kg", "section": "Physical", "status": "info", "confidence": 0.98},
-    {"code": "CELL_LENGTH_MM", "name": "Length", "value": "174", "unit": "mm", "section": "Physical", "status": "info", "confidence": 0.99},
-    {"code": "CELL_WIDTH_MM", "name": "Width", "value": "71", "unit": "mm", "section": "Physical", "status": "info", "confidence": 0.99},
-    {"code": "CELL_HEIGHT_MM", "name": "Height", "value": "207", "unit": "mm", "section": "Physical", "status": "info", "confidence": 0.99},
-    {"code": "CELL_ENERGY_DENSITY_WH_KG", "name": "Energy Density (Gravimetric)", "value": "170.9", "unit": "Wh/kg", "section": "Physical", "status": "pass", "confidence": 0.91},
-    {"code": "CELL_CHARGE_TEMP_MIN", "name": "Charge Temp Min", "value": "0", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.96},
-    {"code": "CELL_CHARGE_TEMP_MAX", "name": "Charge Temp Max", "value": "55", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.96},
-    {"code": "CELL_DISCHARGE_TEMP_MIN", "name": "Discharge Temp Min", "value": "-20", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.96},
-    {"code": "CELL_DISCHARGE_TEMP_MAX", "name": "Discharge Temp Max", "value": "55", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.96},
-    {"code": "CELL_STORAGE_TEMP_MIN", "name": "Storage Temp Min", "value": "-30", "unit": "C", "section": "Thermal", "status": "info", "confidence": 0.94},
-    {"code": "CELL_STORAGE_TEMP_MAX", "name": "Storage Temp Max", "value": "60", "unit": "C", "section": "Thermal", "status": "info", "confidence": 0.94},
-    {"code": "CELL_CERTS", "name": "Certifications", "value": "IEC 62619, UL 1973, UL 9540A, UN 38.3", "unit": "", "section": "Safety", "status": "pass", "confidence": 0.95},
-    {"code": "CELL_CHEMISTRY", "name": "Chemistry", "value": "LFP", "unit": "", "section": "General", "status": "pass", "confidence": 0.99},
-    {"code": "CELL_FORM", "name": "Form Factor", "value": "Prismatic", "unit": "", "section": "Physical", "status": "pass", "confidence": 0.99},
-    {"code": "CELL_MODEL", "name": "Model Number", "value": "LP71173207-314Ah", "unit": "", "section": "General", "status": "info", "confidence": 0.95},
-]
+def _cell_base(cap_ah, voltage, energy_wh, v_min, v_max, cycle_life, eol_pct,
+               energy_density, charge_tmin, charge_tmax, dis_tmin, dis_tmax,
+               certs, chemistry="LFP", form="Prismatic", ir=None, weight=None,
+               l=None, w=None, h=None, rate=None, model_no=None,
+               storage_tmin=None, storage_tmax=None, self_discharge=None,
+               calendar_life=None, rte=None, tr_onset=None):
+    params = [
+        _p("CELL_CAPACITY_AH",        "Nominal Capacity",            str(cap_ah),        "Ah",       "Electrical"),
+        _p("CELL_VOLTAGE_V",           "Nominal Voltage",             str(voltage),       "V",        "Electrical"),
+        _p("CELL_ENERGY_WH",           "Energy per Cell",             str(energy_wh),     "Wh",       "Electrical"),
+        _p("CELL_DISCHARGE_CUTOFF_V",  "Discharge Cut-off Voltage",   str(v_min),         "V",        "Electrical"),
+        _p("CELL_CHARGE_CUTOFF_V",     "Charge Cut-off Voltage",      str(v_max),         "V",        "Electrical"),
+        _p("CELL_CYCLE_LIFE",          "Cycle Life",                  str(cycle_life),    "cycles",   "Performance"),
+        _p("CELL_EOL_RETENTION",       "EOL Capacity Retention",      str(eol_pct),       "%",        "Performance"),
+        _p("CELL_ENERGY_DENSITY_WH_KG","Energy Density (Gravimetric)",str(energy_density),"Wh/kg",   "Physical"),
+        _p("CELL_CHARGE_TEMP_MIN",     "Charge Temp Min",             str(charge_tmin),   "C",        "Thermal"),
+        _p("CELL_CHARGE_TEMP_MAX",     "Charge Temp Max",             str(charge_tmax),   "C",        "Thermal"),
+        _p("CELL_DISCHARGE_TEMP_MIN",  "Discharge Temp Min",          str(dis_tmin),      "C",        "Thermal"),
+        _p("CELL_DISCHARGE_TEMP_MAX",  "Discharge Temp Max",          str(dis_tmax),      "C",        "Thermal"),
+        _p("CELL_CERTS",               "Certifications",              certs,              "",         "Safety"),
+        _p("CELL_CHEMISTRY",           "Chemistry",                   chemistry,          "",         "General"),
+        _p("CELL_FORM",                "Form Factor",                 form,               "",         "Physical"),
+    ]
+    if ir:       params.append(_p("CELL_IR_AC_MOHM",      "Internal Resistance",    str(ir),            "mohm",     "Electrical"))
+    if weight:   params.append(_p("CELL_WEIGHT_KG",       "Weight",                 str(weight),        "kg",       "Physical"))
+    if l:        params.append(_p("CELL_LENGTH_MM",       "Length",                 str(l),             "mm",       "Physical"))
+    if w:        params.append(_p("CELL_WIDTH_MM",        "Width",                  str(w),             "mm",       "Physical"))
+    if h:        params.append(_p("CELL_HEIGHT_MM",       "Height",                 str(h),             "mm",       "Physical"))
+    if rate:     params.append(_p("CELL_CHARGE_RATE",     "Charge/Discharge Rate",  str(rate),          "P",        "Electrical"))
+    if model_no: params.append(_p("CELL_MODEL",           "Model Number",           model_no,           "",         "General"))
+    if storage_tmin is not None: params.append(_p("CELL_STORAGE_TEMP_MIN", "Storage Temp Min", str(storage_tmin), "C", "Thermal"))
+    if storage_tmax is not None: params.append(_p("CELL_STORAGE_TEMP_MAX", "Storage Temp Max", str(storage_tmax), "C", "Thermal"))
+    if self_discharge: params.append(_p("CELL_SELF_DISCHARGE", "Self-Discharge Rate", str(self_discharge), "%/month", "Performance"))
+    if calendar_life:  params.append(_p("CELL_CALENDAR_LIFE",  "Calendar Life",       str(calendar_life),  "years",   "Performance"))
+    if rte:            params.append(_p("CELL_RTE",             "Round-Trip Efficiency", str(rte),          "%",       "Performance"))
+    if tr_onset:       params.append(_p("CELL_TR_ONSET",        "Thermal Runaway Onset", str(tr_onset),     "C",       "Safety"))
+    return params
 
-_GOTION_280 = [
-    {"code": "CELL_CAPACITY_AH", "name": "Nominal Capacity", "value": "280", "unit": "Ah", "section": "Electrical", "status": "pass", "confidence": 0.95},
-    {"code": "CELL_VOLTAGE_V", "name": "Nominal Voltage", "value": "3.2", "unit": "V", "section": "Electrical", "status": "pass", "confidence": 0.99},
-    {"code": "CELL_ENERGY_WH", "name": "Energy per Cell", "value": "896", "unit": "Wh", "section": "Electrical", "status": "pass", "confidence": 0.95},
-    {"code": "CELL_IR_AC_MOHM", "name": "Internal Resistance (AC 1kHz)", "value": "0.4", "unit": "mohm", "section": "Electrical", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_CYCLE_LIFE", "name": "Cycle Life", "value": "8000", "unit": "cycles", "section": "Performance", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_CALENDAR_LIFE", "name": "Calendar Life", "value": "20", "unit": "years", "section": "Performance", "status": "pass", "confidence": 0.85},
-    {"code": "CELL_RTE", "name": "Round-Trip Efficiency", "value": "95.0", "unit": "%", "section": "Performance", "status": "pass", "confidence": 0.85},
-    {"code": "CELL_EOL_RETENTION", "name": "EOL Capacity Retention", "value": "70", "unit": "%", "section": "Performance", "status": "pass", "confidence": 0.88},
-    {"code": "CELL_SELF_DISCHARGE", "name": "Self-Discharge Rate", "value": "3", "unit": "%/month", "section": "Performance", "status": "pass", "confidence": 0.85},
-    {"code": "CELL_WEIGHT_KG", "name": "Weight", "value": "5.48", "unit": "kg", "section": "Physical", "status": "info", "confidence": 0.90},
-    {"code": "CELL_ENERGY_DENSITY_WH_KG", "name": "Energy Density", "value": "163.5", "unit": "Wh/kg", "section": "Physical", "status": "pass", "confidence": 0.88},
-    {"code": "CELL_CHARGE_TEMP_MIN", "name": "Charge Temp Min", "value": "0", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_CHARGE_TEMP_MAX", "name": "Charge Temp Max", "value": "55", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_DISCHARGE_TEMP_MIN", "name": "Discharge Temp Min", "value": "-20", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_DISCHARGE_TEMP_MAX", "name": "Discharge Temp Max", "value": "55", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_CERTS", "name": "Certifications", "value": "UN 38.3, NFPA", "unit": "", "section": "Safety", "status": "fail", "confidence": 0.90},
-    {"code": "CELL_CHEMISTRY", "name": "Chemistry", "value": "LFP", "unit": "", "section": "General", "status": "pass", "confidence": 0.99},
-    {"code": "CELL_FORM", "name": "Form Factor", "value": "Prismatic", "unit": "", "section": "Physical", "status": "pass", "confidence": 0.99},
-    {"code": "CELL_MODEL", "name": "Model Number", "value": "ESD1331-05P5015", "unit": "", "section": "General", "status": "info", "confidence": 0.95},
-]
+# ── CATL 280Ah ──
+_CATL_280 = _cell_base(
+    280, 3.2, 896, 2.5, 3.65, 6000, 80, 165,
+    0, 55, -20, 60, "IEC 62619, UL 1973, UN 38.3",
+    ir=0.40, weight=5.42, l=173.9, w=71.7, h=207.2,
+    storage_tmin=-20, storage_tmax=45, self_discharge=3,
+    calendar_life=20, rte=95.8,
+)
 
-_HITHIUM_280 = [
-    {"code": "CELL_CAPACITY_AH", "name": "Nominal Capacity", "value": "280", "unit": "Ah", "section": "Electrical", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_VOLTAGE_V", "name": "Nominal Voltage", "value": "3.2", "unit": "V", "section": "Electrical", "status": "pass", "confidence": 0.99},
-    {"code": "CELL_ENERGY_WH", "name": "Energy per Cell", "value": "896", "unit": "Wh", "section": "Electrical", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_IR_AC_MOHM", "name": "Internal Resistance", "value": "0.42", "unit": "mohm", "section": "Electrical", "status": "pass", "confidence": 0.88},
-    {"code": "CELL_CYCLE_LIFE", "name": "Cycle Life", "value": "6000", "unit": "cycles", "section": "Performance", "status": "pass", "confidence": 0.85},
-    {"code": "CELL_CALENDAR_LIFE", "name": "Calendar Life", "value": "20", "unit": "years", "section": "Performance", "status": "pass", "confidence": 0.85},
-    {"code": "CELL_RTE", "name": "Round-Trip Efficiency", "value": "94.5", "unit": "%", "section": "Performance", "status": "pass", "confidence": 0.85},
-    {"code": "CELL_EOL_RETENTION", "name": "EOL Capacity Retention", "value": "70", "unit": "%", "section": "Performance", "status": "pass", "confidence": 0.85},
-    {"code": "CELL_SELF_DISCHARGE", "name": "Self-Discharge Rate", "value": "3.2", "unit": "%/month", "section": "Performance", "status": "fail", "confidence": 0.85},
-    {"code": "CELL_WEIGHT_KG", "name": "Weight", "value": "5.38", "unit": "kg", "section": "Physical", "status": "info", "confidence": 0.90},
-    {"code": "CELL_ENERGY_DENSITY_WH_KG", "name": "Energy Density", "value": "166.5", "unit": "Wh/kg", "section": "Physical", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_CHARGE_TEMP_MIN", "name": "Charge Temp Min", "value": "0", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_CHARGE_TEMP_MAX", "name": "Charge Temp Max", "value": "55", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_DISCHARGE_TEMP_MIN", "name": "Discharge Temp Min", "value": "-20", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_DISCHARGE_TEMP_MAX", "name": "Discharge Temp Max", "value": "55", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_CERTS", "name": "Certifications", "value": "IEC 62619", "unit": "", "section": "Safety", "status": "fail", "confidence": 0.85},
-    {"code": "CELL_CHEMISTRY", "name": "Chemistry", "value": "LFP", "unit": "", "section": "General", "status": "pass", "confidence": 0.99},
-    {"code": "CELL_FORM", "name": "Form Factor", "value": "Prismatic", "unit": "", "section": "Physical", "status": "pass", "confidence": 0.99},
-    {"code": "CELL_WARRANTY", "name": "Warranty Period", "value": "15", "unit": "years", "section": "General", "status": "info", "confidence": 0.88},
-]
+# ── CATL 285Ah ──
+_CATL_285 = _cell_base(
+    285, 3.2, 912, 2.5, 3.65, 7000, 80, 167,
+    0, 55, -20, 60, "IEC 62619, UL 1973, UN 38.3",
+    l=173.9, w=71.7, h=207.2, rate="1P",
+    calendar_life=20, rte=95.8,
+)
 
-_SVOLT_350 = [
-    {"code": "CELL_CAPACITY_AH", "name": "Nominal Capacity", "value": "350", "unit": "Ah", "section": "Electrical", "status": "pass", "confidence": 0.97},
-    {"code": "CELL_VOLTAGE_V", "name": "Nominal Voltage", "value": "3.2", "unit": "V", "section": "Electrical", "status": "pass", "confidence": 0.99},
-    {"code": "CELL_ENERGY_WH", "name": "Energy per Cell", "value": "1120", "unit": "Wh", "section": "Electrical", "status": "pass", "confidence": 0.95},
-    {"code": "CELL_IR_AC_MOHM", "name": "Internal Resistance", "value": "0.35", "unit": "mohm", "section": "Electrical", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_CYCLE_LIFE", "name": "Cycle Life", "value": "10000", "unit": "cycles", "section": "Performance", "status": "pass", "confidence": 0.92},
-    {"code": "CELL_CALENDAR_LIFE", "name": "Calendar Life", "value": "25", "unit": "years", "section": "Performance", "status": "pass", "confidence": 0.88},
-    {"code": "CELL_RTE", "name": "Round-Trip Efficiency", "value": "96.1", "unit": "%", "section": "Performance", "status": "pass", "confidence": 0.87},
-    {"code": "CELL_EOL_RETENTION", "name": "EOL Capacity Retention", "value": "80", "unit": "%", "section": "Performance", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_SELF_DISCHARGE", "name": "Self-Discharge Rate", "value": "2.5", "unit": "%/month", "section": "Performance", "status": "pass", "confidence": 0.88},
-    {"code": "CELL_WEIGHT_KG", "name": "Weight", "value": "6.28", "unit": "kg", "section": "Physical", "status": "info", "confidence": 0.90},
-    {"code": "CELL_ENERGY_DENSITY_WH_KG", "name": "Energy Density", "value": "178.3", "unit": "Wh/kg", "section": "Physical", "status": "pass", "confidence": 0.88},
-    {"code": "CELL_CHARGE_TEMP_MIN", "name": "Charge Temp Min", "value": "0", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_CHARGE_TEMP_MAX", "name": "Charge Temp Max", "value": "55", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_DISCHARGE_TEMP_MIN", "name": "Discharge Temp Min", "value": "-20", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_DISCHARGE_TEMP_MAX", "name": "Discharge Temp Max", "value": "60", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.90},
-    {"code": "CELL_TR_ONSET", "name": "Thermal Runaway Onset", "value": "213", "unit": "C", "section": "Safety", "status": "pass", "confidence": 0.92},
-    {"code": "CELL_CERTS", "name": "Certifications", "value": "IEC 62619, UL 1973, UL 9540A, UN 38.3, CQC", "unit": "", "section": "Safety", "status": "pass", "confidence": 0.95},
-    {"code": "CELL_CHEMISTRY", "name": "Chemistry", "value": "LFP", "unit": "", "section": "General", "status": "pass", "confidence": 0.99},
-    {"code": "CELL_FORM", "name": "Form Factor", "value": "Prismatic", "unit": "", "section": "Physical", "status": "pass", "confidence": 0.99},
-    {"code": "CELL_MODEL", "name": "Model Number", "value": "CB0S6PFLA", "unit": "", "section": "General", "status": "info", "confidence": 0.95},
-]
+# ── CATL 306Ah ──
+_CATL_306 = _cell_base(
+    306, 3.2, 979, 2.5, 3.65, 8000, 80, 172,
+    0, 55, -20, 60, "IEC 62619, UL 1973, UN 38.3",
+    l=173.9, w=71.7, h=207.2, rate="0.5P",
+    calendar_life=20, rte=95.8,
+)
 
-_REPT_280 = [
-    {"code": "CELL_CAPACITY_AH", "name": "Nominal Capacity", "value": "280", "unit": "Ah", "section": "Electrical", "status": "pass", "confidence": 0.85},
-    {"code": "CELL_VOLTAGE_V", "name": "Nominal Voltage", "value": "3.2", "unit": "V", "section": "Electrical", "status": "pass", "confidence": 0.99},
-    {"code": "CELL_ENERGY_WH", "name": "Energy per Cell", "value": "896", "unit": "Wh", "section": "Electrical", "status": "pass", "confidence": 0.85},
-    {"code": "CELL_CYCLE_LIFE", "name": "Cycle Life", "value": "6000", "unit": "cycles", "section": "Performance", "status": "pass", "confidence": 0.80},
-    {"code": "CELL_CALENDAR_LIFE", "name": "Calendar Life", "value": "20", "unit": "years", "section": "Performance", "status": "pass", "confidence": 0.80},
-    {"code": "CELL_RTE", "name": "Round-Trip Efficiency", "value": "95.0", "unit": "%", "section": "Performance", "status": "pass", "confidence": 0.80},
-    {"code": "CELL_EOL_RETENTION", "name": "EOL Capacity Retention", "value": "70", "unit": "%", "section": "Performance", "status": "pass", "confidence": 0.80},
-    {"code": "CELL_SELF_DISCHARGE", "name": "Self-Discharge Rate", "value": "3", "unit": "%/month", "section": "Performance", "status": "pass", "confidence": 0.80},
-    {"code": "CELL_WEIGHT_KG", "name": "Weight", "value": "5.45", "unit": "kg", "section": "Physical", "status": "info", "confidence": 0.80},
-    {"code": "CELL_ENERGY_DENSITY_WH_KG", "name": "Energy Density", "value": "164.4", "unit": "Wh/kg", "section": "Physical", "status": "pass", "confidence": 0.80},
-    {"code": "CELL_CHARGE_TEMP_MIN", "name": "Charge Temp Min", "value": "0", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.80},
-    {"code": "CELL_CHARGE_TEMP_MAX", "name": "Charge Temp Max", "value": "55", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.80},
-    {"code": "CELL_DISCHARGE_TEMP_MIN", "name": "Discharge Temp Min", "value": "-20", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.80},
-    {"code": "CELL_DISCHARGE_TEMP_MAX", "name": "Discharge Temp Max", "value": "60", "unit": "C", "section": "Thermal", "status": "pass", "confidence": 0.80},
-    {"code": "CELL_CHEMISTRY", "name": "Chemistry", "value": "LFP", "unit": "", "section": "General", "status": "pass", "confidence": 0.99},
-    {"code": "CELL_FORM", "name": "Form Factor", "value": "Prismatic", "unit": "", "section": "Physical", "status": "pass", "confidence": 0.99},
-]
+# ── CATL EnerX 530Ah ──
+_CATL_530 = _cell_base(
+    530, 3.2, 1696, 2.5, 3.65, 6000, 70, 168,
+    0, 55, -20, 55, "IEC 62619, UL 1973, UL 9540A, IEC 62477-1",
+    rate="0.25P", calendar_life=20, rte=96.1,
+)
 
-# Map component IDs to parameter lists
+# ── CATL Tener 565Ah ──
+_CATL_565 = _cell_base(
+    565, 3.2, 1808, 2.5, 3.65, 6000, 70, 180,
+    0, 55, -20, 55, "IEC 62619, UL 1973, UL 9540A",
+    calendar_life=20, rte=96.1,
+)
+
+# ── Lishen 314Ah ──
+_LISHEN_314 = _cell_base(
+    314, 3.2, 1004.8, 2.5, 3.65, 8000, 70, 170.9,
+    0, 60, -20, 60, "IEC 62619, UL 1973, UL 9540A, UN 38.3",
+    ir=0.17, weight=5.6, l=173.8, w=71.5, h=207.2,
+    storage_tmin=-30, storage_tmax=45, self_discharge=3,
+    calendar_life=25, rte=95.2, model_no="LP71173207-314Ah",
+)
+# fix: max charge current from spec
+_LISHEN_314.append(_p("CELL_MAX_CHARGE_A", "Max Charge Current", "157", "A", "Electrical"))
+
+# ── Gotion 280Ah ──
+_GOTION_280 = _cell_base(
+    280, 3.2, 896, 2.5, 3.65, 8000, 70, 163.5,
+    0, 55, -20, 55, "UN 38.3, NFPA",
+    weight=5.48, calendar_life=20, rte=95.0, self_discharge=3,
+    model_no="ESD1331-05P5015",
+)
+
+# ── HiTHIUM 280Ah 1P ──
+_HITHIUM_280_1P = _cell_base(
+    280, 3.2, 896, 2.5, 3.65, 7000, 70, 159.2,
+    0, 60, -30, 60, "IEC 62619",
+    l=174.7, w=71.6, h=207.1, rate="1P",
+    calendar_life=20, rte=94.5,
+)
+
+# ── HiTHIUM 314Ah ──
+_HITHIUM_314 = _cell_base(
+    314, 3.2, 1004.8, 2.5, 3.65, 11000, 70, 173.2,
+    0, 60, -30, 60, "IEC 62619",
+    l=174.7, w=71.7, h=207.1, rate="0.5P",
+    calendar_life=25, rte=95.0,
+)
+
+# ── HiTHIUM ∞Cell 587Ah ──
+_HITHIUM_587 = _cell_base(
+    587, 3.2, 1878, 2.5, 3.65, 11000, 70, 185,
+    0, 60, -30, 60, "IEC 62619",
+    l=286.0, w=73.5, h=216.3, rate="0.5P",
+    calendar_life=25, rte=95.0,
+)
+
+# ── HiTHIUM ∞Cell 1175Ah ──
+_HITHIUM_1175 = _cell_base(
+    1175, 3.2, 3760, 2.5, 3.65, 11000, 70, 180,
+    0, 60, -30, 60, "IEC 62619",
+    l=580.2, w=75.2, h=216.3, rate="0.25P",
+    calendar_life=25, rte=95.0,
+)
+
+# ── HiTHIUM Na-ion N162Ah ──
+_HITHIUM_NA162 = _cell_base(
+    162, 2.4, 388.8, 1.5, 3.3, 20000, 70, 95.2,
+    -40, 60, -40, 60, "IEC 62619",
+    l=174.7, w=71.7, h=207.1, rate="1P",
+    chemistry="Sodium-ion", calendar_life=20,
+)
+
+# ── SVOLT 350Ah ──
+_SVOLT_350 = _cell_base(
+    350, 3.2, 1120, 2.5, 3.65, 10500, 80, 122.5,
+    0, 55, -20, 55, "IEC 62619, UL 1973, UL 9540A, UN 38.3, CQC",
+    ir=None, weight=6.45, l=500.6, w=215.33, h=26.3,
+    rate="0.5P", calendar_life=25, rte=96.1, tr_onset=193,
+    model_no="CB0S6PFLA",
+)
+_SVOLT_350.append(_p("CELL_MAX_CHARGE_A",    "Max Charge Current",    "175",  "A",    "Electrical"))
+_SVOLT_350.append(_p("CELL_MAX_DISCHARGE_A", "Max Discharge Current", "350",  "A",    "Electrical"))
+_SVOLT_350.append(_p("CELL_TR_GAS_VOL_L",   "TR Gas Volume",         "164.8","L",    "Safety"))
+
+# ── REPT 280Ah ──
+_REPT_280 = _cell_base(
+    280, 3.2, 896, 2.5, 3.65, 8000, 70, 170,
+    0, 55, -20, 60, "IEC 62619, UL 1973, UL 9540A, UN 38.3",
+    calendar_life=20, rte=95.0, self_discharge=3,
+)
+
+# ── REPT 306Ah ──
+_REPT_306 = _cell_base(
+    306, 3.2, 979, 2.5, 3.65, 10000, 70, 170,
+    0, 55, -20, 60, "IEC 62619, UL 1973, UL 9540A, UN 38.3",
+    calendar_life=20, rte=95.0,
+)
+
+# ── REPT Wending 314Ah ──
+_REPT_314 = _cell_base(
+    314, 3.2, 1004.8, 2.5, 3.65, 12000, 70, 179,
+    0, 55, -20, 60, "IEC 62619, UL 1973, UL 9540A, UN 38.3",
+    calendar_life=20, rte=95.5,
+)
+
+# ── REPT Wending 320Ah ──
+_REPT_320 = _cell_base(
+    320, 3.2, 1024, 2.5, 3.65, 12000, 70, 179,
+    0, 55, -20, 60, "IEC 62619, UL 1973, UL 9540A, UN 38.3",
+    calendar_life=20, rte=95.5,
+)
+
+# ── REPT Wending 345Ah ──
+_REPT_345 = _cell_base(
+    345, 3.2, 1104, 2.5, 3.65, 12000, 70, 185,
+    0, 55, -20, 60, "IEC 62619, UL 1973, UL 9540A, UN 38.3",
+    calendar_life=20, rte=95.5,
+)
+
+# ── REPT Wending 587Ah ──
+_REPT_587 = _cell_base(
+    587, 3.2, 1878, 2.5, 3.65, 12000, 70, 185,
+    0, 55, -20, 60, "IEC 62619, UL 1973, UL 9540A, UN 38.3",
+    calendar_life=20, rte=95.5,
+)
+
 CELL_PARAMETERS = {
-    "comp-catl-280": _CATL_280,
-    "comp-lishen-314": _LISHEN_314,
-    "comp-gotion-280": _GOTION_280,
-    "comp-hithium-280": _HITHIUM_280,
-    "comp-svolt-350": _SVOLT_350,
-    "comp-rept-280": _REPT_280,
+    "comp-catl-280":       _CATL_280,
+    "comp-catl-285":       _CATL_285,
+    "comp-catl-306":       _CATL_306,
+    "comp-catl-530":       _CATL_530,
+    "comp-catl-565":       _CATL_565,
+    "comp-lishen-314":     _LISHEN_314,
+    "comp-gotion-280":     _GOTION_280,
+    "comp-hithium-280-1p": _HITHIUM_280_1P,
+    "comp-hithium-314":    _HITHIUM_314,
+    "comp-hithium-587":    _HITHIUM_587,
+    "comp-hithium-1175":   _HITHIUM_1175,
+    "comp-hithium-na162":  _HITHIUM_NA162,
+    "comp-svolt-350":      _SVOLT_350,
+    "comp-rept-280":       _REPT_280,
+    "comp-rept-306":       _REPT_306,
+    "comp-rept-314":       _REPT_314,
+    "comp-rept-320":       _REPT_320,
+    "comp-rept-345":       _REPT_345,
+    "comp-rept-587":       _REPT_587,
 }
-
-
-def calculate_scores():
-    """Calculate compliance scores for all components and update OEM averages."""
-    for comp in CELL_COMPONENTS:
-        params = CELL_PARAMETERS.get(comp["id"], [])
-        if not params:
-            continue
-        p = sum(1 for x in params if x["status"] == "pass")
-        f = sum(1 for x in params if x["status"] == "fail")
-        total = p + f
-        comp["pass"] = p
-        comp["fail"] = f
-        comp["compliance_score"] = round((p / total) * 100, 1) if total else 0
-        comp["fill_rate"] = 100
-
-    # Update OEM averages
-    for oem in CELL_OEMS:
-        oem_comps = [c for c in CELL_COMPONENTS if c["oem_id"] == oem["id"]]
-        if oem_comps:
-            oem["model_count"] = len(oem_comps)
-            oem["models"] = len(oem_comps)
-            scores = [c["compliance_score"] for c in oem_comps]
-            oem["avg_compliance_score"] = round(sum(scores) / len(scores), 1)
-            oem["score"] = oem["avg_compliance_score"]
-
-
-# Auto-calculate on import
-calculate_scores()

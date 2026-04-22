@@ -25,7 +25,7 @@ async def dashboard_charts(entity_id: str):
     oem = next((o for o in OEMS if o["id"] == entity_id), None)
     if oem:
         oem_models = [c for c in COMPONENTS if c["oem_id"] == entity_id]
-        model_scores = [{"model": m["model_name"], "score": m["compliance_score"]} for m in oem_models]
+        model_scores = [{"model": m["model_name"], "score": m.get("compliance_score", 0)} for m in oem_models]
         # Build parameter chart data from first model
         param_chart = []
         if oem_models:
@@ -57,7 +57,7 @@ async def dashboard_charts(entity_id: str):
             sec = p.get("section", "Other")
             if sec not in sections:
                 sections[sec] = []
-            sections[sec].append({"name": p["name"], "value": p["value"], "unit": p["unit"], "status": p["status"]})
+            sections[sec].append({"name": p["name"], "value": p["value"], "unit": p["unit"], "status": p.get("status", "info")})
 
         electrical = [p for p in params if p["section"] == "Electrical" and p["value"]]
         chart_data = []
@@ -72,7 +72,7 @@ async def dashboard_charts(entity_id: str):
             "oem_name": comp["oem_name"],
             "sections": sections,
             "electrical_chart": chart_data,
-            "compliance_score": comp["compliance_score"],
+            "compliance_score": comp.get("compliance_score", 0),
         }
 
     return {"error": "Entity not found"}
