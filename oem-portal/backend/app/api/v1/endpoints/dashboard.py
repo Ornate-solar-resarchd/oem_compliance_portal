@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from app.data.seed import OEMS, COMPONENTS, PROJECTS, SHEETS, WORKFLOWS, PARAMETERS
+from app.api.v1.completeness import completeness as _completeness
 
 router = APIRouter(prefix="/dashboard")
 

@@ -72,7 +72,8 @@
       "Bash(pdftoppm -png -f 8 -l 18 \"/Users/priyankrajput/Downloads/BESS/HEXON_BESS/BESS_HEXON_B01.pdf\" /tmp/hexon_b01c)",
       "Bash(sed -i '' 's/,    \"\\\\\\(pass\\\\|info\\\\|fail\\\\\\)\"\\)/\\)/g' pcs_seed.py)",
       "Bash(sed -i '' 's/,     \"\\\\\\(pass\\\\|info\\\\|fail\\\\\\)\"\\)/\\)/g' pcs_seed.py)",
-      "Bash(sed -i '' 's/,\"\\\\\\(pass\\\\|info\\\\|fail\\\\\\)\"\\)/\\)/g' pcs_seed.py)"
+      "Bash(sed -i '' 's/,\"\\\\\\(pass\\\\|info\\\\|fail\\\\\\)\"\\)/\\)/g' pcs_seed.py)",
+      "Bash(pip install *)"
     ],
     "additionalDirectories": [
       "/Users/priyankrajput/Ornate/Claude 2 - OEM Portal/Claude 2 - OEM Portal/OEM - anushthaFatehPortal/frontend/app/(portal)/oems"

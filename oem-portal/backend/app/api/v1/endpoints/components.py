@@ -6,10 +6,26 @@ router = APIRouter(prefix="/components")
 
 CATEGORIES = ["Cell", "DC Block", "PCS", "EMS"]
 
+from app.api.v1.completeness import completeness as _completeness
+
 
 @router.get("/")
 async def list_components():
-    return {"items": COMPONENTS, "total": len(COMPONENTS), "page": 1, "per_page": 50, "categories": CATEGORIES}
+    items = []
+    for c in COMPONENTS:
+        comp_score = _completeness(c)
+        params = PARAMETERS.get(c["id"], [])
+        items.append({
+            **c,
+            "compliance_score": comp_score,
+            "data_completeness": comp_score,
+            "fill_rate": comp_score,
+            "pass": len(params),
+            "fail": 0,
+            "waived": 0,
+            "parameters_count": len(params),
+        })
+    return {"items": items, "total": len(items), "page": 1, "per_page": 50, "categories": CATEGORIES}
 
 
 @router.get("/categories")
@@ -105,7 +121,7 @@ async def upload_datasheet(
         oem_models = [c for c in COMPONENTS if c["oem_id"] == oem_id]
         oem_obj["models"] = len(oem_models)
         oem_obj["model_count"] = len(oem_models)
-        scores = [c["compliance_score"] for c in oem_models if c["compliance_score"] > 0]
+        scores = [c.get("compliance_score", 0) for c in oem_models if c.get("compliance_score", 0) > 0]
         oem_obj["avg_compliance_score"] = round(sum(scores) / len(scores), 1) if scores else 0
         oem_obj["score"] = oem_obj["avg_compliance_score"]
 
@@ -136,7 +152,18 @@ async def get_component(component_id: str):
     if not comp:
         return {"error": "Component not found"}
     params = PARAMETERS.get(component_id, [])
-    return {**comp, "parameters": params}
+    comp_score = _completeness(comp)
+    return {
+        **comp,
+        "compliance_score": comp_score,
+        "data_completeness": comp_score,
+        "fill_rate": comp_score,
+        "pass": len(params),
+        "fail": 0,
+        "waived": 0,
+        "parameters_count": len(params),
+        "parameters": params,
+    }
 
 
 @router.get("/{component_id}/parameters")
