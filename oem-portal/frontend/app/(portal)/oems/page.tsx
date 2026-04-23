@@ -27,7 +27,6 @@ import {
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { ScoreRing } from "@/components/shared/score-ring";
-import { StatusBadge } from "@/components/shared/status-badge";
 import {
   BarChart,
   Bar,
@@ -110,8 +109,7 @@ interface Param {
   value: string;
   unit: string;
   section: string;
-  status: string;
-  confidence: number;
+  verified?: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -168,7 +166,7 @@ function radarData(params: Param[]) {
   return sections.map((s) => {
     const sp = params.filter((p) => (p.section || "").includes(s));
     const total = sp.length;
-    const pass = sp.filter((p) => p.status === "pass").length;
+    const pass = sp.filter((p) => p.verified !== false).length;
     return { section: s, score: total > 0 ? Math.round((pass / total) * 100) : 0 };
   });
 }
@@ -1226,11 +1224,8 @@ export default function OEMsPage() {
                                             <th className="py-2 px-4 text-right font-semibold w-[25%]">
                                               Value
                                             </th>
-                                            <th className="py-2 px-4 text-center font-semibold w-[15%]">
-                                              Status
-                                            </th>
-                                            <th className="py-2 px-4 text-right font-semibold w-[20%]">
-                                              Confidence
+                                            <th className="py-2 px-4 text-center font-semibold w-[35%]">
+                                              Verified
                                             </th>
                                           </tr>
                                         </thead>
@@ -1256,18 +1251,10 @@ export default function OEMsPage() {
                                                 </span>
                                               </td>
                                               <td className="py-2 px-4 text-center">
-                                                <StatusBadge status={p.status} />
-                                              </td>
-                                              <td className="py-2 px-4 text-right">
-                                                <div className="flex items-center justify-end gap-2">
-                                                  <Progress
-                                                    value={p.confidence * 100}
-                                                    className="h-1.5 w-16"
-                                                  />
-                                                  <span className="text-slate-500 text-[10px] tabular-nums w-8">
-                                                    {Math.round(p.confidence * 100)}%
-                                                  </span>
-                                                </div>
+                                                {p.verified === false
+                                                  ? <span className="text-[10px] text-amber-500 font-medium">Unverified</span>
+                                                  : <span className="text-[10px] text-emerald-500 font-medium">Verified</span>
+                                                }
                                               </td>
                                             </tr>
                                           ))}

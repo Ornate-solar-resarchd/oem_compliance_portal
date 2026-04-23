@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { ScoreRing } from "@/components/shared/score-ring"
-import { StatusBadge } from "@/components/shared/status-badge"
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Cell,
 } from "recharts"
@@ -24,7 +23,7 @@ interface Component {
   component_type_name: string; fill_rate: number; compliance_score: number
   is_active: boolean; pass: number; fail: number; waived: number; datasheet: string
 }
-interface Param { code: string; name: string; value: string; unit: string; section: string; status: string; confidence: number }
+interface Param { code: string; name: string; value: string; unit: string; section: string; verified?: boolean }
 
 /* ── OEM Config ── */
 const OEM_INFO: Record<string, { color: string; website: string; logo: string; tagline: string }> = {
@@ -119,7 +118,7 @@ export default function TechnicalDataPage() {
     return sections.map(s => {
       const sp = params.filter(p => (p.section || "").includes(s))
       const total = sp.length
-      const pass = sp.filter(p => p.status === "pass").length
+      const pass = sp.filter(p => p.verified !== false).length
       return { section: s, score: total > 0 ? Math.round((pass / total) * 100) : 0 }
     })
   }
@@ -307,16 +306,19 @@ export default function TechnicalDataPage() {
                                           <thead><tr className="bg-slate-50 border-b text-[10px] uppercase tracking-wider text-slate-400">
                                             <th className="py-2 px-4 text-left font-semibold w-[40%]">Parameter</th>
                                             <th className="py-2 px-4 text-right font-semibold w-[25%]">Value</th>
-                                            <th className="py-2 px-4 text-center font-semibold w-[15%]">Status</th>
-                                            <th className="py-2 px-4 text-right font-semibold w-[20%]">Confidence</th>
+                                            <th className="py-2 px-4 text-center font-semibold w-[35%]">Verified</th>
                                           </tr></thead>
                                           <tbody>
                                             {sectionParams.map((p, i) => (
                                               <tr key={p.code} className={cn("border-b last:border-0", i % 2 ? "bg-slate-50/50" : "")}>
                                                 <td className="py-2 px-4 font-medium text-slate-700">{p.name} <span className="text-slate-300 font-mono text-[9px] block mt-0.5">{p.code}</span></td>
                                                 <td className="py-2 px-4 text-right font-semibold text-slate-800 tabular-nums">{p.value} <span className="text-slate-400 font-normal">{p.unit}</span></td>
-                                                <td className="py-2 px-4 text-center"><StatusBadge status={p.status} /></td>
-                                                <td className="py-2 px-4 text-right"><div className="flex items-center justify-end gap-2"><Progress value={p.confidence * 100} className="h-1.5 w-16" /><span className="text-slate-500 text-[10px] tabular-nums w-8">{Math.round(p.confidence * 100)}%</span></div></td>
+                                                <td className="py-2 px-4 text-center">
+                                                  {p.verified === false
+                                                    ? <span className="text-[10px] text-amber-500 font-medium">Unverified</span>
+                                                    : <span className="text-[10px] text-emerald-500 font-medium">Verified</span>
+                                                  }
+                                                </td>
                                               </tr>
                                             ))}
                                           </tbody>
