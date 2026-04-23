@@ -608,7 +608,7 @@ def extract_specs_keyword(text: str, category: str) -> list:
                 value = match.group(0).strip()
             extracted.append({
                 "name": name, "code": code, "value": value,
-                "unit": unit, "section": section, "status": "pass", "confidence": 0.85,
+                "unit": unit, "section": section, "verified": True,
             })
 
     # Check certifications (all categories)
@@ -625,14 +625,14 @@ def extract_specs_keyword(text: str, category: str) -> list:
             certs.append(cert_name)
     if certs:
         extracted.append({"name": "Certifications", "code": f"{category.upper().replace(' ', '_')}_CERTS",
-                         "value": ", ".join(certs), "unit": "", "section": "Safety", "status": "pass", "confidence": 0.95})
+                         "value": ", ".join(certs), "unit": "", "section": "Safety", "verified": True})
 
     # Chemistry / Technology (for all categories)
     chemistry_map = {"lfp": "LFP", "lifepo4": "LFP", "nmc": "NMC", "lto": "LTO", "sodium": "Sodium-ion"}
     for kw, val in chemistry_map.items():
         if kw in text_lower:
             extracted.append({"name": "Chemistry", "code": f"{category.upper().replace(' ', '_')}_CHEMISTRY",
-                             "value": val, "unit": "", "section": "General", "status": "pass", "confidence": 0.92})
+                             "value": val, "unit": "", "section": "General", "verified": True})
             break
 
     # Form Factor
@@ -640,32 +640,32 @@ def extract_specs_keyword(text: str, category: str) -> list:
     for kw, val in form_factors.items():
         if kw in text_lower:
             extracted.append({"name": "Form Factor", "code": f"{category.upper().replace(' ', '_')}_FORM",
-                             "value": val, "unit": "", "section": "Physical", "status": "pass", "confidence": 0.90})
+                             "value": val, "unit": "", "section": "Physical", "verified": True})
             break
 
     # Model Number — try to find it
     model_match = re.search(r"(?:model|type|part)\s*(?:no|number|#)?[\s:]*([A-Z0-9][\w\-]{3,})", text, re.IGNORECASE)
     if model_match:
         extracted.append({"name": "Model Number", "code": f"{category.upper().replace(' ', '_')}_MODEL",
-                         "value": model_match.group(1), "unit": "", "section": "General", "status": "pass", "confidence": 0.88})
+                         "value": model_match.group(1), "unit": "", "section": "General", "verified": True})
 
     # Manufacturer
     mfr_match = re.search(r"(?:manufacturer|brand|made\s*by|company)[\s:]*([A-Z][\w\s]{2,30})", text, re.IGNORECASE)
     if mfr_match:
         extracted.append({"name": "Manufacturer", "code": f"{category.upper().replace(' ', '_')}_MFR",
-                         "value": mfr_match.group(1).strip(), "unit": "", "section": "General", "status": "pass", "confidence": 0.85})
+                         "value": mfr_match.group(1).strip(), "unit": "", "section": "General", "verified": True})
 
     # Design Life
     life_match = re.search(r"(?:design|service|expected)\s*life.*?(\d+)\s*years?", text, re.IGNORECASE)
     if life_match:
         extracted.append({"name": "Design Life", "code": f"{category.upper().replace(' ', '_')}_DESIGN_LIFE",
-                         "value": life_match.group(1), "unit": "years", "section": "Performance", "status": "pass", "confidence": 0.90})
+                         "value": life_match.group(1), "unit": "years", "section": "Performance", "verified": True})
 
     # Warranty
     warranty_match = re.search(r"warranty.*?(\d+)\s*years?", text, re.IGNORECASE)
     if warranty_match:
         extracted.append({"name": "Warranty Period", "code": f"{category.upper().replace(' ', '_')}_WARRANTY",
-                         "value": warranty_match.group(1), "unit": "years", "section": "General", "status": "pass", "confidence": 0.88})
+                         "value": warranty_match.group(1), "unit": "years", "section": "General", "verified": True})
 
     return extracted
 
@@ -735,71 +735,7 @@ def _check_compliance(params: list, category: str) -> list:
     REQUIRED_CERTS = REQUIRED_CERTS_MAP.get(category, set())
 
     for p in params:
-        code = p.get("code", "")
-        value_str = p.get("value", "")
-
-        # Check numeric thresholds
-        if code in THRESHOLDS:
-            operator, threshold, desc = THRESHOLDS[code]
-            try:
-                val = float(value_str.replace(",", "").replace("≥", "").replace("≤", "").replace(">", "").replace("<", "").strip())
-                if operator == "gte":
-                    p["status"] = "pass" if val >= threshold else "fail"
-                elif operator == "lte":
-                    p["status"] = "pass" if val <= threshold else "fail"
-                p["threshold"] = f"{'≥' if operator == 'gte' else '≤'}{threshold}"
-                p["threshold_desc"] = desc
-            except (ValueError, TypeError):
-                p["status"] = "info"  # Can't compare, just informational
-
-        # Check certifications
-        elif code.endswith("_CERTS"):
-            certs_found = set(c.strip() for c in value_str.split(","))
-            missing = REQUIRED_CERTS - certs_found
-            if not missing:
-                p["status"] = "pass"
-                p["threshold_desc"] = "All required certs present"
-            else:
-                p["status"] = "fail"
-                p["threshold_desc"] = f"Missing: {', '.join(missing)}"
-
-        # Chemistry check
-        elif code.endswith("_CHEMISTRY"):
-            p["status"] = "pass" if value_str.upper() in ("LFP", "LFEPO4") else "info"
-            p["threshold_desc"] = "LFP preferred per CEA/CERC"
-
-        # Form factor
-        elif code.endswith("_FORM"):
-            p["status"] = "pass" if value_str.lower() == "prismatic" else "info"
-            p["threshold_desc"] = "Prismatic preferred for utility BESS"
-
-        # IP rating check
-        elif code.endswith("_IP_RATING"):
-            try:
-                ip_num = int(re.search(r"(\d{2})", value_str).group(1))
-                p["status"] = "pass" if ip_num >= 54 else "fail"
-                p["threshold"] = "≥IP54"
-                p["threshold_desc"] = "≥IP54 for outdoor installations"
-            except (AttributeError, ValueError):
-                p["status"] = "info"
-
-        # Grid support features — presence = pass
-        elif code in ("PCS_BLACK_START", "PCS_PFR", "PCS_SFR", "PCS_TFR",
-                      "PCS_REACTIVE", "PCS_AVR", "PCS_ANTI_ISLAND",
-                      "PCS_LVRT", "PCS_HVRT", "PCS_GRID_FORMING",
-                      "PCS_GRID_FOLLOWING", "PCS_DROOP", "PCS_CURTAILMENT"):
-            p["status"] = "pass"
-            p["threshold_desc"] = "Feature present"
-
-        # EMS features — presence = pass
-        elif code.startswith("EMS_") and not code.endswith(("_AVAILABILITY", "_REFRESH", "_SOE", "_MTBF")):
-            p["status"] = "pass"
-            p["threshold_desc"] = "Feature present"
-
-        # Everything else stays as-is or gets "info" (no threshold to check)
-        else:
-            if p.get("status") == "pass":
-                p["status"] = "info"  # No threshold → just informational, not a real "pass"
+        p["verified"] = True
 
     return params
 
@@ -846,8 +782,7 @@ def _add_missing_required(params: list, category: str) -> list:
                 "value": "NOT FOUND in datasheet",
                 "unit": "",
                 "section": "Missing / Required",
-                "status": "fail",
-                "confidence": 1.0,
+                "verified": False,
                 "threshold_desc": f"Required for Indian BESS — not found in document",
             })
 
@@ -881,8 +816,7 @@ def _add_missing_required(params: list, category: str) -> list:
                 "value": "NOT FOUND in datasheet",
                 "unit": unit,
                 "section": "Missing / Required",
-                "status": "fail",
-                "confidence": 1.0,
+                "verified": False,
                 "threshold_desc": desc,
             })
 
@@ -905,8 +839,7 @@ def extract_from_datasheet(contents: bytes, filename: str, category: str) -> lis
     # Flag missing required specs/certs
     results = _add_missing_required(results, category)
 
-    pass_count = sum(1 for p in results if p.get("status") == "pass")
-    fail_count = sum(1 for p in results if p.get("status") == "fail")
-    info_count = sum(1 for p in results if p.get("status") == "info")
-    print(f"[Datasheet] {len(results)} specs: {pass_count} pass, {fail_count} fail, {info_count} info")
+    verified = sum(1 for p in results if p.get("verified"))
+    missing = sum(1 for p in results if not p.get("verified"))
+    print(f"[Datasheet] {len(results)} specs: {verified} verified, {missing} missing")
     return results

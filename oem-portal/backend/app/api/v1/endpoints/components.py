@@ -80,19 +80,13 @@ async def upload_datasheet(
     from app.data.datasheet_extraction import extract_from_datasheet
     extracted_params = extract_from_datasheet(contents, file.filename or "", category)
 
-    # Calculate compliance — only count pass+fail (not info) for real score
-    pass_count = sum(1 for p in extracted_params if p.get("status") == "pass")
-    fail_count = sum(1 for p in extracted_params if p.get("status") == "fail")
-    info_count = sum(1 for p in extracted_params if p.get("status") == "info")
-    checked = pass_count + fail_count
     total = len(extracted_params)
-    score = round((pass_count / checked) * 100, 1) if checked > 0 else 0
-    fill_rate = round(((pass_count + info_count) / total) * 100, 1) if total > 0 else 0
+    verified_count = sum(1 for p in extracted_params if p.get("verified"))
 
-    # Add confidence if missing
+    # Ensure all params have verified field
     for p in extracted_params:
-        if "confidence" not in p:
-            p["confidence"] = 0.90
+        if "verified" not in p:
+            p["verified"] = True
 
     comp_id = f"comp-upload-{len(COMPONENTS)+1:03d}"
     new_comp = {
@@ -102,12 +96,7 @@ async def upload_datasheet(
         "model_name": model_name,
         "sku": f"{oem_name[:3].upper()}-{category[:3].upper()}-{len(COMPONENTS)+1:03d}",
         "component_type_name": category,
-        "fill_rate": fill_rate,
-        "compliance_score": score,
         "is_active": True,
-        "pass": pass_count,
-        "fail": fail_count,
-        "waived": 0,
         "datasheet": file.filename or "uploaded.pdf",
         "gdrive_url": gdrive_url,
         "gdrive_file_id": gdrive_file_id,
@@ -121,9 +110,7 @@ async def upload_datasheet(
         oem_models = [c for c in COMPONENTS if c["oem_id"] == oem_id]
         oem_obj["models"] = len(oem_models)
         oem_obj["model_count"] = len(oem_models)
-        scores = [c.get("compliance_score", 0) for c in oem_models if c.get("compliance_score", 0) > 0]
-        oem_obj["avg_compliance_score"] = round(sum(scores) / len(scores), 1) if scores else 0
-        oem_obj["score"] = oem_obj["avg_compliance_score"]
+        oem_obj["model_count"] = oem_obj.get("model_count", 0)
 
     return {
         "status": "extracted",
@@ -134,13 +121,9 @@ async def upload_datasheet(
         "file_name": file.filename,
         "file_size_bytes": file_size,
         "parameters_extracted": total,
-        "compliance_score": score,
-        "pass": pass_count,
-        "fail": fail_count,
-        "info": info_count,
-        "fill_rate": fill_rate,
+        "verified": verified_count,
         "parameters": extracted_params,
-        "message": f"Extracted {total} {category} specs — {pass_count} pass, {fail_count} fail, {info_count} info ({score}% compliance)",
+        "message": f"Extracted {total} {category} specs — {verified_count} verified",
         "gdrive_url": gdrive_url,
         "gdrive_saved": bool(gdrive_url),
     }

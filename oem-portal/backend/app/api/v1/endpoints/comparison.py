@@ -40,7 +40,7 @@ async def comparison_matrix(model_ids: str = Query(..., description="Comma-separ
             if p:
                 row["values"][m["id"]] = {
                     "value": p["value"],
-                    "status": p["status"],
+                    "verified": p.get("verified", True),
                     "display": f"{p['value']} {p['unit']}".strip(),
                 }
                 try:
@@ -48,7 +48,7 @@ async def comparison_matrix(model_ids: str = Query(..., description="Comma-separ
                 except (ValueError, TypeError):
                     pass
             else:
-                row["values"][m["id"]] = {"value": None, "status": "pending", "display": "—"}
+                row["values"][m["id"]] = {"value": None, "verified": False, "display": "—"}
 
         # Determine best/worst for numeric values
         if len(values_numeric) >= 2:

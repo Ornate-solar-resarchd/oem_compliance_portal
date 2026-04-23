@@ -32,11 +32,8 @@ async def create_sheet(body: SheetCreate):
 
     # Get component's parameters for compliance data
     params = PARAMETERS.get(body.component_id, [])
-    pass_count = sum(1 for p in params if p.get("status") == "pass")
-    fail_count = sum(1 for p in params if p.get("status") == "fail")
-    waived_count = sum(1 for p in params if p.get("status") == "waived")
-    total = pass_count + fail_count + waived_count
-    score = round((pass_count / total) * 100, 1) if total > 0 else 0
+    verified_count = sum(1 for p in params if p.get("verified", True))
+    total = len(params)
 
     new_sheet = {
         "id": sheet_id,
@@ -46,27 +43,30 @@ async def create_sheet(body: SheetCreate):
         "component_id": body.component_id,
         "component_model_name": component["model_name"],
         "workflow_stage": "draft",
-        "compliance_score": score,
+        "compliance_score": 0,
         "revision": "r1",
-        "pass": pass_count,
-        "fail": fail_count,
-        "waived": waived_count,
+        "verified": verified_count,
+        "parameters_count": total,
+        "pass": 0,
+        "fail": 0,
+        "waived": 0,
     }
     SHEETS.append(new_sheet)
 
-    # Also add to workflows (pending approval)
     new_workflow = {
         "id": sheet_id,
         "sheet_number": sheet_num,
         "project_name": project["name"],
         "workflow_stage": "draft",
-        "compliance_score": score,
+        "compliance_score": 0,
         "component_model_name": component["model_name"],
         "waiting_hours": 0,
         "revision": "r1",
-        "pass": pass_count,
-        "fail": fail_count,
-        "waived": waived_count,
+        "verified": verified_count,
+        "parameters_count": total,
+        "pass": 0,
+        "fail": 0,
+        "waived": 0,
     }
     WORKFLOWS.append(new_workflow)
 

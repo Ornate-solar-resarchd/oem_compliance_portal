@@ -106,53 +106,43 @@ async def fetch_and_extract(body: FetchAndExtractRequest):
 
     extracted_params = extract_from_datasheet(file_bytes, body.file_name, body.category)
 
-    # Step 4: Calculate compliance
-    pass_count = sum(1 for p in extracted_params if p.get("status") == "pass")
-    fail_count = sum(1 for p in extracted_params if p.get("status") == "fail")
     total = len(extracted_params)
-    score = round((pass_count / total) * 100, 1) if total > 0 else 0
+    verified_count = sum(1 for p in extracted_params if p.get("verified"))
 
     for p in extracted_params:
-        if "confidence" not in p:
-            p["confidence"] = 0.90
+        if "verified" not in p:
+            p["verified"] = True
 
-    # Step 5: Find or create OEM
+    # Find or create OEM
     oem = next((o for o in OEMS if o["name"].lower() == body.oem_name.lower()), None)
     oem_id = oem["id"] if oem else f"oem-new-{len(OEMS)+1:03d}"
 
     if not oem:
         new_oem = {
             "id": oem_id, "name": body.oem_name, "country_of_origin": "Unknown",
-            "is_approved": False, "score": 0, "models": 0, "model_count": 0,
-            "avg_compliance_score": 0, "website": "", "contact_email": "",
+            "is_approved": False, "website": "", "contact_email": "",
         }
         OEMS.append(new_oem)
 
-    # Step 6: Create component
+    # Create component
     comp_id = f"comp-gdrive-{len(COMPONENTS)+1:03d}"
     new_comp = {
         "id": comp_id, "oem_id": oem_id, "oem_name": body.oem_name,
         "model_name": body.model_name,
         "sku": f"{body.oem_name[:3].upper()}-{body.category[:3].upper()}-{len(COMPONENTS)+1:03d}",
         "component_type_name": body.category,
-        "fill_rate": 100 if total > 0 else 0,
-        "compliance_score": score, "is_active": True,
-        "pass": pass_count, "fail": fail_count, "waived": 0,
+        "is_active": True,
         "datasheet": body.file_name, "source": "gdrive", "gdrive_file_id": body.file_id,
         "gdrive_url": f"https://drive.google.com/file/d/{body.file_id}/view",
     }
     COMPONENTS.append(new_comp)
     PARAMETERS[comp_id] = extracted_params
 
-    # Step 7: Update OEM stats
+    # Update OEM model count
     oem_obj = next((o for o in OEMS if o["id"] == oem_id), None)
     if oem_obj:
         oem_models = [c for c in COMPONENTS if c["oem_id"] == oem_id]
-        oem_obj["models"] = len(oem_models)
         oem_obj["model_count"] = len(oem_models)
-        scores = [c["compliance_score"] for c in oem_models if c["compliance_score"] > 0]
-        oem_obj["avg_compliance_score"] = round(sum(scores) / len(scores), 1) if scores else 0
-        oem_obj["score"] = oem_obj["avg_compliance_score"]
 
     return {
         "status": "extracted",

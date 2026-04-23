@@ -58,7 +58,7 @@ async def dashboard_charts(entity_id: str):
             sec = p.get("section", "Other")
             if sec not in sections:
                 sections[sec] = []
-            sections[sec].append({"name": p["name"], "value": p["value"], "unit": p["unit"], "status": p.get("status", "info")})
+            sections[sec].append({"name": p["name"], "value": p["value"], "unit": p["unit"], "verified": p.get("verified", True)})
 
         electrical = [p for p in params if p["section"] == "Electrical" and p["value"]]
         chart_data = []
