@@ -3,10 +3,9 @@
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
 import { ScoreRing } from "@/components/shared/score-ring"
 import {
-  CheckCircle2, XCircle, AlertTriangle, FileText, ExternalLink, Download,
+  FileText, ExternalLink,
   ChevronDown, ChevronRight, Maximize2, Minimize2,
 } from "lucide-react"
 import { useState, useEffect, useMemo } from "react"
@@ -19,8 +18,7 @@ interface Param {
   required_value?: string
   unit?: string
   section?: string
-  status?: string
-  confidence?: number
+  verified?: boolean
   page?: number | null
   source_text?: string
 }
@@ -53,12 +51,6 @@ interface SplitDocumentViewerProps {
   mode?: "datasheet" | "rfq"
 }
 
-const statusIcon = (s: string) => {
-  if (s === "pass") return <CheckCircle2 className="h-3 w-3 text-emerald-500" />
-  if (s === "fail") return <XCircle className="h-3 w-3 text-red-500" />
-  if (s === "waived") return <AlertTriangle className="h-3 w-3 text-amber-500" />
-  return null
-}
 
 export function SplitDocumentViewer({
   gdriveFileId, gdriveUrl, localFile, fileName, parameters, summary, mode = "datasheet",
@@ -106,8 +98,8 @@ export function SplitDocumentViewer({
   const isExcel = fileName?.toLowerCase().endsWith(".xlsx") || fileName?.toLowerCase().endsWith(".xls")
 
   const totalParams = parameters.length
-  const passCount = summary?.pass ?? parameters.filter(p => p.status === "pass").length
-  const failCount = summary?.fail ?? parameters.filter(p => p.status === "fail").length
+  const passCount = summary?.pass ?? parameters.filter(p => p.verified !== false).length
+  const failCount = summary?.fail ?? parameters.filter(p => p.verified === false).length
 
   return (
     <div className={cn(
@@ -287,20 +279,13 @@ export function SplitDocumentViewer({
                               {p.value || p.required_value}
                               {p.unit && <span className="text-slate-400 font-normal ml-1">{p.unit}</span>}
                             </td>
-                            <td className="py-1.5 pl-2 w-[12%]">
-                              {p.status && (
-                                <div className="flex items-center justify-center">
-                                  {statusIcon(p.status)}
-                                </div>
-                              )}
-                            </td>
-                            <td className="py-1.5 pl-1 w-[13%]">
-                              {p.confidence !== undefined && (
-                                <div className="flex items-center gap-1">
-                                  <Progress value={(p.confidence || 0) * 100} className="h-1 w-8" />
-                                  <span className="text-[9px] text-slate-400">{Math.round((p.confidence || 0) * 100)}%</span>
-                                </div>
-                              )}
+                            <td className="py-1.5 pl-2 w-[25%]">
+                              <div className="flex items-center justify-center">
+                                {p.verified === false
+                                  ? <span className="text-[9px] text-amber-500 font-medium">Unverified</span>
+                                  : <span className="text-[9px] text-emerald-500 font-medium">Verified</span>
+                                }
+                              </div>
                             </td>
                           </tr>
                         ))}
