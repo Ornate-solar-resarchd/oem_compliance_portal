@@ -18,8 +18,16 @@ jobs:
     steps:
       - name: Deploy
         shell: bash
+        env:
+          # Force a clean Docker config dir — runner runs as launchd LaunchAgent
+          # and can't access the user keychain. This bypasses all credential helpers.
+          DOCKER_CONFIG: /Users/ornateserver/.docker-runner
         run: |
           set -e
+
+          # Ensure DOCKER_CONFIG dir exists with empty config (no creds helper)
+          mkdir -p "$DOCKER_CONFIG"
+          echo '{}' > "$DOCKER_CONFIG/config.json"
 
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
           LOG=$HOME/portals/logs/deploy/compliance-$TIMESTAMP.log
