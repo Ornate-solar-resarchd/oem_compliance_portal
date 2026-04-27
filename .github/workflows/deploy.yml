@@ -1,0 +1,69 @@
+name: Deploy Compliance Portal
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Only one deploy at a time per portal
+concurrency:
+  group: deploy-compliance
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, compliance]
+    timeout-minutes: 15
+
+    steps:
+      - name: Deploy
+        shell: bash
+        run: |
+          set -e
+
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          LOG=$HOME/portals/logs/deploy/compliance-$TIMESTAMP.log
+          mkdir -p "$(dirname "$LOG")"
+
+          # Mirror all output to both terminal and log file
+          exec > >(tee -a "$LOG") 2>&1
+
+          echo "═══ Deploy started: $(date) ═══"
+          echo "Repo:    $GITHUB_REPOSITORY"
+          echo "Commit:  $GITHUB_SHA"
+          echo "Pusher:  $GITHUB_ACTOR"
+          echo "Trigger: $GITHUB_EVENT_NAME"
+          echo ""
+
+          echo "─── 1/4 Pulling latest code ───"
+          cd "$HOME/portals/oem_compliance_portal"
+          git fetch origin main
+          git reset --hard origin/main
+          git log -1 --pretty=format:"%h %s (%cr)"
+          echo ""
+
+          echo ""
+          echo "─── 2/4 Rebuilding services ───"
+          cd "$HOME/portals"
+          docker compose up -d --build compliance-backend compliance-frontend
+
+          echo ""
+          echo "─── 3/4 Waiting 15s for services to come up ───"
+          sleep 15
+
+          echo ""
+          echo "─── 4/4 Health check ───"
+          for i in 1 2 3; do
+            CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://compliance.unityess.cloud/)
+            if [ "$CODE" = "200" ]; then
+              echo "✅ Health check passed (attempt $i, HTTP $CODE)"
+              echo "═══ Deploy SUCCESS: $(date) ═══"
+              exit 0
+            fi
+            echo "  attempt $i: HTTP $CODE — retrying in 5s..."
+            sleep 5
+          done
+
+          echo "❌ Health check failed after 3 attempts"
+          echo "═══ Deploy FAILED: $(date) ═══"
+          exit 1
