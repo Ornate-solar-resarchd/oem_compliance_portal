@@ -60,16 +60,16 @@ jobs:
           # without credsStore set, and it can't access the keychain from a
           # launchd session. Our fake one returns empty creds for public images.
           mkdir -p "$DOCKER_CONFIG/bin"
-          cat > "$DOCKER_CONFIG/bin/docker-credential-osxkeychain" <<'CREDEOF'
-#!/bin/bash
-case "$1" in
-  list) echo '{}' ;;
-  get)  echo '{"ServerURL":"","Username":"","Secret":""}' ;;
-  *)    cat > /dev/null ;;
-esac
-exit 0
-CREDEOF
-          chmod +x "$DOCKER_CONFIG/bin/docker-credential-osxkeychain"
+          SHIM="$DOCKER_CONFIG/bin/docker-credential-osxkeychain"
+          : > "$SHIM"
+          echo '#!/bin/bash'                                                            >> "$SHIM"
+          echo 'case "$1" in'                                                            >> "$SHIM"
+          echo '  list) echo "{}" ;;'                                                    >> "$SHIM"
+          echo '  get)  echo "{\"ServerURL\":\"\",\"Username\":\"\",\"Secret\":\"\"}" ;;' >> "$SHIM"
+          echo '  *)    cat > /dev/null ;;'                                              >> "$SHIM"
+          echo 'esac'                                                                    >> "$SHIM"
+          echo 'exit 0'                                                                  >> "$SHIM"
+          chmod +x "$SHIM"
           # Prepend our shim dir to PATH so Docker uses our fake helper, not the real one
           export PATH="$DOCKER_CONFIG/bin:$PATH"
 
