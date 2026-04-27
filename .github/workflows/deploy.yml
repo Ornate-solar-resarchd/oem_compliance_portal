@@ -5,122 +5,16 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# Only one deploy at a time per portal
 concurrency:
   group: deploy-compliance
   cancel-in-progress: false
 
 jobs:
   deploy:
-    runs-on: [self-hosted, compliance]
-    timeout-minutes: 15
-
-    steps:
-      - name: Deploy
-        shell: bash
-        env:
-          # Force a clean Docker config dir — runner runs as launchd LaunchAgent
-          # and can't access the user keychain. This bypasses all credential helpers.
-          DOCKER_CONFIG: /Users/ornateserver/.docker-runner
-        run: |
-          set -e
-
-          # launchd LaunchAgents get a minimal PATH — restore Docker + Homebrew + system bins
-          export PATH="/usr/local/bin:/opt/homebrew/bin:/Applications/Docker.app/Contents/Resources/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
-
-          # Ensure DOCKER_CONFIG dir exists with empty config (no creds helper)
-          mkdir -p "$DOCKER_CONFIG"
-          echo '{}' > "$DOCKER_CONFIG/config.json"
-
-          # Make docker-compose plugin findable from this DOCKER_CONFIG dir
-          mkdir -p "$DOCKER_CONFIG/cli-plugins"
-          for src in \
-            /Applications/Docker.app/Contents/Resources/cli-plugins/docker-compose \
-            /opt/homebrew/lib/docker/cli-plugins/docker-compose \
-            /usr/local/lib/docker/cli-plugins/docker-compose; do
-            if [ -x "$src" ]; then
-              ln -sf "$src" "$DOCKER_CONFIG/cli-plugins/docker-compose"
-              echo "Linked compose plugin from $src"
-              break
-            fi
-          done
-
-          # Same for buildx (suppresses warning + needed for some builds)
-          for src in \
-            /Applications/Docker.app/Contents/Resources/cli-plugins/docker-buildx \
-            /opt/homebrew/lib/docker/cli-plugins/docker-buildx \
-            /usr/local/lib/docker/cli-plugins/docker-buildx; do
-            if [ -x "$src" ]; then
-              ln -sf "$src" "$DOCKER_CONFIG/cli-plugins/docker-buildx"
-              break
-            fi
-          done
-
-          # Shim docker-credential-osxkeychain — Docker auto-invokes it even
-          # without credsStore set, and it can't access the keychain from a
-          # launchd session. Our fake one returns empty creds for public images.
-          mkdir -p "$DOCKER_CONFIG/bin"
-          SHIM="$DOCKER_CONFIG/bin/docker-credential-osxkeychain"
-          : > "$SHIM"
-          echo '#!/bin/bash'                                                            >> "$SHIM"
-          echo 'case "$1" in'                                                            >> "$SHIM"
-          echo '  list) echo "{}" ;;'                                                    >> "$SHIM"
-          echo '  get)  echo "{\"ServerURL\":\"\",\"Username\":\"\",\"Secret\":\"\"}" ;;' >> "$SHIM"
-          echo '  *)    cat > /dev/null ;;'                                              >> "$SHIM"
-          echo 'esac'                                                                    >> "$SHIM"
-          echo 'exit 0'                                                                  >> "$SHIM"
-          chmod +x "$SHIM"
-          # Prepend our shim dir to PATH so Docker uses our fake helper, not the real one
-          export PATH="$DOCKER_CONFIG/bin:$PATH"
-
-          # Quick sanity: confirm docker + compose are available
-          which docker
-          docker --version
-          docker compose version
-
-          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-          LOG=$HOME/portals/logs/deploy/compliance-$TIMESTAMP.log
-          mkdir -p "$(dirname "$LOG")"
-
-          # Mirror all output to both terminal and log file
-          exec > >(tee -a "$LOG") 2>&1
-
-          echo "═══ Deploy started: $(date) ═══"
-          echo "Repo:    $GITHUB_REPOSITORY"
-          echo "Commit:  $GITHUB_SHA"
-          echo "Pusher:  $GITHUB_ACTOR"
-          echo "Trigger: $GITHUB_EVENT_NAME"
-          echo ""
-
-          echo "─── 1/4 Pulling latest code ───"
-          cd "$HOME/portals/oem_compliance_portal"
-          git fetch origin main
-          git reset --hard origin/main
-          git log -1 --pretty=format:"%h %s (%cr)"
-          echo ""
-
-          echo ""
-          echo "─── 2/4 Rebuilding services ───"
-          cd "$HOME/portals"
-          docker compose up -d --build compliance-backend compliance-frontend
-
-          echo ""
-          echo "─── 3/4 Waiting 15s for services to come up ───"
-          sleep 15
-
-          echo ""
-          echo "─── 4/4 Health check ───"
-          for i in 1 2 3; do
-            CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://compliance.unityess.cloud/)
-            if [ "$CODE" = "200" ]; then
-              echo "✅ Health check passed (attempt $i, HTTP $CODE)"
-              echo "═══ Deploy SUCCESS: $(date) ═══"
-              exit 0
-            fi
-            echo "  attempt $i: HTTP $CODE — retrying in 5s..."
-            sleep 5
-          done
-
-          echo "❌ Health check failed after 3 attempts"
-          echo "═══ Deploy FAILED: $(date) ═══"
-          exit 1
+    uses: ResarchandDornate/portals-infra/.github/workflows/_deploy-template.yml@main
+    with:
+      portal:       compliance
+      portal_dir:   oem_compliance_portal
+      services:     "compliance-backend compliance-frontend"
+      health_url:   "https://compliance.unityess.cloud/"
+      runner_label: compliance
