@@ -45,6 +45,34 @@ jobs:
             fi
           done
 
+          # Same for buildx (suppresses warning + needed for some builds)
+          for src in \
+            /Applications/Docker.app/Contents/Resources/cli-plugins/docker-buildx \
+            /opt/homebrew/lib/docker/cli-plugins/docker-buildx \
+            /usr/local/lib/docker/cli-plugins/docker-buildx; do
+            if [ -x "$src" ]; then
+              ln -sf "$src" "$DOCKER_CONFIG/cli-plugins/docker-buildx"
+              break
+            fi
+          done
+
+          # Shim docker-credential-osxkeychain — Docker auto-invokes it even
+          # without credsStore set, and it can't access the keychain from a
+          # launchd session. Our fake one returns empty creds for public images.
+          mkdir -p "$DOCKER_CONFIG/bin"
+          cat > "$DOCKER_CONFIG/bin/docker-credential-osxkeychain" <<'CREDEOF'
+#!/bin/bash
+case "$1" in
+  list) echo '{}' ;;
+  get)  echo '{"ServerURL":"","Username":"","Secret":""}' ;;
+  *)    cat > /dev/null ;;
+esac
+exit 0
+CREDEOF
+          chmod +x "$DOCKER_CONFIG/bin/docker-credential-osxkeychain"
+          # Prepend our shim dir to PATH so Docker uses our fake helper, not the real one
+          export PATH="$DOCKER_CONFIG/bin:$PATH"
+
           # Quick sanity: confirm docker + compose are available
           which docker
           docker --version
