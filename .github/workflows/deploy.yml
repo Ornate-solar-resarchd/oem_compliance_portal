@@ -32,6 +32,19 @@ jobs:
           mkdir -p "$DOCKER_CONFIG"
           echo '{}' > "$DOCKER_CONFIG/config.json"
 
+          # Make docker-compose plugin findable from this DOCKER_CONFIG dir
+          mkdir -p "$DOCKER_CONFIG/cli-plugins"
+          for src in \
+            /Applications/Docker.app/Contents/Resources/cli-plugins/docker-compose \
+            /opt/homebrew/lib/docker/cli-plugins/docker-compose \
+            /usr/local/lib/docker/cli-plugins/docker-compose; do
+            if [ -x "$src" ]; then
+              ln -sf "$src" "$DOCKER_CONFIG/cli-plugins/docker-compose"
+              echo "Linked compose plugin from $src"
+              break
+            fi
+          done
+
           # Quick sanity: confirm docker + compose are available
           which docker
           docker --version
