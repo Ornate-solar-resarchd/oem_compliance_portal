@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   deploy:
-    uses: ResarchandDornate/portals-infra/.github/workflows/_deploy-template.yml@main
+    uses: Ornate-solar-resarchd/portals-infra/.github/workflows/_deploy-template.yml@main
     with:
       portal:       compliance
       portal_dir:   oem_compliance_portal
