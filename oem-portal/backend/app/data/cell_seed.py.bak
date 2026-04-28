@@ -5,7 +5,7 @@ Multiple models per OEM seeded from provided specification data.
 """
 
 # ─── OEM Manufacturers ───
-CELL_OEMS_BASE = [
+CELL_OEMS = [
     {"id": "oem-catl", "name": "CATL", "country_of_origin": "China", "is_approved": True,
      "website": "https://catl.com", "contact_email": "india@catl.com"},
     {"id": "oem-lishen", "name": "Lishen", "country_of_origin": "China", "is_approved": True,
@@ -21,123 +21,123 @@ CELL_OEMS_BASE = [
 ]
 
 # ─── Component Models ───
-CELL_COMPONENTS_BASE = [
+CELL_COMPONENTS = [
     # ── CATL ──
-    {"id": "comp-catl-280", "oem_id": "oem-catl", "oem_name": "CATL",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/CATL_BESS/Datasheets/CATL-LFP-280Ah-Cell-Datasheet.pdf",
+    {"id": "comp-catl-280",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/CATL_BESS/Datasheets/CATL-LFP-280Ah-Cell-Datasheet.pdf", "oem_id": "oem-catl", "oem_name": "CATL",
      "model_name": "CATL LFP 280Ah", "sku": "CATL-LF280K", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "CATL Product Specification of 280Ah Cell.pdf",
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/CATL_BESS/CATL Product Specification of 280Ah Cell.pdf"},
-    {"id": "comp-catl-285", "oem_id": "oem-catl", "oem_name": "CATL",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/CATL_BESS/Datasheets/CATL-LFP-285Ah-Cell-Datasheet.pdf",
+    {"id": "comp-catl-285",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/CATL_BESS/Datasheets/CATL-LFP-285Ah-Cell-Datasheet.pdf", "oem_id": "oem-catl", "oem_name": "CATL",
      "model_name": "CATL LFP 285Ah", "sku": "CATL-LF285", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "CATL Product Specification of 280Ah Cell.pdf",
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/CATL_BESS/CATL Product Specification of 280Ah Cell.pdf"},
-    {"id": "comp-catl-306", "oem_id": "oem-catl", "oem_name": "CATL",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/CATL_BESS/Datasheets/CATL-LFP-306Ah-Cell-Datasheet.pdf",
+    {"id": "comp-catl-306",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/CATL_BESS/Datasheets/CATL-LFP-306Ah-Cell-Datasheet.pdf", "oem_id": "oem-catl", "oem_name": "CATL",
      "model_name": "CATL LFP 306Ah", "sku": "CATL-LF306", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "CATL Product Specification of 280Ah Cell.pdf",
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/CATL_BESS/CATL Product Specification of 280Ah Cell.pdf"},
-    {"id": "comp-catl-530", "oem_id": "oem-catl", "oem_name": "CATL",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/CATL_BESS/CATL%20Interface%20documentation%20of%20EnerX%200.25P.pdf",
+    {"id": "comp-catl-530",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/CATL_BESS/CATL%20Interface%20documentation%20of%20EnerX%200.25P.pdf", "oem_id": "oem-catl", "oem_name": "CATL",
      "model_name": "CATL EnerX 530Ah", "sku": "CATL-ENERX-530", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "EnerX Product Specsheet.jpeg",
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/CATL_BESS/EnerX Product Specsheet.jpeg"},
-    {"id": "comp-catl-565", "oem_id": "oem-catl", "oem_name": "CATL",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/CATL_BESS/CATL%20Tener%20R2-S070%20Interface%20of%20BESS%20Specification.pdf",
+    {"id": "comp-catl-565",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/CATL_BESS/CATL%20Tener%20R2-S070%20Interface%20of%20BESS%20Specification.pdf", "oem_id": "oem-catl", "oem_name": "CATL",
      "model_name": "CATL Tener 565Ah", "sku": "CATL-TENER-565", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "CATL Tener R2-S070 Interface of BESS Specification.pdf",
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/CATL_BESS/CATL Tener R2-S070 Interface of BESS Specification.pdf"},
     # ── Lishen ──
-    {"id": "comp-lishen-314", "oem_id": "oem-lishen", "oem_name": "Lishen",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Lishen_BESS/Cell%20Data/Lishen_314Ah_CellSpec.pdf",
+    {"id": "comp-lishen-314",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Lishen_BESS/Cell%20Data/Lishen_314Ah_CellSpec.pdf", "oem_id": "oem-lishen", "oem_name": "Lishen",
      "model_name": "Lishen LFP 314Ah", "sku": "LP71173207-314Ah", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "Lishen_314Ah_CellSpec.pdf",
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/Lishen_BESS/Cell Data/Lishen_314Ah_CellSpec.pdf"},
     # ── Gotion ──
-    {"id": "comp-gotion-280", "oem_id": "oem-gotion", "oem_name": "Gotion High-Tech",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Gotion_BESS/Datasheets/GOTION-LFP-340Ah-Cell-Datasheet.pdf",
+    {"id": "comp-gotion-280",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Gotion_BESS/5MWh-System%20Manual_ESD1331-05P5015_2024.06.24_CE_V1.0%20%281%29.pdf", "oem_id": "oem-gotion", "oem_name": "Gotion High-Tech",
      "model_name": "Gotion LFP 280Ah", "sku": "ESD1331-05P5015", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "5MWh-System Manual_ESD1331.pdf",
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/Gotion_BESS/5MWh-System Manual_ESD1331-05P5015_2024.06.24_CE_V1.0 (1).pdf"},
     # ── HiTHIUM ──
-    {"id": "comp-hithium-280-1p", "oem_id": "oem-hithium", "oem_name": "HiTHIUM",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Hithium_09.01.26/Datasheets/HiTHIUM-LFP-280Ah-Cell-Datasheet.pdf",
+    {"id": "comp-hithium-280-1p",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Hithium_09.01.26/Datasheets/HiTHIUM-LFP-280Ah-Cell-Datasheet.pdf", "oem_id": "oem-hithium", "oem_name": "HiTHIUM",
      "model_name": "HiTHIUM LFP 280Ah 1P", "sku": "HTL-LF280-1P", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "HiTHIUM corporate presentation_251121.pdf",
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/Hithium_09.01.26/HiTHIUM corporate presentation_251121.pdf"},
-    {"id": "comp-hithium-314", "oem_id": "oem-hithium", "oem_name": "HiTHIUM",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Hithium_09.01.26/Datasheets/HiTHIUM-LFP-314Ah-Cell-Datasheet.pdf",
+    {"id": "comp-hithium-314",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Hithium_09.01.26/Datasheets/HiTHIUM-LFP-314Ah-Cell-Datasheet.pdf", "oem_id": "oem-hithium", "oem_name": "HiTHIUM",
      "model_name": "HiTHIUM LFP 314Ah", "sku": "HTL-LF314", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "HiTHIUM corporate presentation_251121.pdf",
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/Hithium_09.01.26/HiTHIUM corporate presentation_251121.pdf"},
-    {"id": "comp-hithium-587", "oem_id": "oem-hithium", "oem_name": "HiTHIUM",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Hithium_09.01.26/HiTHIUM%20corporate%20presentation_251121.pdf",
+    {"id": "comp-hithium-587",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Hithium_09.01.26/HiTHIUM%20corporate%20presentation_251121.pdf", "oem_id": "oem-hithium", "oem_name": "HiTHIUM",
      "model_name": "HiTHIUM ∞Cell 587Ah", "sku": "HTL-INF587", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "HiTHIUM corporate presentation_251121.pdf",
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/Hithium_09.01.26/HiTHIUM corporate presentation_251121.pdf"},
-    {"id": "comp-hithium-1175", "oem_id": "oem-hithium", "oem_name": "HiTHIUM",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Hithium_09.01.26/HiTHIUM%20corporate%20presentation_251121.pdf",
+    {"id": "comp-hithium-1175",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Hithium_09.01.26/HiTHIUM%20corporate%20presentation_251121.pdf", "oem_id": "oem-hithium", "oem_name": "HiTHIUM",
      "model_name": "HiTHIUM ∞Cell 1175Ah", "sku": "HTL-INF1175", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "HiTHIUM corporate presentation_251121.pdf",
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/Hithium_09.01.26/HiTHIUM corporate presentation_251121.pdf"},
-    {"id": "comp-hithium-na162", "oem_id": "oem-hithium", "oem_name": "HiTHIUM",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Hithium_09.01.26/HiTHIUM%20corporate%20presentation_251121.pdf",
+    {"id": "comp-hithium-na162",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Hithium_09.01.26/HiTHIUM%20corporate%20presentation_251121.pdf", "oem_id": "oem-hithium", "oem_name": "HiTHIUM",
      "model_name": "HiTHIUM Na-ion N162Ah", "sku": "HTL-NA162", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "HiTHIUM corporate presentation_251121.pdf",
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/Hithium_09.01.26/HiTHIUM corporate presentation_251121.pdf"},
     # ── SVOLT ──
-    {"id": "comp-svolt-350", "oem_id": "oem-svolt", "oem_name": "SVOLT",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/SVOLT/Datasheets/SVOLT-LFP-350Ah-Cell-Datasheet.pdf",
+    {"id": "comp-svolt-350",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/SVOLT/Datasheets/SVOLT-LFP-350Ah-Cell-Datasheet.pdf", "oem_id": "oem-svolt", "oem_name": "SVOLT",
      "model_name": "SVOLT LFP 350Ah", "sku": "CB0S6PFLA", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "SVOLT IEC 62619 Report.pdf",
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/SVOLT/IEC 62619/4921702.50-IECTRF.pdf"},
     # ── REPT Battero ──
-    {"id": "comp-rept-280", "oem_id": "oem-rept", "oem_name": "REPT Battero",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/REPT%20Battero_BESS/Datasheets/REPT-LFP-280Ah-Wending-Datasheet.pdf",
+    {"id": "comp-rept-280",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/REPT%20Battero_BESS/Datasheets/REPT-LFP-280Ah-Wending-Datasheet.pdf", "oem_id": "oem-rept", "oem_name": "REPT Battero",
      "model_name": "REPT LFP 280Ah", "sku": "REPT-LF280", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "BESS_REPT_B01.pdf",
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/REPT Battero_BESS/BESS_REPT_B01.pdf"},
-    {"id": "comp-rept-306", "oem_id": "oem-rept", "oem_name": "REPT Battero",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/REPT%20Battero_BESS/Datasheets/REPT-LFP-306Ah-Wending-Datasheet.pdf",
+    {"id": "comp-rept-306",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/REPT%20Battero_BESS/Datasheets/REPT-LFP-306Ah-Wending-Datasheet.pdf", "oem_id": "oem-rept", "oem_name": "REPT Battero",
      "model_name": "REPT LFP 306Ah", "sku": "REPT-LF306", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "BESS_REPT_T01.pdf",
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/REPT Battero_BESS/BESS_REPT_T01.pdf"},
-    {"id": "comp-rept-314", "oem_id": "oem-rept", "oem_name": "REPT Battero",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/REPT%20Battero_BESS/Datasheets/REPT-LFP-314Ah-Wending-Datasheet.pdf",
+    {"id": "comp-rept-314",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/REPT%20Battero_BESS/Datasheets/REPT-LFP-314Ah-Wending-Datasheet.pdf", "oem_id": "oem-rept", "oem_name": "REPT Battero",
      "model_name": "REPT Wending 314Ah", "sku": "REPT-WD314", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "BESS_REPT_T02.pdf",
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/REPT Battero_BESS/BESS_REPT_T02.pdf"},
-    {"id": "comp-rept-320", "oem_id": "oem-rept", "oem_name": "REPT Battero",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/REPT%20Battero_BESS/Datasheets/REPT-LFP-320Ah-Wending-Datasheet.pdf",
+    {"id": "comp-rept-320",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/REPT%20Battero_BESS/Datasheets/REPT-LFP-320Ah-Wending-Datasheet.pdf", "oem_id": "oem-rept", "oem_name": "REPT Battero",
      "model_name": "REPT Wending 320Ah", "sku": "REPT-WD320", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "BESS_REPT_T03.pdf",
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/REPT Battero_BESS/BESS_REPT_T03.pdf"},
-    {"id": "comp-rept-345", "oem_id": "oem-rept", "oem_name": "REPT Battero",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/REPT%20Battero_BESS/Datasheets/REPT-LFP-345Ah-Wending-Datasheet.pdf",
+    {"id": "comp-rept-345",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/REPT%20Battero_BESS/Datasheets/REPT-LFP-345Ah-Wending-Datasheet.pdf", "oem_id": "oem-rept", "oem_name": "REPT Battero",
      "model_name": "REPT Wending 345Ah", "sku": "REPT-WD345", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "BESS_REPT_T04.pdf",
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/REPT Battero_BESS/BESS_REPT_T04.pdf"},
-    {"id": "comp-rept-587", "oem_id": "oem-rept", "oem_name": "REPT Battero",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/REPT%20Battero_BESS/Datasheets/REPT-LFP-587Ah-Wending-Datasheet.pdf",
+    {"id": "comp-rept-587",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/REPT%20Battero_BESS/Datasheets/REPT-LFP-587Ah-Wending-Datasheet.pdf", "oem_id": "oem-rept", "oem_name": "REPT Battero",
      "model_name": "REPT Wending 587Ah", "sku": "REPT-WD587", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "BESS_REPT_T05.pdf",
@@ -340,7 +340,7 @@ _REPT_587 = _cell_base(
     calendar_life=20, rte=95.5,
 )
 
-CELL_PARAMETERS_BASE = {
+CELL_PARAMETERS = {
     "comp-catl-280":       _CATL_280,
     "comp-catl-285":       _CATL_285,
     "comp-catl-306":       _CATL_306,
@@ -361,34 +361,3 @@ CELL_PARAMETERS_BASE = {
     "comp-rept-345":       _REPT_345,
     "comp-rept-587":       _REPT_587,
 }
-
-
-# ─── NEW OEMs added by overhaul script ────────────────────────────────────────
-EVE_OEMS = [{"id":"oem-eve-006","name":"EVE Energy","country_of_origin":"China","is_approved":True,"score":93.5,"models":3,"model_count":3,"avg_compliance_score":93.5,"website":"https://www.evebattery.com","contact_email":"ess@evebattery.com"}]
-CALB_OEMS = [{"id":"oem-calb-007","name":"CALB","country_of_origin":"China","is_approved":True,"score":90.2,"models":1,"model_count":1,"avg_compliance_score":90.2,"website":"https://www.calbtech.com","contact_email":"ess@calbtech.com"}]
-BYD_OEMS  = [{"id":"oem-byd-008","name":"BYD","country_of_origin":"China","is_approved":True,"score":94.1,"models":1,"model_count":1,"avg_compliance_score":94.1,"website":"https://www.byd.com","contact_email":"ess@byd.com"}]
-
-NEW_CATL_COMPONENTS = [
-    {"id":"comp-catl-302", "oem_id": "oem-catl", "oem_name": "CATL","gdrive_url":"https://minio.unityess.cloud/compliance-docs/CELL/CATL_BESS/Datasheets/CATL-LFP-302Ah-Cell-Datasheet.pdf","oem_id":"oem-catl-001","oem_name":"CATL","model_name":"CATL LFP 302Ah","sku":"CATL-LF302K","component_type_name":"Cell","fill_rate":96,"compliance_score":95.8,"is_active":True,"pass":25,"fail":1,"waived":2,"datasheet":"CATL-LFP-302Ah-Cell-Datasheet.pdf"},
-    {"id":"comp-catl-314", "oem_id": "oem-catl", "oem_name": "CATL","gdrive_url":"https://minio.unityess.cloud/compliance-docs/CELL/CATL_BESS/Datasheets/CATL-LFP-314Ah-Cell-Datasheet.pdf","oem_id":"oem-catl-001","oem_name":"CATL","model_name":"CATL LFP 314Ah","sku":"CATL-LF314K","component_type_name":"Cell","fill_rate":97,"compliance_score":96.5,"is_active":True,"pass":26,"fail":1,"waived":1,"datasheet":"CATL-LFP-314Ah-Cell-Datasheet.pdf"},
-    {"id":"comp-catl-320", "oem_id": "oem-catl", "oem_name": "CATL","gdrive_url":"https://minio.unityess.cloud/compliance-docs/CELL/CATL_BESS/Datasheets/CATL-LFP-320Ah-Cell-Datasheet.pdf","oem_id":"oem-catl-001","oem_name":"CATL","model_name":"CATL LFP 320Ah","sku":"CATL-LF320K","component_type_name":"Cell","fill_rate":97,"compliance_score":96.8,"is_active":True,"pass":26,"fail":1,"waived":1,"datasheet":"CATL-LFP-320Ah-Cell-Datasheet.pdf"},
-]
-EVE_COMPONENTS = [
-    {"id":"comp-eve-lf280k", "oem_id": "oem-eve-006", "oem_name": "EVE Energy","gdrive_url":"https://minio.unityess.cloud/compliance-docs/CELL/EVE_BESS/Datasheets/EVE-LFP-LF280K-280Ah-Cell-Datasheet.pdf","oem_id":"oem-eve-006","oem_name":"EVE Energy","model_name":"EVE LF280K 280Ah","sku":"EVE-LF280K","component_type_name":"Cell","fill_rate":96,"compliance_score":93.5,"is_active":True,"pass":24,"fail":2,"waived":2,"datasheet":"EVE-LFP-LF280K-280Ah-Cell-Datasheet.pdf"},
-    {"id":"comp-eve-mb30", "oem_id": "oem-eve-006", "oem_name": "EVE Energy","gdrive_url":"https://minio.unityess.cloud/compliance-docs/CELL/EVE_BESS/Datasheets/EVE-LFP-MB30-306Ah-Cell-Datasheet.pdf","oem_id":"oem-eve-006","oem_name":"EVE Energy","model_name":"EVE MB30 306Ah","sku":"EVE-MB30-306","component_type_name":"Cell","fill_rate":95,"compliance_score":93.2,"is_active":True,"pass":24,"fail":2,"waived":2,"datasheet":"EVE-LFP-MB30-306Ah-Cell-Datasheet.pdf"},
-    {"id":"comp-eve-mb31", "oem_id": "oem-eve-006", "oem_name": "EVE Energy","gdrive_url":"https://minio.unityess.cloud/compliance-docs/CELL/EVE_BESS/Datasheets/EVE-LFP-MB31-314Ah-Cell-Datasheet.pdf","oem_id":"oem-eve-006","oem_name":"EVE Energy","model_name":"EVE MB31 314Ah","sku":"EVE-MB31-314","component_type_name":"Cell","fill_rate":96,"compliance_score":94.0,"is_active":True,"pass":25,"fail":1,"waived":2,"datasheet":"EVE-LFP-MB31-314Ah-Cell-Datasheet.pdf"},
-]
-CALB_COMPONENTS = [{"id":"comp-calb-280", "oem_id": "oem-calb-007", "oem_name": "CALB","gdrive_url":"https://minio.unityess.cloud/compliance-docs/CELL/CALB_BESS/Datasheets/CALB-LFP-280Ah-Cell-Datasheet.pdf","oem_id":"oem-calb-007","oem_name":"CALB","model_name":"CALB LFP 280Ah","sku":"CALB-L280F","component_type_name":"Cell","fill_rate":93,"compliance_score":90.2,"is_active":True,"pass":23,"fail":3,"waived":2,"datasheet":"CALB-LFP-280Ah-Cell-Datasheet.pdf"}]
-BYD_COMPONENTS  = [{"id":"comp-byd-302", "oem_id": "oem-byd-008", "oem_name": "BYD","gdrive_url":"https://minio.unityess.cloud/compliance-docs/CELL/BYD_BESS/Datasheets/BYD-LFP-302Ah-Blade-Cell-Datasheet.pdf","oem_id":"oem-byd-008","oem_name":"BYD","model_name":"BYD LFP 302Ah Blade","sku":"BYD-LFP302B","component_type_name":"Cell","fill_rate":98,"compliance_score":94.1,"is_active":True,"pass":25,"fail":1,"waived":2,"datasheet":"BYD-LFP-302Ah-Blade-Cell-Datasheet.pdf"}]
-
-def _mkp(cap,v,e,w,cyc,ir,ed,bis,cert):
-    return [{"code":"CELL_CAPACITY_AH","name":"Nominal Capacity","value":str(cap),"unit":"Ah","section":"Electrical","status":"pass","confidence":0.97},{"code":"CELL_VOLTAGE_V","name":"Nominal Voltage","value":str(v),"unit":"V","section":"Electrical","status":"pass","confidence":0.99},{"code":"CELL_ENERGY_WH","name":"Energy","value":str(e),"unit":"Wh","section":"Electrical","status":"pass","confidence":0.95},{"code":"CELL_IR_MOHM","name":"Internal Resistance","value":str(ir),"unit":"mohm","section":"Electrical","status":"pass","confidence":0.92},{"code":"CELL_CYCLE_LIFE","name":"Cycle Life","value":str(cyc),"unit":"cycles","section":"Electrical","status":"pass","confidence":0.94},{"code":"CELL_WEIGHT_KG","name":"Weight","value":str(w),"unit":"kg","section":"Physical","status":"pass","confidence":0.98},{"code":"CELL_ENERGY_DENSITY","name":"Energy Density","value":str(ed),"unit":"Wh/kg","section":"Physical","status":"pass","confidence":0.91},{"code":"CELL_CHEMISTRY","name":"Chemistry","value":"LFP","unit":"","section":"Safety","status":"pass","confidence":0.99},{"code":"CELL_CERTIFICATIONS","name":"Certifications","value":cert,"unit":"","section":"Safety","status":"pass","confidence":0.95},{"code":"CELL_BIS_CERT","name":"BIS Certified","value":bis,"unit":"","section":"Safety","status":"pass" if bis=="Yes" else "fail","confidence":0.92},{"code":"CELL_UN383","name":"UN38.3","value":"Yes","unit":"","section":"Safety","status":"pass","confidence":0.97}]
-
-NEW_CATL_PARAMETERS = {"comp-catl-302":_mkp(302,3.2,966.4,5.78,6000,0.41,167.2,"Yes","IEC 62619, UL 1973"),"comp-catl-314":_mkp(314,3.2,1004.8,5.88,6500,0.40,170.9,"Yes","IEC 62619, UL 1973"),"comp-catl-320":_mkp(320,3.2,1024.0,5.95,7000,0.38,172.1,"Yes","IEC 62619, UL 1973")}
-EVE_PARAMETERS   = {"comp-eve-lf280k":_mkp(280,3.2,896.0,5.42,6000,0.25,165.1,"Yes","IEC 62619, UL 1973, UN38.3"),"comp-eve-mb30":_mkp(306,3.2,979.2,5.80,6000,0.30,168.8,"Yes","IEC 62619, UL 1973"),"comp-eve-mb31":_mkp(314,3.2,1004.8,5.91,6000,0.28,170.0,"Yes","IEC 62619, UL 1973")}
-CALB_PARAMETERS  = {"comp-calb-280":_mkp(280,3.2,896.0,5.50,5000,0.35,162.9,"No","IEC 62619")}
-BYD_PARAMETERS   = {"comp-byd-302":_mkp(302,3.2,966.4,5.61,8000,0.40,172.3,"Yes","IEC 62619, UL 1973, UL 9540A")}
-
-CELL_OEMS       = CELL_OEMS_BASE + EVE_OEMS + CALB_OEMS + BYD_OEMS
-CELL_COMPONENTS = CELL_COMPONENTS_BASE + NEW_CATL_COMPONENTS + EVE_COMPONENTS + CALB_COMPONENTS + BYD_COMPONENTS
-CELL_PARAMETERS = {**CELL_PARAMETERS_BASE, **NEW_CATL_PARAMETERS, **EVE_PARAMETERS, **CALB_PARAMETERS, **BYD_PARAMETERS}

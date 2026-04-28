@@ -19,7 +19,7 @@ class OEMCreate(BaseModel):
 async def list_oems():
     items = []
     for o in OEMS:
-        oem_models = [c for c in COMPONENTS if c["oem_id"] == o["id"]]
+        oem_models = [c for c in COMPONENTS if c.get("oem_id", "") == o["id"]]
         completeness_scores = [_completeness(m) for m in oem_models]
         avg_completeness = round(sum(completeness_scores) / len(completeness_scores), 1) if completeness_scores else 0
         items.append({
@@ -57,7 +57,7 @@ async def get_oem(oem_id: str):
     oem = next((o for o in OEMS if o["id"] == oem_id), None)
     if not oem:
         return {"error": "OEM not found"}
-    models = [c for c in COMPONENTS if c["oem_id"] == oem_id]
+    models = [c for c in COMPONENTS if c.get("oem_id", "") == oem_id]
     enriched_models = []
     for m in models:
         comp_score = _completeness(m)
