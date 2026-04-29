@@ -10,8 +10,12 @@ router = APIRouter(prefix="/auth")
 # Demo users (matches frontend Login.jsx)
 USERS = [
     {"email": "anushtha@ornatesolar.in",     "password": "Admin@1234",    "name": "Anushtha",        "role": "admin",      "organisation": "Ornate Solar"},
-    {"email": "fateh@ornatesolar.com",        "password": "Admin@1234",    "name": "Fateh Brar",      "role": "admin",      "organisation": "Ornate Solar"},
-    {"email": "kedar@ornatesolar.com",        "password": "Admin@1234",    "name": "Kedar Bala",      "role": "admin",      "organisation": "Ornate Solar"},
+    {"email": "fateh@ornatesolar.com",        "password": "Ornate@2026",   "name": "Fateh Brar",      "role": "admin",      "organisation": "Ornate Solar"},
+    {"email": "kedar@ornatesolar.com",        "password": "Ornate@2026",   "name": "Kedar Bala",      "role": "admin",      "organisation": "Ornate Solar"},
+    {"email": "aditya@ornatesolar.com",       "password": "Ornate@2026",   "name": "Aditya",          "role": "admin",      "organisation": "Ornate Solar"},
+    {"email": "raghav@ornatesolar.com",       "password": "Ornate@2026",   "name": "Raghav",          "role": "admin",      "organisation": "Ornate Solar"},
+    {"email": "rahul@ornatesolar.com",        "password": "Ornate@2026",   "name": "Rahul",           "role": "admin",      "organisation": "Ornate Solar"},
+    {"email": "arvind@ornatesolar.com",       "password": "Ornate@2026",   "name": "Arvind",          "role": "admin",      "organisation": "Ornate Solar"},
     {"email": "ravi.sharma@ornatesolar.com",  "password": "Ornate@1234",   "name": "Ravi Sharma",     "role": "engineer",   "organisation": "Ornate Solar"},
     {"email": "priya.nair@ornatesolar.com",   "password": "Ornate@1234",   "name": "Priya Nair",      "role": "reviewer",   "organisation": "Ornate Solar"},
     {"email": "arun.mehta@ornatesolar.com",   "password": "Ornate@1234",   "name": "Arun Mehta",      "role": "commercial", "organisation": "Ornate Solar"},
