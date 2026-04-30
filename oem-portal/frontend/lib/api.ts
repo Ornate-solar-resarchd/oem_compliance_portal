@@ -46,6 +46,7 @@ export const login = (email: string, password: string) =>
 export const getDashboardStats = () => get("/dashboard/stats")
 export const getDashboardCharts = (entityId: string) => get(`/dashboard/charts/${entityId}`)
 export const getDashboardOverview = () => get("/dashboard/overview")
+export const getDashboardSummary = () => get("/dashboard/summary")
 
 // OEMs
 export const getOEMs = () => get("/oems/")
