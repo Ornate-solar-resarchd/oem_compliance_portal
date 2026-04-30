@@ -113,7 +113,7 @@ export default function DashboardPage() {
           { label: "Total OEMs", value: totals.oems, icon: Building2, color: "text-blue-600", bg: "bg-blue-50" },
           { label: "Total Models", value: totals.models, icon: Database, color: "text-violet-600", bg: "bg-violet-50" },
           { label: "Avg Data Completeness", value: `${totals.avg_completeness}%`, icon: TrendingUp, color: "text-emerald-600", bg: "bg-emerald-50" },
-          { label: "Approved OEMs", value: totals.approved_oems, icon: CheckCircle2, color: "text-amber-600", bg: "bg-amber-50" },
+          { label: "Categories Covered", value: category_breakdown.filter(c => c.count > 0).length, icon: Layers, color: "text-amber-600", bg: "bg-amber-50" },
         ].map(kpi => (
           <Card key={kpi.label}>
             <CardContent className="pt-5 pb-5">
@@ -211,7 +211,6 @@ export default function DashboardPage() {
                   <th className="text-center py-2 px-3 font-semibold">Models</th>
                   <th className="text-left py-2 px-3 font-semibold w-[35%]">Data Completeness</th>
                   <th className="text-left py-2 px-3 font-semibold">Categories</th>
-                  <th className="text-center py-2 pl-3 font-semibold">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -251,16 +250,6 @@ export default function DashboardPage() {
                           </span>
                         ))}
                       </div>
-                    </td>
-                    <td className="py-2.5 pl-3 text-center">
-                      {oem.is_approved
-                        ? <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                            <CheckCircle2 className="h-2.5 w-2.5" /> Approved
-                          </span>
-                        : <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
-                            Pending
-                          </span>
-                      }
                     </td>
                   </tr>
                 ))}
