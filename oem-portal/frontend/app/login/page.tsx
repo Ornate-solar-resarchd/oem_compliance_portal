@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { AuthProvider, useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
@@ -17,18 +17,36 @@ function LoginForm() {
   const [loading, setLoading] = useState(false)
   const [showPw, setShowPw] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setLoading(true)
+  async function doLogin(e: string, p: string) {
+    setError(""); setLoading(true)
     try {
-      const user = await login(email.trim(), password)
+      await login(e.trim(), p)
       router.replace("/oems")
     } catch (err: any) {
       setError(err.message || "Login failed")
     } finally {
       setLoading(false)
     }
+  }
+
+  // Auto-login when arriving from master portal with ?autologin=1
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get("autologin") === "1") {
+      const e = params.get("email") || ""
+      const p = params.get("password") || ""
+      if (e && p) {
+        setEmail(e); setPassword(p)
+        window.history.replaceState({}, "", window.location.pathname)
+        doLogin(e, p)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    await doLogin(email, password)
   }
 
   return (
