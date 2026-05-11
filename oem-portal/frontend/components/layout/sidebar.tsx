@@ -15,14 +15,11 @@ const NAV_SECTIONS = [
     items: [
       { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
       { href: "/oems", icon: Building2, label: "OEM Library" },
-      { href: "/rfq", icon: FileText, label: "RFQ Manager", badge: "AI" },
-      { href: "/dnv", icon: Shield, label: "DNV Intelligence", badge: "NEW" },
     ],
   },
   {
     label: "Management",
     items: [
-      { href: "/projects", icon: ClipboardCheck, label: "Projects & Workflow" },
       { href: "/compare", icon: GitCompare, label: "Comparison" },
     ],
   },

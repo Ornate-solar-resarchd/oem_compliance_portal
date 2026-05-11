@@ -91,8 +91,6 @@ export default function DashboardPage() {
   const quickLinks = [
     { label: "OEM Library", desc: "Browse all models & specs", icon: Building2, href: "/oems", color: "text-blue-600", bg: "bg-blue-50" },
     { label: "Compare Models", desc: "Side-by-side spec comparison", icon: BarChart3, href: "/compare", color: "text-violet-600", bg: "bg-violet-50" },
-    { label: "RFQ Matching", desc: "Match RFQ to best OEM", icon: FileText, href: "/rfq", color: "text-emerald-600", bg: "bg-emerald-50" },
-    { label: "Projects", desc: "Track compliance projects", icon: Layers, href: "/projects", color: "text-amber-600", bg: "bg-amber-50" },
   ]
 
   // Models needing attention (completeness < 70%)
