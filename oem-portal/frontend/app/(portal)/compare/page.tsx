@@ -198,7 +198,7 @@ export default function ComparePage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Model Comparison</h1>
-        <p className="text-sm text-slate-500 mt-1">Compare BESS components side-by-side — filter by manufacturer, type, and product</p>
+        <p className="text-sm text-slate-500 mt-1">Side-by-side specification comparison across BESS models and manufacturers</p>
       </div>
 
       <div className="flex gap-6">
@@ -231,100 +231,50 @@ export default function ComparePage() {
               className="pl-10" />
           </div>
 
-          {/* OEM Manufacturer Filter */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs uppercase tracking-wider text-slate-500 flex items-center gap-2">
-                <Building2 className="h-3.5 w-3.5" /> Filter by Manufacturer
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-1">
-              {oemList.map(oem => {
-                const info = OEM_INFO[oem] || { color: "from-slate-500 to-slate-600", website: "#", country: "—", logo: oem[0] }
-                const isFiltered = selectedOEMs.size === 0 || selectedOEMs.has(oem)
-                return (
-                  <button key={oem} onClick={() => toggleOEM(oem)}
-                    className={cn(
-                      "w-full flex items-center gap-3 px-3 py-2 rounded-lg border transition-all text-left text-sm",
-                      isFiltered && selectedOEMs.size > 0 ? "border-brand/30 bg-brand-50/50" : "border-transparent hover:bg-slate-50"
-                    )}>
-                    <div className={cn("w-7 h-7 rounded-lg bg-gradient-to-br flex items-center justify-center text-white text-xs font-bold flex-shrink-0", info.color)}>
-                      {info.logo}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-slate-800 text-xs">{oem}</div>
-                      <div className="text-[10px] text-slate-400">{info.country}</div>
-                    </div>
-                    {selectedOEMs.has(oem) && <Check className="w-4 h-4 text-brand flex-shrink-0" />}
-                  </button>
-                )
-              })}
-              {selectedOEMs.size > 0 && (
-                <button onClick={() => setSelectedOEMs(new Set())}
-                  className="w-full text-xs text-slate-400 hover:text-brand py-1.5 flex items-center justify-center gap-1 transition-colors">
-                  <X className="w-3 h-3" /> Clear filter
-                </button>
-              )}
-            </CardContent>
-          </Card>
-
           {/* Models grouped by OEM */}
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs uppercase tracking-wider text-slate-500">
-                Select Models to Compare
-              </CardTitle>
-              <CardDescription className="text-[11px]">{selectedIds.size} selected — need 2+ to compare</CardDescription>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold text-slate-700">Select Models</CardTitle>
+              <CardDescription className="text-xs text-slate-500">
+                {selectedIds.size > 0 ? `${selectedIds.size} selected · need 2+ to compare` : "Pick 2 or more models to start"}
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3 max-h-[400px] overflow-y-auto scrollbar-thin">
+            <CardContent className="space-y-2 max-h-[520px] overflow-y-auto scrollbar-thin">
               {Array.from(modelsByOEM.entries()).map(([oem, models]) => {
                 const info = OEM_INFO[oem] || { color: "from-slate-500 to-slate-600", website: "#", country: "—", logo: oem[0] }
                 const isExpanded = expandedOEMs.has(oem)
                 const allSelected = models.every(m => selectedIds.has(m.id))
-                const someSelected = models.some(m => selectedIds.has(m.id))
                 return (
                   <div key={oem} className="border border-slate-100 rounded-xl overflow-hidden">
-                    {/* OEM Header */}
-                    <div className="flex items-center gap-2 px-3 py-2.5 bg-slate-50/80 cursor-pointer hover:bg-slate-100/80 transition-colors"
+                    <div className="flex items-center gap-2.5 px-3 py-3 bg-slate-50/60 cursor-pointer hover:bg-slate-50 transition-colors"
                       onClick={() => toggleExpandOEM(oem)}>
-                      {isExpanded ? <ChevronDown className="w-3.5 h-3.5 text-slate-400" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-400" />}
-                      <div className={cn("w-6 h-6 rounded-md bg-gradient-to-br flex items-center justify-center text-white text-[10px] font-bold", info.color)}>
+                      {isExpanded ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400" />}
+                      <div className={cn("w-7 h-7 rounded-md bg-gradient-to-br flex items-center justify-center text-white text-xs font-bold", info.color)}>
                         {info.logo}
                       </div>
-                      <span className="text-xs font-bold text-slate-700 flex-1">{oem}</span>
+                      <span className="text-sm font-semibold text-slate-800 flex-1">{oem}</span>
+                      <span className="text-xs text-slate-400">{models.length}</span>
                       <button onClick={e => { e.stopPropagation(); selectAllFromOEM(oem) }}
-                        className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-md transition-colors",
-                          allSelected ? "bg-brand/10 text-brand" : "bg-slate-100 text-slate-400 hover:text-slate-600")}>
-                        {allSelected ? "Deselect" : "Select All"}
+                        className={cn("text-xs font-medium px-2.5 py-1 rounded-md transition-colors",
+                          allSelected ? "bg-brand/10 text-brand" : "text-slate-500 hover:bg-slate-200")}>
+                        {allSelected ? "Clear" : "All"}
                       </button>
-                      <a href={info.website} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
-                        className="text-slate-300 hover:text-brand transition-colors">
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
                     </div>
-                    {/* Models */}
                     {isExpanded && (
                       <div className="divide-y divide-slate-50">
                         {models.map(model => {
                           const isSelected = selectedIds.has(model.id)
                           return (
                             <button key={model.id} onClick={() => toggleModel(model.id)}
-                              className={cn("w-full flex items-center gap-3 px-3 py-2.5 text-left transition-all",
-                                isSelected ? "bg-brand-50/50" : "hover:bg-slate-50")}>
-                              <div className={cn("w-4 h-4 rounded border flex items-center justify-center flex-shrink-0",
+                              className={cn("w-full flex items-center gap-3 px-3 py-3 text-left transition-all",
+                                isSelected ? "bg-brand-50/40" : "hover:bg-slate-50")}>
+                              <div className={cn("w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0",
                                 isSelected ? "bg-brand border-brand text-white" : "border-slate-300")}>
                                 {isSelected && <Check className="h-2.5 w-2.5" />}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="text-xs font-semibold text-slate-700 truncate">{model.model_name}</div>
-                                <div className="text-[10px] text-slate-400">{model.sku} · {model.component_type_name}</div>
-                              </div>
-                              <div className="text-right flex-shrink-0">
-                                <div className={cn("text-xs font-bold", scoreColor(model.compliance_score))}>{model.compliance_score}%</div>
-                                <div className="flex gap-1 mt-0.5">
-                                  <span className="text-[9px] text-emerald-500 font-semibold">{model.pass}P</span>
-                                  {model.fail > 0 && <span className="text-[9px] text-red-500 font-semibold">{model.fail}F</span>}
-                                </div>
+                                <div className="text-sm font-medium text-slate-800 truncate">{model.model_name}</div>
+                                <div className="text-xs text-slate-400">{model.sku}</div>
                               </div>
                             </button>
                           )
@@ -361,21 +311,20 @@ export default function ComparePage() {
           ) : (
             <>
               {/* Model Summary Cards */}
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                {matrix.models.map((m, idx) => {
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                {matrix.models.map((m) => {
                   const info = OEM_INFO[m.oem_name] || { color: "from-slate-500 to-slate-600", website: "#", logo: m.oem_name[0] }
                   return (
                     <Card key={m.id} className="card-interactive">
-                      <CardContent className="pt-4 pb-3">
+                      <CardContent className="py-4">
                         <div className="flex items-center gap-3">
-                          <div className={cn("w-9 h-9 rounded-lg bg-gradient-to-br flex items-center justify-center text-white text-sm font-bold shadow-sm", info.color)}>
+                          <div className={cn("w-10 h-10 rounded-lg bg-gradient-to-br flex items-center justify-center text-white text-base font-bold shadow-sm flex-shrink-0", info.color)}>
                             {info.logo}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-xs font-bold text-slate-800 truncate">{m.model_name}</div>
-                            <div className="text-[10px] text-slate-400">{m.oem_name}</div>
+                            <div className="text-sm font-semibold text-slate-800 truncate">{m.model_name}</div>
+                            <div className="text-xs text-slate-500">{m.oem_name}</div>
                           </div>
-                          <ScoreRing score={m.score} size={44} strokeWidth={4} />
                         </div>
                       </CardContent>
                     </Card>
@@ -403,32 +352,32 @@ export default function ComparePage() {
 
               {/* Comparison Matrix */}
               <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Parameter Matrix</CardTitle>
-                  <CardDescription className="text-xs">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold">Specification Comparison</CardTitle>
+                  <CardDescription className="text-xs text-slate-500">
                     {matrix.total_parameters} parameters · {matrix.models.length} models
                     {sectionFilter !== "All" && ` · Filtered: ${sectionFilter}`}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="overflow-x-auto rounded-lg border">
+                  <div className="overflow-x-auto rounded-xl border border-slate-200">
                     <table className="w-full text-sm border-collapse">
                       <thead className="sticky top-0 z-10">
-                        <tr className="bg-slate-50 border-b-2 border-slate-200">
-                          <th className="text-left py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider min-w-[200px]">
+                        <tr className="bg-slate-50 border-b border-slate-200">
+                          <th className="text-left py-4 px-4 text-xs font-semibold text-slate-600 uppercase tracking-wide min-w-[220px]">
                             Parameter
                           </th>
                           {matrix.models.map(model => {
                             const info = OEM_INFO[model.oem_name] || { color: "from-slate-500 to-slate-600", logo: model.oem_name[0] }
                             return (
-                              <th key={model.id} className="text-center py-3 px-3 min-w-[130px]">
-                                <div className="flex items-center justify-center gap-1.5">
-                                  <div className={cn("w-5 h-5 rounded bg-gradient-to-br flex items-center justify-center text-white text-[9px] font-bold", info.color)}>
+                              <th key={model.id} className="text-center py-4 px-4 min-w-[150px]">
+                                <div className="flex items-center justify-center gap-2">
+                                  <div className={cn("w-6 h-6 rounded bg-gradient-to-br flex items-center justify-center text-white text-xs font-bold", info.color)}>
                                     {info.logo}
                                   </div>
-                                  <div>
-                                    <div className="text-[10px] font-bold text-slate-800">{model.oem_name}</div>
-                                    <div className="text-[9px] text-slate-400 font-normal">{model.model_name.split("-").slice(-2).join("-")}</div>
+                                  <div className="text-left">
+                                    <div className="text-xs font-semibold text-slate-800">{model.oem_name}</div>
+                                    <div className="text-[11px] text-slate-500 font-normal">{model.model_name.split("-").slice(-2).join("-")}</div>
                                   </div>
                                 </div>
                               </th>
@@ -441,21 +390,21 @@ export default function ComparePage() {
                           <>
                             <tr key={`s-${section}`}>
                               <td colSpan={matrix.models.length + 1}
-                                className="py-2 px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-50/80 border-y border-slate-100">
+                                className="py-3 px-4 text-xs font-semibold uppercase tracking-wide text-slate-700 bg-slate-100/70 border-t border-b border-slate-200">
                                 {section}
                               </td>
                             </tr>
                             {rows.map(row => (
-                              <tr key={row.code} className="border-b border-slate-50 table-row-hover">
-                                <td className="py-2 px-3 text-slate-700">
-                                  <div className="text-xs font-medium">{row.parameter}</div>
-                                  {row.unit && <span className="text-[9px] text-slate-400">({row.unit})</span>}
+                              <tr key={row.code} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
+                                <td className="py-3 px-4 text-slate-700">
+                                  <div className="text-sm font-medium">{row.parameter}</div>
+                                  {row.unit && <span className="text-xs text-slate-400">{row.unit}</span>}
                                 </td>
                                 {matrix.models.map(model => {
                                   const val = row.values[model.id]
                                   return (
-                                    <td key={model.id} className={cn("py-2 px-3 text-center text-xs font-medium transition-colors", cellColor(row, model.id))}>
-                                      {val ? val.display : "—"}
+                                    <td key={model.id} className={cn("py-3 px-4 text-center text-sm text-slate-800", cellColor(row, model.id))}>
+                                      {val ? val.display : <span className="text-slate-300">—</span>}
                                     </td>
                                   )
                                 })}
@@ -463,7 +412,6 @@ export default function ComparePage() {
                             ))}
                           </>
                         ))}
-                        {/* End of parameter rows */}
                       </tbody>
                     </table>
                   </div>
