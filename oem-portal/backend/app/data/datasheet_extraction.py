@@ -885,22 +885,139 @@ def _add_missing_required(params: list, category: str) -> list:
     return params
 
 
+CELL_19_PARAM_SCHEMA = [
+    # (code,                      name,                                section,      unit)
+    ("CELL_TYPE",                 "Cell Type",                         "General",    ""),
+    ("CELL_CHEMISTRY",            "Chemistry",                         "General",    ""),
+    ("CELL_MODEL",                "Cell Model",                        "General",    ""),
+    ("CELL_NOM_CAPACITY",         "Nominal Capacity",                  "Electrical", "Ah"),
+    ("CELL_NOM_VOLTAGE",          "Nominal Voltage",                   "Electrical", "V"),
+    ("CELL_NOM_ENERGY",           "Nominal Energy",                    "Electrical", "Wh"),
+    ("CELL_OPER_VOLT_RANGE",      "Operating Voltage Range",           "Electrical", "V"),
+    ("CELL_DISCHARGE_CUTOFF",     "Discharge Cutoff Voltage",          "Electrical", "V"),
+    ("CELL_AC_IMPEDANCE",         "AC Impedance",                      "Electrical", "mΩ"),
+    ("CELL_STD_CHG_CURR",         "Standard Charge Current",           "Electrical", "A"),
+    ("CELL_MAX_CHG_CURR",         "Max Continuous Charge Current",     "Electrical", "A"),
+    ("CELL_MAX_DIS_CURR",         "Max Continuous Discharge Current",  "Electrical", "A"),
+    ("CELL_CHG_TEMP",             "Charge Temperature",                "Thermal",    "°C"),
+    ("CELL_DIS_TEMP",             "Discharge Temperature",             "Thermal",    "°C"),
+    ("CELL_STORAGE_TEMP",         "Storage Temperature",               "Thermal",    "°C"),
+    ("CELL_DIMENSIONS",           "Dimensions (W × L × H)",            "Physical",   "mm"),
+    ("CELL_WEIGHT",               "Weight",                            "Physical",   "kg"),
+    ("CELL_ENERGY_DENSITY",       "Energy Density",                    "Physical",   "Wh/kg"),
+    ("CELL_CYCLE_LIFE",           "Cycle Life",                        "Performance","cycles"),
+]
+
+# Map common keyword-extractor codes to our 19 standard codes
+_KEYWORD_CODE_ALIASES = {
+    "CELL_FORM":                "CELL_TYPE",
+    "CELL_CHEMISTRY":           "CELL_CHEMISTRY",
+    "CELL_MODEL":               "CELL_MODEL",
+    "CELL_CAPACITY_AH":         "CELL_NOM_CAPACITY",
+    "CELL_NOM_CAPACITY":        "CELL_NOM_CAPACITY",
+    "CELL_VOLTAGE_V":           "CELL_NOM_VOLTAGE",
+    "CELL_NOM_VOLTAGE":         "CELL_NOM_VOLTAGE",
+    "CELL_ENERGY_WH":           "CELL_NOM_ENERGY",
+    "CELL_NOM_ENERGY":          "CELL_NOM_ENERGY",
+    "CELL_DISCHARGE_CUTOFF_V":  "CELL_DISCHARGE_CUTOFF",
+    "CELL_DISCHARGE_CUTOFF":    "CELL_DISCHARGE_CUTOFF",
+    "CELL_CHARGE_CUTOFF_V":     "CELL_OPER_VOLT_RANGE",
+    "CELL_IR_AC_MOHM":          "CELL_AC_IMPEDANCE",
+    "CELL_AC_IMPEDANCE":        "CELL_AC_IMPEDANCE",
+    "CELL_MAX_CHARGE_A":        "CELL_MAX_CHG_CURR",
+    "CELL_MAX_DISCHARGE_A":     "CELL_MAX_DIS_CURR",
+    "CELL_MAX_CHG_CURR":        "CELL_MAX_CHG_CURR",
+    "CELL_MAX_DIS_CURR":        "CELL_MAX_DIS_CURR",
+    "CELL_STD_CHG_CURR":        "CELL_STD_CHG_CURR",
+    "CELL_CHARGE_TEMP_MIN":     "CELL_CHG_TEMP",
+    "CELL_CHARGE_TEMP_MAX":     "CELL_CHG_TEMP",
+    "CELL_CHG_TEMP":            "CELL_CHG_TEMP",
+    "CELL_DISCHARGE_TEMP_MIN":  "CELL_DIS_TEMP",
+    "CELL_DISCHARGE_TEMP_MAX":  "CELL_DIS_TEMP",
+    "CELL_DIS_TEMP":            "CELL_DIS_TEMP",
+    "CELL_STORAGE_TEMP_MIN":    "CELL_STORAGE_TEMP",
+    "CELL_STORAGE_TEMP_MAX":    "CELL_STORAGE_TEMP",
+    "CELL_STORAGE_TEMP":        "CELL_STORAGE_TEMP",
+    "CELL_LENGTH_MM":           "CELL_DIMENSIONS",
+    "CELL_WIDTH_MM":            "CELL_DIMENSIONS",
+    "CELL_HEIGHT_MM":           "CELL_DIMENSIONS",
+    "CELL_DIMENSIONS":          "CELL_DIMENSIONS",
+    "CELL_WEIGHT_KG":           "CELL_WEIGHT",
+    "CELL_WEIGHT":              "CELL_WEIGHT",
+    "CELL_ENERGY_DENSITY_WH_KG":"CELL_ENERGY_DENSITY",
+    "CELL_ENERGY_DENSITY":      "CELL_ENERGY_DENSITY",
+    "CELL_CYCLE_LIFE":          "CELL_CYCLE_LIFE",
+}
+
+
+def _normalize_to_cell_19(raw_results: list) -> list:
+    """Filter & remap an arbitrary list of cell specs down to exactly the 19
+    standard parameters. Missing fields are added with value="N/A"."""
+    extracted = {}  # std_code -> {value, unit}
+    for r in raw_results:
+        raw_code = (r.get("code") or "").upper()
+        std_code = _KEYWORD_CODE_ALIASES.get(raw_code)
+        if not std_code or std_code in extracted:
+            continue
+        extracted[std_code] = {
+            "value": str(r.get("value", "") or "").strip() or "N/A",
+            "unit": r.get("unit") or "",
+        }
+    # Range parameters: merge MIN/MAX pairs if both present
+    pairs = [
+        ("CELL_CHG_TEMP", "CELL_CHARGE_TEMP_MIN", "CELL_CHARGE_TEMP_MAX"),
+        ("CELL_DIS_TEMP", "CELL_DISCHARGE_TEMP_MIN", "CELL_DISCHARGE_TEMP_MAX"),
+        ("CELL_STORAGE_TEMP", "CELL_STORAGE_TEMP_MIN", "CELL_STORAGE_TEMP_MAX"),
+    ]
+    raw_by_code = {(r.get("code") or "").upper(): r for r in raw_results}
+    for std, lo_code, hi_code in pairs:
+        lo = raw_by_code.get(lo_code)
+        hi = raw_by_code.get(hi_code)
+        if lo and hi:
+            extracted[std] = {"value": f"{lo.get('value','')} to {hi.get('value','')}", "unit": "°C"}
+    # Dimensions: combine L × W × H if separately present
+    dims = [raw_by_code.get(c) for c in ("CELL_LENGTH_MM", "CELL_WIDTH_MM", "CELL_HEIGHT_MM")]
+    if all(dims):
+        l, w, h = (str(d.get("value", "")) for d in dims)
+        extracted["CELL_DIMENSIONS"] = {"value": f"{l} × {w} × {h}", "unit": "mm"}
+    # Build final 19-param list in fixed order
+    out = []
+    for code, name, section, unit in CELL_19_PARAM_SCHEMA:
+        e = extracted.get(code, {"value": "N/A", "unit": unit})
+        out.append({
+            "code": code,
+            "name": name,
+            "value": e["value"],
+            "unit": e["unit"] or unit,
+            "section": section,
+            "status": "pass" if e["value"] != "N/A" else "missing",
+            "verified": e["value"] != "N/A",
+        })
+    return out
+
+
 def extract_from_datasheet(contents: bytes, filename: str, category: str) -> list:
-    """Extract specs from datasheet, check compliance against industry thresholds,
-    and flag missing required parameters."""
+    """Extract specs from datasheet. For category=Cell, always returns exactly
+    the 19 standard parameters; missing values are filled with 'N/A'."""
     text = extract_text_from_file(contents, filename)
     if not text:
-        return []
+        # Even on failure, return the 19-param skeleton for Cell
+        return _normalize_to_cell_19([]) if category == "Cell" else []
 
     print(f"[Datasheet] Keyword extraction for {category} ({len(text)} chars)...")
     results = extract_specs_keyword(text, category)
 
-    # Real compliance checking — compare values against thresholds
+    if category == "Cell":
+        # Strict 19-param schema (no extras, fill missing with N/A)
+        results = _normalize_to_cell_19(results)
+        print(f"[Datasheet] Cell normalized: {len(results)} specs (always 19); "
+              f"{sum(1 for r in results if r.get('verified'))} found, "
+              f"{sum(1 for r in results if not r.get('verified'))} N/A")
+        return results
+
+    # For non-Cell categories, keep the exhaustive behavior
     results = _check_compliance(results, category)
-
-    # Flag missing required specs/certs
     results = _add_missing_required(results, category)
-
     verified = sum(1 for p in results if p.get("verified"))
     missing = sum(1 for p in results if not p.get("verified"))
     print(f"[Datasheet] {len(results)} specs: {verified} verified, {missing} missing")
