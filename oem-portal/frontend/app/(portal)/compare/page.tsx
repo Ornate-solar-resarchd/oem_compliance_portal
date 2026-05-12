@@ -222,53 +222,62 @@ export default function ComparePage() {
               className="pl-10" />
           </div>
 
-          {/* Models grouped by OEM — horizontal strip */}
-          <Card>
-            <CardHeader className="pb-3 flex flex-row items-center justify-between">
+          {/* Models grouped by OEM — large horizontal strip at top */}
+          <Card className="shadow-sm border-slate-200">
+            <CardHeader className="pb-4 flex flex-row items-center justify-between border-b border-slate-100">
               <div>
-                <CardTitle className="text-sm font-semibold text-slate-700">Select Models</CardTitle>
-                <CardDescription className="text-xs text-slate-500">
-                  {selectedIds.size > 0 ? `${selectedIds.size} selected · scroll horizontally to see all OEMs` : "Click any model to add it to the comparison"}
+                <CardTitle className="text-lg font-bold text-slate-800">Select Models to Compare</CardTitle>
+                <CardDescription className="text-sm text-slate-500 mt-1">
+                  {selectedIds.size > 0
+                    ? `${selectedIds.size} selected — scroll → for more OEMs`
+                    : "Click any model card below — pick 2 or more to start comparing"}
                 </CardDescription>
               </div>
               {selectedIds.size > 0 && (
-                <Button size="sm" variant="outline" onClick={() => setSelectedIds(new Set())} className="text-xs">
-                  <X className="h-3 w-3 mr-1" /> Clear all
+                <Button size="default" variant="outline" onClick={() => setSelectedIds(new Set())}>
+                  <X className="h-4 w-4 mr-1.5" /> Clear All
                 </Button>
               )}
             </CardHeader>
-            <CardContent>
-              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+            <CardContent className="pt-5">
+              <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-thin">
                 {Array.from(modelsByOEM.entries()).map(([oem, models]) => {
                   const info = OEM_INFO[oem] || { color: "from-slate-500 to-slate-600", website: "#", country: "—", logo: oem[0] }
                   const allSelected = models.every(m => selectedIds.has(m.id))
+                  const someSelected = models.some(m => selectedIds.has(m.id))
                   return (
-                    <div key={oem} className="flex-shrink-0 w-[210px] border border-slate-200 rounded-xl overflow-hidden bg-white">
-                      <div className="flex items-center gap-2 px-3 py-2.5 bg-slate-50 border-b border-slate-100">
-                        <div className={cn("w-6 h-6 rounded bg-gradient-to-br flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0", info.color)}>
+                    <div key={oem} className={cn(
+                      "flex-shrink-0 w-[280px] border-2 rounded-2xl overflow-hidden bg-white transition-all",
+                      someSelected ? "border-brand shadow-md" : "border-slate-200 hover:border-slate-300"
+                    )}>
+                      <div className="flex items-center gap-3 px-4 py-3.5 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
+                        <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center text-white text-base font-bold shadow-sm flex-shrink-0", info.color)}>
                           {info.logo}
                         </div>
-                        <span className="text-xs font-semibold text-slate-800 flex-1 truncate">{oem}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-base font-bold text-slate-800 truncate">{oem}</div>
+                          <div className="text-xs text-slate-400">{models.length} model{models.length !== 1 ? "s" : ""}</div>
+                        </div>
                         <button onClick={() => selectAllFromOEM(oem)}
-                          className={cn("text-[10px] font-medium px-1.5 py-0.5 rounded transition-colors flex-shrink-0",
-                            allSelected ? "bg-brand/10 text-brand" : "text-slate-500 hover:bg-slate-200")}>
+                          className={cn("text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors flex-shrink-0",
+                            allSelected ? "bg-brand text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200")}>
                           {allSelected ? "Clear" : "All"}
                         </button>
                       </div>
-                      <div className="max-h-[260px] overflow-y-auto">
+                      <div className="max-h-[360px] overflow-y-auto">
                         {models.map(model => {
                           const isSelected = selectedIds.has(model.id)
                           return (
                             <button key={model.id} onClick={() => toggleModel(model.id)}
-                              className={cn("w-full flex items-center gap-2 px-3 py-2 text-left transition-all border-b border-slate-50 last:border-0",
-                                isSelected ? "bg-brand-50/40" : "hover:bg-slate-50")}>
-                              <div className={cn("w-3.5 h-3.5 rounded border-2 flex items-center justify-center flex-shrink-0",
+                              className={cn("w-full flex items-center gap-3 px-4 py-3 text-left transition-all border-b border-slate-50 last:border-0",
+                                isSelected ? "bg-brand-50/60 border-l-4 border-l-brand" : "hover:bg-slate-50")}>
+                              <div className={cn("w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0",
                                 isSelected ? "bg-brand border-brand text-white" : "border-slate-300")}>
-                                {isSelected && <Check className="h-2 w-2" />}
+                                {isSelected && <Check className="h-3 w-3" />}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="text-xs font-medium text-slate-800 truncate">{model.model_name}</div>
-                                <div className="text-[10px] text-slate-400 truncate">{model.sku}</div>
+                                <div className="text-sm font-semibold text-slate-800 truncate">{model.model_name}</div>
+                                <div className="text-xs text-slate-400 truncate">{model.sku}</div>
                               </div>
                             </button>
                           )
