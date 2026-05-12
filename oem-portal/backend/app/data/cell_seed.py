@@ -55,7 +55,8 @@ CELL_COMPONENTS_BASE = [
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/CATL_BESS/CATL Tener R2-S070 Interface of BESS Specification.pdf"},
     # ── Lishen ──
     {"id": "comp-lishen-314", "oem_id": "oem-lishen", "oem_name": "Lishen",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Lishen_BESS/Cell%20Data/Lishen_314Ah_CellSpec.pdf",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Lishen_BESS/Datasheets/Lishen-LFP-314Ah-Cell-Datasheet.png",
+        "datasheet": "Lishen-LFP-314Ah-Cell-Datasheet.png",
      "model_name": "Lishen LFP 314Ah", "sku": "LP71173207-314Ah", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "Lishen_314Ah_CellSpec.pdf",
@@ -67,6 +68,11 @@ CELL_COMPONENTS_BASE = [
      "is_active": True,
      "datasheet": "5MWh-System Manual_ESD1331.pdf",
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/Gotion_BESS/5MWh-System Manual_ESD1331-05P5015_2024.06.24_CE_V1.0 (1).pdf"},
+    {"id": "comp-gotion-314", "oem_id": "oem-gotion", "oem_name": "Gotion High-Tech",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Gotion_BESS/Datasheets/Gotion-LFP-314Ah-Cell-Datasheet.png",
+     "model_name": "Gotion LFP 314Ah", "sku": "GTN-314", "component_type_name": "Cell",
+     "is_active": True,
+     "datasheet": "Gotion-LFP-314Ah-Cell-Datasheet.png"},
     # ── HiTHIUM ──
     {"id": "comp-hithium-280-1p", "oem_id": "oem-hithium", "oem_name": "HiTHIUM",
         "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Hithium_09.01.26/Datasheets/HiTHIUM-LFP-280Ah-Cell-Datasheet.pdf",
@@ -75,7 +81,8 @@ CELL_COMPONENTS_BASE = [
      "datasheet": "HiTHIUM corporate presentation_251121.pdf",
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/Hithium_09.01.26/HiTHIUM corporate presentation_251121.pdf"},
     {"id": "comp-hithium-314", "oem_id": "oem-hithium", "oem_name": "HiTHIUM",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Hithium_09.01.26/Datasheets/HiTHIUM-LFP-314Ah-Cell-Datasheet.pdf",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Hithium_09.01.26/Datasheets/HiTHIUM-LFP-314Ah-Cell-Datasheet.png",
+        "datasheet": "HiTHIUM-LFP-314Ah-Cell-Datasheet.png",
      "model_name": "HiTHIUM LFP 314Ah", "sku": "HTL-LF314", "component_type_name": "Cell",
      "is_active": True,
      "datasheet": "HiTHIUM corporate presentation_251121.pdf",
@@ -188,6 +195,34 @@ def _cell_base(cap_ah, voltage, energy_wh, v_min, v_max, cycle_life, eol_pct,
     if tr_onset:       params.append(_p("CELL_TR_ONSET",        "Thermal Runaway Onset", str(tr_onset),     "C",       "Safety"))
     return params
 
+
+def _cell_19_specs(model, capacity, energy, ac_imp, std_chg, max_chg, max_dis,
+                  dimensions, weight, energy_density, cycle_life):
+    """Standardised 19-parameter spec list, used across all OEM cell models for
+    consistent comparison."""
+    return [
+        _p("CELL_TYPE",              "Cell Type",                       "Prismatic",                   "",       "General"),
+        _p("CELL_CHEMISTRY",         "Chemistry",                       "LFP",                         "",       "General"),
+        _p("CELL_MODEL",             "Cell Model",                      model,                         "",       "General"),
+        _p("CELL_NOM_CAPACITY",      "Nominal Capacity",                str(capacity),                 "Ah",     "Electrical"),
+        _p("CELL_NOM_VOLTAGE",       "Nominal Voltage",                 "3.2",                         "V",      "Electrical"),
+        _p("CELL_NOM_ENERGY",        "Nominal Energy",                  str(energy),                   "Wh",     "Electrical"),
+        _p("CELL_OPER_VOLT_RANGE",   "Operating Voltage Range",         "2.5 to 3.65",                 "V",      "Electrical"),
+        _p("CELL_DISCHARGE_CUTOFF",  "Discharge Cutoff Voltage",        "2.5",                         "V",      "Electrical"),
+        _p("CELL_AC_IMPEDANCE",      "AC Impedance",                    ac_imp,                        "mΩ",     "Electrical"),
+        _p("CELL_STD_CHG_CURR",      "Standard Charge Current",         std_chg,                       "A",      "Electrical"),
+        _p("CELL_MAX_CHG_CURR",      "Max Continuous Charge Current",   max_chg,                       "A",      "Electrical"),
+        _p("CELL_MAX_DIS_CURR",      "Max Continuous Discharge Current", max_dis,                      "A",      "Electrical"),
+        _p("CELL_CHG_TEMP",          "Charge Temperature",              "0 to 60",                     "°C",     "Thermal"),
+        _p("CELL_DIS_TEMP",          "Discharge Temperature",           "-30 to 60",                   "°C",     "Thermal"),
+        _p("CELL_STORAGE_TEMP",      "Storage Temperature",             "-20 to 35",                   "°C",     "Thermal"),
+        _p("CELL_DIMENSIONS",        "Dimensions (W × L × H)",          dimensions,                    "mm",     "Physical"),
+        _p("CELL_WEIGHT",            "Weight",                          weight,                        "kg",     "Physical"),
+        _p("CELL_ENERGY_DENSITY",    "Energy Density",                  energy_density,                "Wh/kg",  "Physical"),
+        _p("CELL_CYCLE_LIFE",        "Cycle Life",                      cycle_life,                    "cycles", "Performance"),
+    ]
+
+
 # ── CATL 280Ah (LF280K) — 19-param schema with real datasheet values ──
 _CATL_280 = _cell_19_specs(
     model="LF280K",
@@ -235,14 +270,28 @@ _CATL_565 = _cell_19_specs(
     energy_density="180", cycle_life="6000+",
 )
 
-# ── Lishen 314Ah ──
-_LISHEN_314 = _cell_19_specs(
-    model="LP71173207-314Ah",
-    capacity=314, energy=1004.8, ac_imp="0.17",
-    std_chg="157", max_chg="157", max_dis="314",
-    dimensions="173.8 × 71.5 × 207.2", weight="5.6",
-    energy_density="170.9", cycle_life="8000+",
-)
+# ── Lishen 314Ah (from datasheet Table 3-1) ──
+_LISHEN_314 = [
+    _p("CELL_TYPE",              "Cell Type",                         "Prismatic",                        "",       "General"),
+    _p("CELL_CHEMISTRY",         "Chemistry",                         "Lithium iron phosphate (LFP)",     "",       "General"),
+    _p("CELL_MODEL",             "Cell Model",                        "LP71173207-314Ah",                 "",       "General"),
+    _p("CELL_NOM_CAPACITY",      "Nominal Capacity",                  "314",                              "Ah",     "Electrical"),
+    _p("CELL_NOM_VOLTAGE",       "Nominal Voltage",                   "3.2",                              "V",      "Electrical"),
+    _p("CELL_NOM_ENERGY",        "Nominal Energy",                    "1004.8",                           "Wh",     "Electrical"),
+    _p("CELL_OPER_VOLT_RANGE",   "Operating Voltage Range",           "2.5 to 3.65 (T>0°C); 2.0 to 3.65 (T≤0°C)", "V", "Electrical"),
+    _p("CELL_DISCHARGE_CUTOFF",  "Discharge Cutoff Voltage",          "2.5",                              "V",      "Electrical"),
+    _p("CELL_AC_IMPEDANCE",      "AC Impedance (1 kHz, 25°C, 25% SOC)", "0.17 ± 0.05",                    "mΩ",     "Electrical"),
+    _p("CELL_STD_CHG_CURR",      "Standard Charge Current",           "157",                              "A",      "Electrical"),
+    _p("CELL_MAX_CHG_CURR",      "Max Continuous Charge Current",     "157",                              "A",      "Electrical"),
+    _p("CELL_MAX_DIS_CURR",      "Max Continuous Discharge Current",  "314",                              "A",      "Electrical"),
+    _p("CELL_CHG_TEMP",          "Charge Temperature",                "0 to 60",                          "°C",     "Thermal"),
+    _p("CELL_DIS_TEMP",          "Discharge Temperature",             "-30 to 60",                        "°C",     "Thermal"),
+    _p("CELL_STORAGE_TEMP",      "Storage Temperature",               "-20 to 35",                        "°C",     "Thermal"),
+    _p("CELL_DIMENSIONS",        "Dimensions (W × L × H)",            "173.8±0.5 × 71.5±0.5 × 207.2±0.5", "mm",     "Physical"),
+    _p("CELL_WEIGHT",            "Weight",                            "5.6 ± 0.20",                       "kg",     "Physical"),
+    _p("CELL_ENERGY_DENSITY",    "Energy Density",                    "175.4",                            "Wh/kg",  "Physical"),
+    _p("CELL_CYCLE_LIFE",        "Cycle Life (@70% SOH, 0.5C)",       "8000+",                            "cycles", "Performance"),
+]
 
 # ── Gotion 280Ah ──
 _GOTION_280 = _cell_19_specs(
@@ -253,31 +302,14 @@ _GOTION_280 = _cell_19_specs(
     energy_density="163.5", cycle_life="8000+",
 )
 
-# ─── HiTHIUM Cells — Custom 19-param spec lists (consistent across 280/314/587) ───
-
-def _cell_19_specs(model, capacity, energy, ac_imp, std_chg, max_chg, max_dis,
-                  dimensions, weight, energy_density, cycle_life):
-    return [
-        _p("CELL_TYPE",              "Cell Type",                       "Prismatic",                   "",       "General"),
-        _p("CELL_CHEMISTRY",         "Chemistry",                       "LFP",                         "",       "General"),
-        _p("CELL_MODEL",             "Cell Model",                      model,                         "",       "General"),
-        _p("CELL_NOM_CAPACITY",      "Nominal Capacity",                str(capacity),                 "Ah",     "Electrical"),
-        _p("CELL_NOM_VOLTAGE",       "Nominal Voltage",                 "3.2",                         "V",      "Electrical"),
-        _p("CELL_NOM_ENERGY",        "Nominal Energy",                  str(energy),                   "Wh",     "Electrical"),
-        _p("CELL_OPER_VOLT_RANGE",   "Operating Voltage Range",         "2.5 to 3.65",                 "V",      "Electrical"),
-        _p("CELL_DISCHARGE_CUTOFF",  "Discharge Cutoff Voltage",        "2.5",                         "V",      "Electrical"),
-        _p("CELL_AC_IMPEDANCE",      "AC Impedance",                    ac_imp,                        "mΩ",     "Electrical"),
-        _p("CELL_STD_CHG_CURR",      "Standard Charge Current",         std_chg,                       "A",      "Electrical"),
-        _p("CELL_MAX_CHG_CURR",      "Max Continuous Charge Current",   max_chg,                       "A",      "Electrical"),
-        _p("CELL_MAX_DIS_CURR",      "Max Continuous Discharge Current", max_dis,                      "A",      "Electrical"),
-        _p("CELL_CHG_TEMP",          "Charge Temperature",              "0 to 60",                     "°C",     "Thermal"),
-        _p("CELL_DIS_TEMP",          "Discharge Temperature",           "-30 to 60",                   "°C",     "Thermal"),
-        _p("CELL_STORAGE_TEMP",      "Storage Temperature",             "-20 to 35",                   "°C",     "Thermal"),
-        _p("CELL_DIMENSIONS",        "Dimensions (W × L × H)",          dimensions,                    "mm",     "Physical"),
-        _p("CELL_WEIGHT",            "Weight",                          weight,                        "kg",     "Physical"),
-        _p("CELL_ENERGY_DENSITY",    "Energy Density",                  energy_density,                "Wh/kg",  "Physical"),
-        _p("CELL_CYCLE_LIFE",        "Cycle Life",                      cycle_life,                    "cycles", "Performance"),
-    ]
+# ── Gotion 314Ah (from DNV Battery Component Evaluation report) ──
+_GOTION_314 = _cell_19_specs(
+    model="Gotion 314Ah",
+    capacity=314, energy=1004.8, ac_imp="0.25 ± 0.05",
+    std_chg="157", max_chg="314", max_dis="314",
+    dimensions="173.7 × 71.7 × 207.2", weight="5.85",
+    energy_density="175", cycle_life="10000+",
+)
 
 # ── HiTHIUM 280Ah 1P ──
 _HITHIUM_280_1P = _cell_19_specs(
@@ -423,6 +455,7 @@ CELL_PARAMETERS_BASE = {
     "comp-catl-565":       _CATL_565,
     "comp-lishen-314":     _LISHEN_314,
     "comp-gotion-280":     _GOTION_280,
+    "comp-gotion-314":     _GOTION_314,
     "comp-hithium-280-1p": _HITHIUM_280_1P,
     "comp-hithium-314":    _HITHIUM_314,
     "comp-hithium-587":    _HITHIUM_587,
