@@ -12,17 +12,32 @@ import re
 import io
 
 CATEGORY_PROMPTS = {
-    "Cell": """Extract ALL battery cell technical specifications:
-- Nominal Capacity (Ah), Nominal Voltage (V), Energy (Wh/kWh)
-- Internal Resistance (mΩ), Cycle Life, Calendar Life
-- Max Charge/Discharge Rate (C-rate), Max Current (A)
-- Weight (kg), Dimensions (L×W×H mm), Energy Density (Wh/kg)
-- Operating Temperature range (charge/discharge/storage)
-- Chemistry (LFP/NMC/etc), Form Factor (Prismatic/Cylindrical/Pouch/Blade)
-- Certifications (IEC 62619, UL 1973, UN 38.3, BIS, UL 9540A)
-- Self-discharge rate, Coulombic efficiency, Round-trip efficiency
-- EOL capacity retention, SOC operating range
-- Any other specs mentioned""",
+    "Cell": """Extract ONLY these 19 battery cell parameters — do NOT include any others.
+Output exactly one item per parameter below, in this exact order, using the exact
+"code" and "name" strings shown. If a value is missing from the datasheet, set
+value to "N/A" — do not skip the parameter, do not add extra parameters.
+
+1.  code=CELL_TYPE               name="Cell Type"                        section=General     unit=""        (e.g. "Prismatic")
+2.  code=CELL_CHEMISTRY          name="Chemistry"                        section=General     unit=""        (e.g. "LFP")
+3.  code=CELL_MODEL              name="Cell Model"                       section=General     unit=""        (model number / part code)
+4.  code=CELL_NOM_CAPACITY       name="Nominal Capacity"                 section=Electrical  unit="Ah"
+5.  code=CELL_NOM_VOLTAGE        name="Nominal Voltage"                  section=Electrical  unit="V"
+6.  code=CELL_NOM_ENERGY         name="Nominal Energy"                   section=Electrical  unit="Wh"
+7.  code=CELL_OPER_VOLT_RANGE    name="Operating Voltage Range"          section=Electrical  unit="V"        (e.g. "2.5 to 3.65")
+8.  code=CELL_DISCHARGE_CUTOFF   name="Discharge Cutoff Voltage"         section=Electrical  unit="V"
+9.  code=CELL_AC_IMPEDANCE       name="AC Impedance"                     section=Electrical  unit="mΩ"
+10. code=CELL_STD_CHG_CURR       name="Standard Charge Current"          section=Electrical  unit="A"
+11. code=CELL_MAX_CHG_CURR       name="Max Continuous Charge Current"    section=Electrical  unit="A"
+12. code=CELL_MAX_DIS_CURR       name="Max Continuous Discharge Current" section=Electrical  unit="A"
+13. code=CELL_CHG_TEMP           name="Charge Temperature"               section=Thermal     unit="°C"      (e.g. "0 to 60")
+14. code=CELL_DIS_TEMP           name="Discharge Temperature"            section=Thermal     unit="°C"
+15. code=CELL_STORAGE_TEMP       name="Storage Temperature"              section=Thermal     unit="°C"
+16. code=CELL_DIMENSIONS         name="Dimensions (W × L × H)"           section=Physical    unit="mm"
+17. code=CELL_WEIGHT             name="Weight"                           section=Physical    unit="kg"
+18. code=CELL_ENERGY_DENSITY     name="Energy Density"                   section=Physical    unit="Wh/kg"
+19. code=CELL_CYCLE_LIFE         name="Cycle Life"                       section=Performance unit="cycles"
+
+Return exactly 19 items, no more, no less.""",
 
     "DC Block": """Extract ALL DC Block / Battery Container / DC System specifications:
 - Rated Energy (kWh/MWh), Rated Power (kW/MW)
@@ -204,7 +219,31 @@ def extract_specs_with_gemini(text: str, category: str, api_key: str) -> list:
 
         category_prompt = CATEGORY_PROMPTS.get(category, CATEGORY_PROMPTS["Cell"])
 
-        prompt = f"""You are an expert BESS (Battery Energy Storage System) technical engineer.
+        if category == "Cell":
+            # Strict 19-parameter Cell prompt — no exhaustive extraction.
+            prompt = f"""You are an expert BESS technical engineer reviewing a battery cell datasheet.
+
+Extract ONLY the 19 specific parameters listed below — no more, no less. Each
+parameter must appear in the output exactly once, with the exact "code" and
+"name" strings provided. If a value is not found in the datasheet, use the
+string "N/A" — do NOT omit the parameter and do NOT invent values.
+
+{category_prompt}
+
+DATASHEET TEXT:
+{text[:40000]}
+
+Return a JSON array of EXACTLY 19 objects in the order shown above. Each object:
+- "name":    exact name string from the list above
+- "code":    exact code string from the list above
+- "value":   the extracted value as a plain string (or "N/A" if missing)
+- "unit":    exact unit string from the list above
+- "section": exact section string from the list above
+- "status":  "pass"
+
+Return ONLY the JSON array. Start with [ end with ]."""
+        else:
+            prompt = f"""You are an expert BESS (Battery Energy Storage System) technical engineer.
 Your job: Extract EVERY SINGLE technical specification, parameter, value, rating, and measurement from this {category} datasheet.
 
 BE EXHAUSTIVE. Extract EVERYTHING — even minor specs. The goal is to capture 30-50+ parameters minimum.
@@ -263,7 +302,30 @@ def extract_specs_with_claude(text: str, category: str, api_key: str) -> list:
 
         category_prompt = CATEGORY_PROMPTS.get(category, CATEGORY_PROMPTS["Cell"])
 
-        prompt = f"""You are an expert BESS technical engineer. Extract EVERY technical specification from this {category} datasheet.
+        if category == "Cell":
+            prompt = f"""You are an expert BESS technical engineer reviewing a battery cell datasheet.
+
+Extract ONLY the 19 specific parameters listed below — no more, no less. Each
+parameter must appear in the output exactly once, with the exact "code" and
+"name" strings provided. If a value is not found in the datasheet, use the
+string "N/A". Do NOT include extra parameters.
+
+{category_prompt}
+
+DATASHEET TEXT:
+{text[:40000]}
+
+Return a JSON array of EXACTLY 19 objects (in the order shown above). Each object:
+- "name":    exact name string from the list
+- "code":    exact code string from the list
+- "value":   extracted value as plain string (or "N/A" if missing)
+- "unit":    exact unit string from the list
+- "section": exact section string from the list
+- "status":  "pass"
+
+Return ONLY the JSON array."""
+        else:
+            prompt = f"""You are an expert BESS technical engineer. Extract EVERY technical specification from this {category} datasheet.
 
 BE EXHAUSTIVE — extract 30-50+ parameters minimum.
 
