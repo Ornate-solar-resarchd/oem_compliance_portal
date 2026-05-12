@@ -162,11 +162,6 @@ export default function OEMDetailPage() {
       {/* ---- Hero Section ---- */}
       <div className="rounded-xl border bg-gradient-to-br from-background to-muted/30 p-6 md:p-8">
         <div className="flex flex-col md:flex-row items-start gap-6">
-          {/* Score ring */}
-          <div className="shrink-0">
-            <ScoreRing score={oem.avg_compliance_score} size={100} />
-          </div>
-
           {/* Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 flex-wrap">
@@ -210,27 +205,11 @@ export default function OEMDetailPage() {
               )}
             </div>
 
-            {/* Summary stats */}
+            {/* Summary stats — simplified, no score/percent */}
             <div className="flex gap-6 mt-5">
               <div>
                 <p className="text-xs text-muted-foreground uppercase tracking-wider">Models</p>
                 <p className="text-2xl font-bold">{oem.model_count}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">
-                  Avg Compliance
-                </p>
-                <p className={cn("text-2xl font-bold", scoreColor(oem.avg_compliance_score))}>
-                  {formatNumber(oem.avg_compliance_score)}%
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">
-                  OEM Score
-                </p>
-                <p className={cn("text-2xl font-bold", scoreColor(oem.score))}>
-                  {formatNumber(oem.score)}
-                </p>
               </div>
             </div>
           </div>
@@ -265,27 +244,6 @@ export default function OEMDetailPage() {
                     </p>
                   </div>
 
-                  <div className="w-48 shrink-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-muted-foreground">Compliance</span>
-                      <span
-                        className={cn(
-                          "text-xs font-semibold",
-                          scoreColor(model.compliance_score)
-                        )}
-                      >
-                        {formatNumber(model.compliance_score)}%
-                      </span>
-                    </div>
-                    <Progress value={model.compliance_score} className="h-2" />
-                  </div>
-
-                  <div className="w-20 text-right shrink-0">
-                    <p className="text-xs text-muted-foreground">Fill Rate</p>
-                    <p className="text-sm font-medium">
-                      {formatNumber(model.fill_rate * 100)}%
-                    </p>
-                  </div>
                 </div>
               ))}
             </div>
@@ -298,7 +256,7 @@ export default function OEMDetailPage() {
       </Card>
 
       {/* ---- Charts Section ---- */}
-      {charts && (
+      {false && charts && (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {/* Model Scores Bar Chart */}
           <Card className="xl:col-span-1">

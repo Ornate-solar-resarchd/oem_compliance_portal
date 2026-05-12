@@ -22,6 +22,8 @@ CELL_OEMS_BASE = [
      "website": "https://www.cornexenergy.com", "contact_email": "ess@cornexenergy.com"},
     {"id": "oem-csi", "name": "CSI Energy Storage", "country_of_origin": "Canada", "is_approved": False,
      "website": "https://www.csienergystorage.com", "contact_email": "ess@csiestorage.com"},
+    {"id": "oem-trinastorage", "name": "TrinaStorage", "country_of_origin": "China", "is_approved": True,
+     "website": "https://www.trinasolar.com/en-glb/energystorage", "contact_email": "trinastorage@trinasolar.com"},
 ]
 
 # ─── Component Models ───
@@ -126,6 +128,12 @@ CELL_COMPONENTS_BASE = [
         "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/CSI/Datasheets/CSI-LFP-314Ah-Cell-Datasheet.png",
         "datasheet": "CSI-LFP-314Ah-Cell-Datasheet.png",
      "model_name": "CSI LFP 314Ah", "sku": "CSI314", "component_type_name": "Cell",
+     "is_active": True},
+    # ── TrinaStorage ──
+    {"id": "comp-trinastorage-587", "oem_id": "oem-trinastorage", "oem_name": "TrinaStorage",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/TrinaStorage/Datasheets/TS73285214-587A-Cell-Datasheet.pdf",
+        "datasheet": "TS73285214-587A-Cell-Datasheet.pdf",
+     "model_name": "TrinaStorage 587Ah LFP", "sku": "TS73285214-587A", "component_type_name": "Cell",
      "is_active": True},
     # ── REPT Battero ──
     {"id": "comp-rept-280", "oem_id": "oem-rept", "oem_name": "REPT Battero",
@@ -468,6 +476,29 @@ _CSI_314 = [
     _p("CELL_CYCLE_LIFE",        "Cycle Performance (@60% SOH)",    "12000",                                    "cycles", "Performance"),
 ]
 
+# ── TrinaStorage 587Ah (from PDF datasheet) ──
+_TRINASTORAGE_587 = [
+    _p("CELL_TYPE",              "Cell Type",                       "Prismatic",                        "",       "General"),
+    _p("CELL_CHEMISTRY",         "Chemistry",                       "LFP",                              "",       "General"),
+    _p("CELL_MODEL",             "Cell Model",                      "TS73285214-587A",                  "",       "General"),
+    _p("CELL_NOM_CAPACITY",      "Nominal Capacity",                "587",                              "Ah",     "Electrical"),
+    _p("CELL_NOM_VOLTAGE",       "Nominal Voltage",                 "3.2",                              "V",      "Electrical"),
+    _p("CELL_NOM_ENERGY",        "Nominal Energy",                  "1878.4",                           "Wh",     "Electrical"),
+    _p("CELL_OPER_VOLT_RANGE",   "Operating Voltage Range",         "2.5 to 3.65 (T>0°C); 2.0 to 3.65 (T≤0°C)", "V", "Electrical"),
+    _p("CELL_DISCHARGE_CUTOFF",  "Discharge Cutoff Voltage",        "2.5 / 2.0",                        "V",      "Electrical"),
+    _p("CELL_AC_IMPEDANCE",      "AC Impedance (1 kHz)",            "0.17 ± 0.05",                      "mΩ",     "Electrical"),
+    _p("CELL_STD_CHG_CURR",      "Standard Charge Current (0.5P)",  "293.5",                            "A",      "Electrical"),
+    _p("CELL_MAX_CHG_CURR",      "Max Continuous Charge Current",   "None",                             "A",      "Electrical"),
+    _p("CELL_MAX_DIS_CURR",      "Max Continuous Discharge Current","None",                             "A",      "Electrical"),
+    _p("CELL_CHG_TEMP",          "Charge Temperature",              "None",                             "°C",     "Thermal"),
+    _p("CELL_DIS_TEMP",          "Discharge Temperature",           "None",                             "°C",     "Thermal"),
+    _p("CELL_STORAGE_TEMP",      "Storage Temperature",             "None",                             "°C",     "Thermal"),
+    _p("CELL_DIMENSIONS",        "Dimensions (W × L × H)",          "73.5 × 286.0 × 214.4",             "mm",     "Physical"),
+    _p("CELL_WEIGHT",            "Weight",                          "10.20 ± 0.40",                     "kg",     "Physical"),
+    _p("CELL_ENERGY_DENSITY",    "Energy Density",                  "184.0",                            "Wh/kg",  "Physical"),
+    _p("CELL_CYCLE_LIFE",        "Cycle Life",                      "≥ 12000",                          "cycles", "Performance"),
+]
+
 # ── REPT 280Ah ──
 _REPT_280 = _cell_19_specs(
     model="REPT 280Ah",
@@ -539,6 +570,7 @@ CELL_PARAMETERS_BASE = {
     "comp-svolt-350":      _SVOLT_350,
     "comp-cornex-314":     _CORNEX_314,
     "comp-csi-314":        _CSI_314,
+    "comp-trinastorage-587": _TRINASTORAGE_587,
     "comp-rept-280":       _REPT_280,
     "comp-rept-306":       _REPT_306,
     "comp-rept-314":       _REPT_314,
