@@ -9,6 +9,9 @@ import {
   getComponentParams,
   uploadDatasheet,
   getDashboardCharts,
+  addComponentParam,
+  editComponentParam,
+  deleteComponentParam,
 } from "@/lib/api";
 import { DriveFetcherModal } from "@/components/shared/drive-fetcher-modal";
 import { SplitDocumentViewer } from "@/components/shared/split-document-viewer";
@@ -67,6 +70,8 @@ import {
   FileUp,
   Eye,
   HardDrive,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -192,6 +197,53 @@ export default function OEMsPage() {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [modelParams, setModelParams] = useState<Record<string, Param[]>>({});
   const [loadingParams, setLoadingParams] = useState<Record<string, boolean>>({});
+
+  // ─── Custom parameter editor state ───
+  const [paramModal, setParamModal] = useState<{
+    componentId: string;
+    mode: "add" | "edit";
+    code: string;
+    name: string;
+    value: string;
+    unit: string;
+    section: string;
+  } | null>(null);
+  const [paramSaving, setParamSaving] = useState(false);
+
+  const reloadParamsFor = useCallback(async (componentId: string) => {
+    try {
+      const d = await getComponentParams(componentId);
+      setModelParams((p) => ({ ...p, [componentId]: d.items || [] }));
+    } catch (e) { console.error(e); }
+  }, []);
+
+  const handleSaveParam = async () => {
+    if (!paramModal) return;
+    const { componentId, mode, code, name, value, unit, section } = paramModal;
+    if (!name.trim() || !code.trim()) { alert("Code and name are required"); return; }
+    setParamSaving(true);
+    try {
+      if (mode === "add") {
+        await addComponentParam(componentId, { code: code.trim().toUpperCase(), name: name.trim(), value, unit, section });
+      } else {
+        await editComponentParam(componentId, code, { name: name.trim(), value, unit, section });
+      }
+      await reloadParamsFor(componentId);
+      setParamModal(null);
+    } catch (e: any) {
+      alert(e?.message || "Failed to save parameter");
+    } finally { setParamSaving(false); }
+  };
+
+  const handleDeleteParam = async (componentId: string, code: string, name: string) => {
+    if (!confirm(`Delete parameter "${name}"?`)) return;
+    try {
+      await deleteComponentParam(componentId, code);
+      await reloadParamsFor(componentId);
+    } catch (e: any) {
+      alert(e?.message || "Failed to delete");
+    }
+  };
 
   /* ── Add OEM Dialog ── */
   const [addOEMOpen, setAddOEMOpen] = useState(false);
@@ -1198,6 +1250,25 @@ export default function OEMsPage() {
                               </div>
                             )}
 
+                            {/* Add Parameter button (super_admin / admin only — UI for everyone for now) */}
+                            <div className="px-4 pt-3 -mb-1 flex justify-end">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-xs h-7 gap-1.5"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setParamModal({
+                                    componentId: comp.id,
+                                    mode: "add",
+                                    code: "", name: "", value: "", unit: "", section: "General",
+                                  });
+                                }}
+                              >
+                                <Plus className="h-3 w-3" /> Add Parameter
+                              </Button>
+                            </div>
+
                             {/* Parameter Tables by Section */}
                             <div className="p-4 space-y-4">
                               {Object.entries(grouped).map(([section, sectionParams]) => {
@@ -1218,15 +1289,10 @@ export default function OEMsPage() {
                                       <table className="w-full text-xs table-fixed">
                                         <thead>
                                           <tr className="bg-slate-50 border-b text-[10px] uppercase tracking-wider text-slate-400">
-                                            <th className="py-2 px-4 text-left font-semibold w-[40%]">
-                                              Parameter
-                                            </th>
-                                            <th className="py-2 px-4 text-right font-semibold w-[25%]">
-                                              Value
-                                            </th>
-                                            <th className="py-2 px-4 text-center font-semibold w-[35%]">
-                                              Verified
-                                            </th>
+                                            <th className="py-2 px-4 text-left font-semibold w-[35%]">Parameter</th>
+                                            <th className="py-2 px-4 text-right font-semibold w-[25%]">Value</th>
+                                            <th className="py-2 px-4 text-center font-semibold w-[20%]">Verified</th>
+                                            <th className="py-2 px-4 text-right font-semibold w-[20%]">Actions</th>
                                           </tr>
                                         </thead>
                                         <tbody>
@@ -1255,6 +1321,38 @@ export default function OEMsPage() {
                                                   ? <span className="text-[10px] text-amber-500 font-medium">Unverified</span>
                                                   : <span className="text-[10px] text-emerald-500 font-medium">Verified</span>
                                                 }
+                                              </td>
+                                              <td className="py-2 px-4">
+                                                <div className="flex items-center justify-end gap-1">
+                                                  <button
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      setParamModal({
+                                                        componentId: comp.id,
+                                                        mode: "edit",
+                                                        code: p.code,
+                                                        name: p.name,
+                                                        value: String(p.value ?? ""),
+                                                        unit: p.unit || "",
+                                                        section: section,
+                                                      });
+                                                    }}
+                                                    title="Edit"
+                                                    className="flex h-6 w-6 items-center justify-center rounded text-slate-400 hover:text-brand hover:bg-brand-50"
+                                                  >
+                                                    <Pencil className="h-3 w-3" />
+                                                  </button>
+                                                  <button
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      handleDeleteParam(comp.id, p.code, p.name);
+                                                    }}
+                                                    title="Delete"
+                                                    className="flex h-6 w-6 items-center justify-center rounded text-slate-400 hover:text-red-500 hover:bg-red-50"
+                                                  >
+                                                    <Trash2 className="h-3 w-3" />
+                                                  </button>
+                                                </div>
                                               </td>
                                             </tr>
                                           ))}
@@ -1294,6 +1392,102 @@ export default function OEMsPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* ── Add/Edit Parameter Modal ── */}
+      {paramModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => setParamModal(null)}
+        >
+          <div
+            className="mx-4 w-full max-w-md rounded-2xl bg-white shadow-2xl max-h-[90vh] overflow-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b p-5">
+              <div>
+                <h3 className="text-lg font-bold">{paramModal.mode === "add" ? "Add Parameter" : "Edit Parameter"}</h3>
+                <p className="text-xs text-slate-500">Custom parameter — persists across restarts</p>
+              </div>
+              <button
+                onClick={() => setParamModal(null)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-5 space-y-3">
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Code *</label>
+                <Input
+                  value={paramModal.code}
+                  onChange={(e) => setParamModal({ ...paramModal, code: e.target.value })}
+                  placeholder="e.g. CELL_VOLTAGE_NOM"
+                  disabled={paramModal.mode === "edit"}
+                  className="mt-1"
+                />
+                {paramModal.mode === "edit" && (
+                  <p className="text-[10px] text-slate-400 mt-1">Code cannot be changed</p>
+                )}
+              </div>
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Display Name *</label>
+                <Input
+                  value={paramModal.name}
+                  onChange={(e) => setParamModal({ ...paramModal, name: e.target.value })}
+                  placeholder="e.g. Nominal Voltage"
+                  className="mt-1"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Value</label>
+                  <Input
+                    value={paramModal.value}
+                    onChange={(e) => setParamModal({ ...paramModal, value: e.target.value })}
+                    placeholder="3.2"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Unit</label>
+                  <Input
+                    value={paramModal.unit}
+                    onChange={(e) => setParamModal({ ...paramModal, unit: e.target.value })}
+                    placeholder="V"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Section</label>
+                <select
+                  value={paramModal.section}
+                  onChange={(e) => setParamModal({ ...paramModal, section: e.target.value })}
+                  className="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                >
+                  <option>General</option>
+                  <option>Electrical</option>
+                  <option>Thermal</option>
+                  <option>Physical</option>
+                  <option>Performance</option>
+                  <option>Safety</option>
+                  <option>Origin</option>
+                </select>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <Button variant="outline" onClick={() => setParamModal(null)} className="flex-1">Cancel</Button>
+                <Button
+                  onClick={handleSaveParam}
+                  disabled={paramSaving || !paramModal.name.trim() || !paramModal.code.trim()}
+                  className="flex-1 bg-brand hover:bg-brand/90"
+                >
+                  {paramSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : (paramModal.mode === "add" ? "Add" : "Save")}
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
