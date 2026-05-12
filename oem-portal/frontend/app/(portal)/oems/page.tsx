@@ -12,6 +12,7 @@ import {
   addComponentParam,
   editComponentParam,
   deleteComponentParam,
+  deleteComponent,
 } from "@/lib/api";
 import { DriveFetcherModal } from "@/components/shared/drive-fetcher-modal";
 import { SplitDocumentViewer } from "@/components/shared/split-document-viewer";
@@ -989,7 +990,9 @@ export default function OEMsPage() {
                           className="flex items-center gap-4 p-4 cursor-pointer group"
                           onClick={() => toggleModelExpand(comp.id)}
                         >
-                          <ScoreRing score={comp.compliance_score} size={52} strokeWidth={4} />
+                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100">
+                            <Box className="h-5 w-5 text-slate-500" />
+                          </div>
                           <div className="flex-1 min-w-0">
                             <div className="text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
                               {comp.model_name}
@@ -1002,30 +1005,9 @@ export default function OEMsPage() {
                             </div>
                           </div>
 
-                          {/* Pass / Fail / Waived */}
-                          <div className="flex items-center gap-2.5 text-[10px]">
-                            <span className="flex items-center gap-1 text-emerald-600 font-semibold">
-                              <CheckCircle2 className="h-3 w-3" />
-                              {comp.pass}P
-                            </span>
-                            {comp.fail > 0 && (
-                              <span className="flex items-center gap-1 text-red-500 font-semibold">
-                                <XCircle className="h-3 w-3" />
-                                {comp.fail}F
-                              </span>
-                            )}
-                            {comp.waived > 0 && (
-                              <span className="flex items-center gap-1 text-amber-500 font-semibold">
-                                <AlertTriangle className="h-3 w-3" />
-                                {comp.waived}W
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Fill Rate */}
-                          <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                            Fill <Progress value={comp.fill_rate} className="h-1.5 w-12" />{" "}
-                            <span className="tabular-nums w-8 text-right">{comp.fill_rate}%</span>
+                          {/* Parameter count */}
+                          <div className="text-xs text-slate-400">
+                            {params.length || comp.parameters_count || 0} params
                           </div>
 
                           {/* Datasheet indicator */}
@@ -1035,6 +1017,25 @@ export default function OEMsPage() {
                               <span className="max-w-[80px] truncate">{comp.datasheet}</span>
                             </div>
                           )}
+
+                          {/* Delete button (super_admin / admin) */}
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              if (!confirm(`Delete cell model "${comp.model_name}"? This cannot be undone.`)) return;
+                              try {
+                                await deleteComponent(comp.id);
+                                // Remove from local list
+                                setComponents((prev) => prev.filter((x) => x.id !== comp.id));
+                              } catch (err: any) {
+                                alert(err?.message || "Failed to delete");
+                              }
+                            }}
+                            title="Delete this cell model"
+                            className="flex h-7 w-7 items-center justify-center rounded-md text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
 
                           {/* Expand icon */}
                           {isLoadingP ? (
