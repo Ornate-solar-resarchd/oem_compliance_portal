@@ -11,12 +11,16 @@ CUSTOM_PARAMS_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 def _load_custom_params():
     """Load custom params from disk and merge into PARAMETERS dict.
-    Honors _deleted tombstones so removed-seed-params stay removed."""
+    Also honors deleted-components tombstones to remove cell models from COMPONENTS."""
     if not CUSTOM_PARAMS_PATH.exists():
         return
     try:
         overrides = json.loads(CUSTOM_PARAMS_PATH.read_text())
         deleted = overrides.pop("_deleted", {}) or {}
+        deleted_components = set(overrides.pop("_deleted_components", []) or [])
+        # Remove deleted component models from COMPONENTS list
+        if deleted_components:
+            COMPONENTS[:] = [c for c in COMPONENTS if c.get("id") not in deleted_components]
         # Strip deleted codes from seed defaults
         for comp_id, codes in deleted.items():
             if comp_id in PARAMETERS:
@@ -34,8 +38,6 @@ def _load_custom_params():
                 else:
                     existing.append(p)
             PARAMETERS[comp_id] = existing
-        # Put _deleted back for the writer (don't mutate file contents)
-        overrides["_deleted"] = deleted
     except Exception as e:
         print(f"[custom_params] load error: {e}")
 
@@ -96,14 +98,36 @@ async def upload_datasheet(
     file_size = len(contents)
     file_ext = (file.filename or "").rsplit(".", 1)[-1].lower()
 
-    # Save uploaded file to Google Drive so it's accessible later
-    from app.data.gdrive_upload import upload_to_gdrive
-    gdrive_result = await upload_to_gdrive(contents, file.filename or "datasheet.pdf")
+    # Save uploaded datasheet to MinIO (replaces broken GDrive upload)
     gdrive_url = ""
     gdrive_file_id = ""
-    if gdrive_result.get("success"):
-        gdrive_url = gdrive_result["file"]["url"]
-        gdrive_file_id = gdrive_result["file"]["id"]
+    try:
+        import boto3, uuid, re
+        s3 = boto3.client(
+            "s3",
+            endpoint_url=os.environ.get("MINIO_INTERNAL_ENDPOINT", "http://minio:9000"),
+            aws_access_key_id=os.environ.get("MINIO_ACCESS_KEY", "minioadmin"),
+            aws_secret_access_key=os.environ.get("MINIO_SECRET_KEY", "minioadmin"),
+        )
+        safe_filename = re.sub(r"[^a-zA-Z0-9._-]", "_", file.filename or f"datasheet-{uuid.uuid4().hex[:8]}.pdf")
+        # Folder structure: <category>/uploads/<uuid>-<filename>
+        key = f"{category}/uploads/{uuid.uuid4().hex[:8]}-{safe_filename}"
+        content_type_map = {
+            "pdf": "application/pdf",
+            "png": "image/png", "jpg": "image/jpeg", "jpeg": "image/jpeg",
+            "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "xls": "application/vnd.ms-excel",
+            "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        }
+        mime = content_type_map.get(file_ext, "application/octet-stream")
+        bucket = os.environ.get("MINIO_BUCKET", "compliance-docs")
+        s3.put_object(Bucket=bucket, Key=key, Body=contents, ContentType=mime)
+        # Public URL (CF-cached)
+        gdrive_url = f"https://minio.unityess.cloud/{bucket}/{key}"
+        print(f"[Upload] Datasheet saved to MinIO: {gdrive_url}")
+    except Exception as e:
+        print(f"[Upload] MinIO upload failed: {e}")
+        # Continue anyway — extraction still works without the file URL
 
     # Find or create OEM
     oem = next((o for o in OEMS if o["name"].lower() == oem_name.lower()), None)
@@ -202,6 +226,30 @@ async def get_component(component_id: str):
 async def get_component_params(component_id: str):
     params = PARAMETERS.get(component_id, [])
     return {"items": params, "total": len(params), "page": 1, "per_page": 50}
+
+
+@router.delete("/{component_id}")
+async def delete_component(component_id: str):
+    """Delete a component model. Persists the deletion across container restarts
+    via a tombstone in the custom_parameters.json override file."""
+    comp = next((c for c in COMPONENTS if c["id"] == component_id), None)
+    if not comp:
+        raise HTTPException(status_code=404, detail="Component not found")
+    # Persist tombstone
+    custom = _read_custom_file()
+    deleted = set(custom.get("_deleted_components", []) or [])
+    deleted.add(component_id)
+    custom["_deleted_components"] = sorted(deleted)
+    # Also drop any custom-param overrides for this component
+    if component_id in custom:
+        del custom[component_id]
+    if "_deleted" in custom and component_id in custom.get("_deleted", {}):
+        del custom["_deleted"][component_id]
+    _save_custom_params(custom)
+    # Update in-memory: remove from COMPONENTS and PARAMETERS
+    COMPONENTS[:] = [c for c in COMPONENTS if c.get("id") != component_id]
+    PARAMETERS.pop(component_id, None)
+    return {"ok": True, "deleted": component_id}
 
 
 # ─── User-editable custom parameters ─────────────────────────────────────────
