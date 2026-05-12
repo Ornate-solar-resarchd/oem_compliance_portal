@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import {
   getOEMs,
@@ -811,9 +812,6 @@ export default function OEMsPage() {
                     </span>
                   </div>
                 </div>
-                <div className="flex flex-col items-center gap-1">
-                  <ScoreRing score={oem.avg_compliance_score} size={40} strokeWidth={3} />
-                </div>
               </div>
               <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-[10px]">
@@ -943,9 +941,6 @@ export default function OEMsPage() {
                       <Badge variant="default" className="text-[10px]">
                         {models.length} model{models.length !== 1 ? "s" : ""}
                       </Badge>
-                      <span className={cn("text-sm font-bold", scoreColor(avgScore))}>
-                        {avgScore}% avg
-                      </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -1391,10 +1386,10 @@ export default function OEMsPage() {
         </div>
       )}
 
-      {/* ── Add/Edit Parameter Modal ── */}
-      {paramModal && (
+      {/* ── Add/Edit Parameter Modal — rendered via Portal to escape any parent overflow/transform ── */}
+      {paramModal && typeof window !== "undefined" && createPortal(
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm"
           onClick={() => setParamModal(null)}
         >
           <div
@@ -1484,7 +1479,8 @@ export default function OEMsPage() {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
