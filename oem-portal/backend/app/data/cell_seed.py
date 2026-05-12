@@ -188,67 +188,74 @@ def _cell_base(cap_ah, voltage, energy_wh, v_min, v_max, cycle_life, eol_pct,
     if tr_onset:       params.append(_p("CELL_TR_ONSET",        "Thermal Runaway Onset", str(tr_onset),     "C",       "Safety"))
     return params
 
-# ── CATL 280Ah ──
-_CATL_280 = _cell_base(
-    280, 3.2, 896, 2.5, 3.65, 6000, 80, 165,
-    0, 55, -20, 60, "IEC 62619, UL 1973, UN 38.3",
-    ir=0.40, weight=5.42, l=173.9, w=71.7, h=207.2,
-    storage_tmin=-20, storage_tmax=45, self_discharge=3,
-    calendar_life=20, rte=95.8,
+# ── CATL 280Ah (LF280K) — 19-param schema with real datasheet values ──
+_CATL_280 = _cell_19_specs(
+    model="LF280K",
+    capacity=280, energy=896, ac_imp="≤ 0.25",
+    std_chg="140", max_chg="140", max_dis="280",
+    dimensions="173.9 × 71.7 × 207.2",
+    weight="5.42 ± 0.20",
+    energy_density="165",
+    cycle_life="6000+",
 )
 
 # ── CATL 285Ah ──
-_CATL_285 = _cell_base(
-    285, 3.2, 912, 2.5, 3.65, 7000, 80, 167,
-    0, 55, -20, 60, "IEC 62619, UL 1973, UN 38.3",
-    l=173.9, w=71.7, h=207.2, rate="1P",
-    calendar_life=20, rte=95.8,
+_CATL_285 = _cell_19_specs(
+    model="CB-LF285",
+    capacity=285, energy=912, ac_imp="≤ 0.25",
+    std_chg="143", max_chg="285", max_dis="285",
+    dimensions="173.9 × 71.7 × 207.2", weight="~5.5",
+    energy_density="167", cycle_life="7000+",
 )
 
 # ── CATL 306Ah ──
-_CATL_306 = _cell_base(
-    306, 3.2, 979, 2.5, 3.65, 8000, 80, 172,
-    0, 55, -20, 60, "IEC 62619, UL 1973, UN 38.3",
-    l=173.9, w=71.7, h=207.2, rate="0.5P",
-    calendar_life=20, rte=95.8,
+_CATL_306 = _cell_19_specs(
+    model="CB-LF306",
+    capacity=306, energy=979, ac_imp="≤ 0.25",
+    std_chg="153", max_chg="153", max_dis="306",
+    dimensions="173.9 × 71.7 × 207.2", weight="~5.7",
+    energy_density="172", cycle_life="8000+",
 )
 
 # ── CATL EnerX 530Ah ──
-_CATL_530 = _cell_base(
-    530, 3.2, 1696, 2.5, 3.65, 6000, 70, 168,
-    0, 55, -20, 55, "IEC 62619, UL 1973, UL 9540A, IEC 62477-1",
-    rate="0.25P", calendar_life=20, rte=96.1,
+_CATL_530 = _cell_19_specs(
+    model="EnerX 530Ah",
+    capacity=530, energy=1696, ac_imp="≤ 0.20",
+    std_chg="132", max_chg="265", max_dis="530",
+    dimensions="N/A", weight="N/A",
+    energy_density="168", cycle_life="6000+",
 )
 
 # ── CATL Tener 565Ah ──
-_CATL_565 = _cell_base(
-    565, 3.2, 1808, 2.5, 3.65, 6000, 70, 180,
-    0, 55, -20, 55, "IEC 62619, UL 1973, UL 9540A",
-    calendar_life=20, rte=96.1,
+_CATL_565 = _cell_19_specs(
+    model="Tener 565Ah",
+    capacity=565, energy=1808, ac_imp="≤ 0.20",
+    std_chg="141", max_chg="282", max_dis="565",
+    dimensions="N/A", weight="N/A",
+    energy_density="180", cycle_life="6000+",
 )
 
 # ── Lishen 314Ah ──
-_LISHEN_314 = _cell_base(
-    314, 3.2, 1004.8, 2.5, 3.65, 8000, 70, 170.9,
-    0, 60, -20, 60, "IEC 62619, UL 1973, UL 9540A, UN 38.3",
-    ir=0.17, weight=5.6, l=173.8, w=71.5, h=207.2,
-    storage_tmin=-30, storage_tmax=45, self_discharge=3,
-    calendar_life=25, rte=95.2, model_no="LP71173207-314Ah",
+_LISHEN_314 = _cell_19_specs(
+    model="LP71173207-314Ah",
+    capacity=314, energy=1004.8, ac_imp="0.17",
+    std_chg="157", max_chg="157", max_dis="314",
+    dimensions="173.8 × 71.5 × 207.2", weight="5.6",
+    energy_density="170.9", cycle_life="8000+",
 )
-# fix: max charge current from spec
-_LISHEN_314.append(_p("CELL_MAX_CHARGE_A", "Max Charge Current", "157", "A", "Electrical"))
 
 # ── Gotion 280Ah ──
-_GOTION_280 = _cell_base(
-    280, 3.2, 896, 2.5, 3.65, 8000, 70, 163.5,
-    0, 55, -20, 55, "UN 38.3, NFPA",
-    weight=5.48, calendar_life=20, rte=95.0, self_discharge=3,
-    model_no="ESD1331-05P5015",
+_GOTION_280 = _cell_19_specs(
+    model="ESD1331-05P5015",
+    capacity=280, energy=896, ac_imp="≤ 0.30",
+    std_chg="140", max_chg="280", max_dis="280",
+    dimensions="N/A", weight="5.48",
+    energy_density="163.5", cycle_life="8000+",
 )
 
 # ─── HiTHIUM Cells — Custom 19-param spec lists (consistent across 280/314/587) ───
 
-def _hithium_cell(model, capacity, energy, ac_imp, std_chg, max_chg, max_dis,
+def _cell_19_specs(model, capacity, energy, ac_imp, std_chg, max_chg, max_dis,
                   dimensions, weight, energy_density, cycle_life):
     return [
         _p("CELL_TYPE",              "Cell Type",                       "Prismatic",                   "",       "General"),
@@ -273,7 +280,7 @@ def _hithium_cell(model, capacity, energy, ac_imp, std_chg, max_chg, max_dis,
     ]
 
 # ── HiTHIUM 280Ah 1P ──
-_HITHIUM_280_1P = _hithium_cell(
+_HITHIUM_280_1P = _cell_19_specs(
     model="LF280K (or similar)",
     capacity=280, energy=896, ac_imp="≤ 0.25",
     std_chg="140", max_chg="140–280", max_dis="280",
@@ -284,7 +291,7 @@ _HITHIUM_280_1P = _hithium_cell(
 )
 
 # ── HiTHIUM 314Ah ──
-_HITHIUM_314 = _hithium_cell(
+_HITHIUM_314 = _cell_19_specs(
     model="LFP71173207/314Ah",
     capacity=314, energy=1004.8, ac_imp="0.20 ± 0.05",
     std_chg="157", max_chg="157", max_dis="157",
@@ -295,7 +302,7 @@ _HITHIUM_314 = _hithium_cell(
 )
 
 # ── HiTHIUM ∞Cell 587Ah ──
-_HITHIUM_587 = _hithium_cell(
+_HITHIUM_587 = _cell_19_specs(
     model="587Ah LFP",
     capacity=587, energy=1878.4, ac_imp="≤ 0.18",
     std_chg="293", max_chg="293–587", max_dis="587",
@@ -314,73 +321,98 @@ _HITHIUM_587_LEGACY = _cell_base(
 )
 
 # ── HiTHIUM ∞Cell 1175Ah ──
-_HITHIUM_1175 = _cell_base(
-    1175, 3.2, 3760, 2.5, 3.65, 11000, 70, 180,
-    0, 60, -30, 60, "IEC 62619",
-    l=580.2, w=75.2, h=216.3, rate="0.25P",
-    calendar_life=25, rte=95.0,
+_HITHIUM_1175 = _cell_19_specs(
+    model="∞Cell 1175Ah",
+    capacity=1175, energy=3760, ac_imp="≤ 0.15",
+    std_chg="294", max_chg="588", max_dis="1175",
+    dimensions="580.2 × 75.2 × 216.3", weight="~22",
+    energy_density="180", cycle_life="11000+",
 )
 
 # ── HiTHIUM Na-ion N162Ah ──
-_HITHIUM_NA162 = _cell_base(
-    162, 2.4, 388.8, 1.5, 3.3, 20000, 70, 95.2,
-    -40, 60, -40, 60, "IEC 62619",
-    l=174.7, w=71.7, h=207.1, rate="1P",
-    chemistry="Sodium-ion", calendar_life=20,
-)
+_HITHIUM_NA162 = [
+    _p("CELL_TYPE",            "Cell Type",                       "Prismatic",            "",       "General"),
+    _p("CELL_CHEMISTRY",       "Chemistry",                       "Sodium-ion",           "",       "General"),
+    _p("CELL_MODEL",           "Cell Model",                      "N162Ah",               "",       "General"),
+    _p("CELL_NOM_CAPACITY",    "Nominal Capacity",                "162",                  "Ah",     "Electrical"),
+    _p("CELL_NOM_VOLTAGE",     "Nominal Voltage",                 "2.4",                  "V",      "Electrical"),
+    _p("CELL_NOM_ENERGY",      "Nominal Energy",                  "388.8",                "Wh",     "Electrical"),
+    _p("CELL_OPER_VOLT_RANGE", "Operating Voltage Range",         "1.5 to 3.3",           "V",      "Electrical"),
+    _p("CELL_DISCHARGE_CUTOFF","Discharge Cutoff Voltage",        "1.5",                  "V",      "Electrical"),
+    _p("CELL_AC_IMPEDANCE",    "AC Impedance",                    "≤ 0.35",               "mΩ",     "Electrical"),
+    _p("CELL_STD_CHG_CURR",    "Standard Charge Current",         "81",                   "A",      "Electrical"),
+    _p("CELL_MAX_CHG_CURR",    "Max Continuous Charge Current",   "162",                  "A",      "Electrical"),
+    _p("CELL_MAX_DIS_CURR",    "Max Continuous Discharge Current","162",                  "A",      "Electrical"),
+    _p("CELL_CHG_TEMP",        "Charge Temperature",              "-40 to 60",            "°C",     "Thermal"),
+    _p("CELL_DIS_TEMP",        "Discharge Temperature",           "-40 to 60",            "°C",     "Thermal"),
+    _p("CELL_STORAGE_TEMP",    "Storage Temperature",             "-20 to 35",            "°C",     "Thermal"),
+    _p("CELL_DIMENSIONS",      "Dimensions (W × L × H)",          "71.7 × 174.7 × 207.1", "mm",     "Physical"),
+    _p("CELL_WEIGHT",          "Weight",                          "~5.0",                 "kg",     "Physical"),
+    _p("CELL_ENERGY_DENSITY",  "Energy Density",                  "95.2",                 "Wh/kg",  "Physical"),
+    _p("CELL_CYCLE_LIFE",      "Cycle Life",                      "20000+",               "cycles", "Performance"),
+]
 
 # ── SVOLT 350Ah ──
-_SVOLT_350 = _cell_base(
-    350, 3.2, 1120, 2.5, 3.65, 10500, 80, 122.5,
-    0, 55, -20, 55, "IEC 62619, UL 1973, UL 9540A, UN 38.3, CQC",
-    ir=None, weight=6.45, l=500.6, w=215.33, h=26.3,
-    rate="0.5P", calendar_life=25, rte=96.1, tr_onset=193,
-    model_no="CB0S6PFLA",
+_SVOLT_350 = _cell_19_specs(
+    model="CB0S6PFLA",
+    capacity=350, energy=1120, ac_imp="≤ 0.25",
+    std_chg="175", max_chg="175", max_dis="350",
+    dimensions="500.6 × 215.33 × 26.3", weight="6.45",
+    energy_density="122.5", cycle_life="10500+",
 )
-_SVOLT_350.append(_p("CELL_MAX_CHARGE_A",    "Max Charge Current",    "175",  "A",    "Electrical"))
-_SVOLT_350.append(_p("CELL_MAX_DISCHARGE_A", "Max Discharge Current", "350",  "A",    "Electrical"))
-_SVOLT_350.append(_p("CELL_TR_GAS_VOL_L",   "TR Gas Volume",         "164.8","L",    "Safety"))
 
 # ── REPT 280Ah ──
-_REPT_280 = _cell_base(
-    280, 3.2, 896, 2.5, 3.65, 8000, 70, 170,
-    0, 55, -20, 60, "IEC 62619, UL 1973, UL 9540A, UN 38.3",
-    calendar_life=20, rte=95.0, self_discharge=3,
+_REPT_280 = _cell_19_specs(
+    model="REPT 280Ah",
+    capacity=280, energy=896, ac_imp="≤ 0.25",
+    std_chg="140", max_chg="280", max_dis="280",
+    dimensions="N/A", weight="~5.4",
+    energy_density="170", cycle_life="8000+",
 )
 
 # ── REPT 306Ah ──
-_REPT_306 = _cell_base(
-    306, 3.2, 979, 2.5, 3.65, 10000, 70, 170,
-    0, 55, -20, 60, "IEC 62619, UL 1973, UL 9540A, UN 38.3",
-    calendar_life=20, rte=95.0,
+_REPT_306 = _cell_19_specs(
+    model="REPT 306Ah",
+    capacity=306, energy=979, ac_imp="≤ 0.25",
+    std_chg="153", max_chg="306", max_dis="306",
+    dimensions="N/A", weight="~5.7",
+    energy_density="170", cycle_life="10000+",
 )
 
 # ── REPT Wending 314Ah ──
-_REPT_314 = _cell_base(
-    314, 3.2, 1004.8, 2.5, 3.65, 12000, 70, 179,
-    0, 55, -20, 60, "IEC 62619, UL 1973, UL 9540A, UN 38.3",
-    calendar_life=20, rte=95.5,
+_REPT_314 = _cell_19_specs(
+    model="Wending 314Ah",
+    capacity=314, energy=1004.8, ac_imp="≤ 0.25",
+    std_chg="157", max_chg="314", max_dis="314",
+    dimensions="N/A", weight="~5.6",
+    energy_density="179", cycle_life="12000+",
 )
 
 # ── REPT Wending 320Ah ──
-_REPT_320 = _cell_base(
-    320, 3.2, 1024, 2.5, 3.65, 12000, 70, 179,
-    0, 55, -20, 60, "IEC 62619, UL 1973, UL 9540A, UN 38.3",
-    calendar_life=20, rte=95.5,
+_REPT_320 = _cell_19_specs(
+    model="Wending 320Ah",
+    capacity=320, energy=1024, ac_imp="≤ 0.25",
+    std_chg="160", max_chg="320", max_dis="320",
+    dimensions="N/A", weight="~5.7",
+    energy_density="179", cycle_life="12000+",
 )
 
 # ── REPT Wending 345Ah ──
-_REPT_345 = _cell_base(
-    345, 3.2, 1104, 2.5, 3.65, 12000, 70, 185,
-    0, 55, -20, 60, "IEC 62619, UL 1973, UL 9540A, UN 38.3",
-    calendar_life=20, rte=95.5,
+_REPT_345 = _cell_19_specs(
+    model="Wending 345Ah",
+    capacity=345, energy=1104, ac_imp="≤ 0.22",
+    std_chg="172", max_chg="345", max_dis="345",
+    dimensions="N/A", weight="~6.0",
+    energy_density="185", cycle_life="12000+",
 )
 
 # ── REPT Wending 587Ah ──
-_REPT_587 = _cell_base(
-    587, 3.2, 1878, 2.5, 3.65, 12000, 70, 185,
-    0, 55, -20, 60, "IEC 62619, UL 1973, UL 9540A, UN 38.3",
-    calendar_life=20, rte=95.5,
+_REPT_587 = _cell_19_specs(
+    model="Wending 587Ah",
+    capacity=587, energy=1878, ac_imp="≤ 0.18",
+    std_chg="293", max_chg="587", max_dis="587",
+    dimensions="N/A", weight="~10",
+    energy_density="185", cycle_life="12000+",
 )
 
 CELL_PARAMETERS_BASE = {
@@ -427,10 +459,62 @@ BYD_COMPONENTS  = [{"id":"comp-byd-302", "oem_id": "oem-byd-008", "oem_name": "B
 def _mkp(cap,v,e,w,cyc,ir,ed,bis,cert):
     return [{"code":"CELL_CAPACITY_AH","name":"Nominal Capacity","value":str(cap),"unit":"Ah","section":"Electrical","status":"pass","confidence":0.97},{"code":"CELL_VOLTAGE_V","name":"Nominal Voltage","value":str(v),"unit":"V","section":"Electrical","status":"pass","confidence":0.99},{"code":"CELL_ENERGY_WH","name":"Energy","value":str(e),"unit":"Wh","section":"Electrical","status":"pass","confidence":0.95},{"code":"CELL_IR_MOHM","name":"Internal Resistance","value":str(ir),"unit":"mohm","section":"Electrical","status":"pass","confidence":0.92},{"code":"CELL_CYCLE_LIFE","name":"Cycle Life","value":str(cyc),"unit":"cycles","section":"Electrical","status":"pass","confidence":0.94},{"code":"CELL_WEIGHT_KG","name":"Weight","value":str(w),"unit":"kg","section":"Physical","status":"pass","confidence":0.98},{"code":"CELL_ENERGY_DENSITY","name":"Energy Density","value":str(ed),"unit":"Wh/kg","section":"Physical","status":"pass","confidence":0.91},{"code":"CELL_CHEMISTRY","name":"Chemistry","value":"LFP","unit":"","section":"Safety","status":"pass","confidence":0.99},{"code":"CELL_CERTIFICATIONS","name":"Certifications","value":cert,"unit":"","section":"Safety","status":"pass","confidence":0.95},{"code":"CELL_BIS_CERT","name":"BIS Certified","value":bis,"unit":"","section":"Safety","status":"pass" if bis=="Yes" else "fail","confidence":0.92},{"code":"CELL_UN383","name":"UN38.3","value":"Yes","unit":"","section":"Safety","status":"pass","confidence":0.97}]
 
-NEW_CATL_PARAMETERS = {"comp-catl-302":_mkp(302,3.2,966.4,5.78,6000,0.41,167.2,"Yes","IEC 62619, UL 1973"),"comp-catl-314":_mkp(314,3.2,1004.8,5.88,6500,0.40,170.9,"Yes","IEC 62619, UL 1973"),"comp-catl-320":_mkp(320,3.2,1024.0,5.95,7000,0.38,172.1,"Yes","IEC 62619, UL 1973")}
-EVE_PARAMETERS   = {"comp-eve-lf280k":_mkp(280,3.2,896.0,5.42,6000,0.25,165.1,"Yes","IEC 62619, UL 1973, UN38.3"),"comp-eve-mb30":_mkp(306,3.2,979.2,5.80,6000,0.30,168.8,"Yes","IEC 62619, UL 1973"),"comp-eve-mb31":_mkp(314,3.2,1004.8,5.91,6000,0.28,170.0,"Yes","IEC 62619, UL 1973")}
-CALB_PARAMETERS  = {"comp-calb-280":_mkp(280,3.2,896.0,5.50,5000,0.35,162.9,"No","IEC 62619")}
-BYD_PARAMETERS   = {"comp-byd-302":_mkp(302,3.2,966.4,5.61,8000,0.40,172.3,"Yes","IEC 62619, UL 1973, UL 9540A")}
+NEW_CATL_PARAMETERS = {
+    "comp-catl-302": _cell_19_specs(
+        model="CB-LF302", capacity=302, energy=966.4, ac_imp="≤ 0.41",
+        std_chg="151", max_chg="302", max_dis="302",
+        dimensions="N/A", weight="5.78",
+        energy_density="167.2", cycle_life="6000+",
+    ),
+    "comp-catl-314": _cell_19_specs(
+        model="CB-LF314", capacity=314, energy=1004.8, ac_imp="≤ 0.40",
+        std_chg="157", max_chg="314", max_dis="314",
+        dimensions="N/A", weight="5.88",
+        energy_density="170.9", cycle_life="6500+",
+    ),
+    "comp-catl-320": _cell_19_specs(
+        model="CB-LF320", capacity=320, energy=1024, ac_imp="≤ 0.38",
+        std_chg="160", max_chg="320", max_dis="320",
+        dimensions="N/A", weight="5.95",
+        energy_density="172.1", cycle_life="7000+",
+    ),
+}
+EVE_PARAMETERS = {
+    "comp-eve-lf280k": _cell_19_specs(
+        model="LF280K", capacity=280, energy=896, ac_imp="≤ 0.25",
+        std_chg="140", max_chg="280", max_dis="280",
+        dimensions="N/A", weight="5.42",
+        energy_density="165.1", cycle_life="6000+",
+    ),
+    "comp-eve-mb30": _cell_19_specs(
+        model="MB30", capacity=306, energy=979.2, ac_imp="≤ 0.30",
+        std_chg="153", max_chg="306", max_dis="306",
+        dimensions="N/A", weight="5.80",
+        energy_density="168.8", cycle_life="6000+",
+    ),
+    "comp-eve-mb31": _cell_19_specs(
+        model="MB31", capacity=314, energy=1004.8, ac_imp="≤ 0.28",
+        std_chg="157", max_chg="314", max_dis="314",
+        dimensions="N/A", weight="5.91",
+        energy_density="170.0", cycle_life="6000+",
+    ),
+}
+CALB_PARAMETERS = {
+    "comp-calb-280": _cell_19_specs(
+        model="L280F", capacity=280, energy=896, ac_imp="≤ 0.35",
+        std_chg="140", max_chg="280", max_dis="280",
+        dimensions="N/A", weight="5.50",
+        energy_density="162.9", cycle_life="5000+",
+    ),
+}
+BYD_PARAMETERS = {
+    "comp-byd-302": _cell_19_specs(
+        model="LFP302B (Blade)", capacity=302, energy=966.4, ac_imp="≤ 0.40",
+        std_chg="151", max_chg="302", max_dis="302",
+        dimensions="N/A", weight="5.61",
+        energy_density="172.3", cycle_life="8000+",
+    ),
+}
 
 CELL_OEMS       = CELL_OEMS_BASE + EVE_OEMS + CALB_OEMS + BYD_OEMS
 CELL_COMPONENTS = CELL_COMPONENTS_BASE + NEW_CATL_COMPONENTS + EVE_COMPONENTS + CALB_COMPONENTS + BYD_COMPONENTS
