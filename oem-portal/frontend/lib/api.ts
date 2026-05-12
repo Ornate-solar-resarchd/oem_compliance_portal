@@ -27,6 +27,28 @@ async function post<T = any>(path: string, body?: any): Promise<T> {
   return res.json()
 }
 
+async function patch<T = any>(path: string, body?: any): Promise<T> {
+  const res = await fetch(`${API}${path}`, {
+    method: "PATCH",
+    headers: headers(),
+    body: body ? JSON.stringify(body) : undefined,
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.detail || `API error: ${res.status}`)
+  }
+  return res.json()
+}
+
+async function del<T = any>(path: string): Promise<T> {
+  const res = await fetch(`${API}${path}`, { method: "DELETE", headers: headers() })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.detail || `API error: ${res.status}`)
+  }
+  return res.json()
+}
+
 async function uploadFile<T = any>(path: string, formData: FormData): Promise<T> {
   const token = typeof window !== "undefined" ? localStorage.getItem("tcp_token") : ""
   const res = await fetch(`${API}${path}`, {
@@ -57,6 +79,12 @@ export const createOEM = (body: any) => post("/oems/", body)
 export const getComponents = () => get("/components/")
 export const getComponent = (id: string) => get(`/components/${id}`)
 export const getComponentParams = (id: string) => get(`/components/${id}/parameters`)
+export const addComponentParam = (id: string, body: { code: string; name: string; value: string; unit?: string; section?: string }) =>
+  post(`/components/${id}/parameters`, body)
+export const editComponentParam = (id: string, code: string, body: { name?: string; value?: string; unit?: string; section?: string }) =>
+  patch(`/components/${id}/parameters/${code}`, body)
+export const deleteComponentParam = (id: string, code: string) =>
+  del(`/components/${id}/parameters/${code}`)
 export const uploadDatasheet = (file: File, oemName: string, modelName: string, category: string = "Cell") => {
   const fd = new FormData()
   fd.append("file", file)
