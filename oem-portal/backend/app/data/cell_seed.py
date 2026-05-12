@@ -254,13 +254,27 @@ _HITHIUM_280_1P = _cell_base(
     calendar_life=20, rte=94.5,
 )
 
-# ── HiTHIUM 314Ah ──
-_HITHIUM_314 = _cell_base(
-    314, 3.2, 1004.8, 2.5, 3.65, 11000, 70, 173.2,
-    0, 60, -30, 60, "IEC 62619",
-    l=174.7, w=71.7, h=207.1, rate="0.5P",
-    calendar_life=25, rte=95.0,
-)
+# ── HiTHIUM 314Ah ── (custom spec list, exactly 18 params from datasheet image)
+_HITHIUM_314 = [
+    _p("CELL_TYPE",          "Cell Type",                                 "Prismatic",                                   "",     "General"),
+    _p("CELL_CHEMISTRY",     "Chemistry",                                 "LFP",                                         "",     "General"),
+    _p("CELL_MODEL",         "Cell Model",                                "LFP71173207/314Ah",                           "",     "General"),
+    _p("CELL_NOM_CAPACITY",  "Nominal Capacity",                          "314",                                         "Ah",   "Electrical"),
+    _p("CELL_OPER_VOLT_RANGE", "Operating Voltage Range",                 "2.5 to 3.65 (T > 0°C); 2.0 to 3.65 (T ≤ 0°C)", "V",   "Electrical"),
+    _p("CELL_NOM_VOLTAGE",   "Nominal Voltage",                           "3.2",                                         "V",    "Electrical"),
+    _p("CELL_NOM_ENERGY",    "Nominal Energy",                            "1004.8",                                      "Wh",   "Electrical"),
+    _p("CELL_AC_IMPEDANCE",  "AC-Impedance (27% SOC)",                    "0.20 ± 0.05",                                 "mΩ",   "Electrical"),
+    _p("CELL_MAX_CHG_DIS_CURR", "Maximum Charge/Discharge Current",       "TBD",                                         "A",    "Electrical"),
+    _p("CELL_DIS_END_VOLT",  "Discharge End Voltage",                     "TBD",                                         "V",    "Electrical"),
+    _p("CELL_MAX_OPER_TEMP_CHG", "Maximum Operating Temperature (Charge)", "0 to 60",                                    "°C",   "Thermal"),
+    _p("CELL_MAX_OPER_TEMP_DIS", "Maximum Operating Temperature (Discharge)", "-30 to 60",                              "°C",   "Thermal"),
+    _p("CELL_OPT_OPER_TEMP_CHG", "Optimal Operating Temperature (Charge)", "TBD",                                       "°C",   "Thermal"),
+    _p("CELL_OPT_OPER_TEMP_DIS", "Optimal Operating Temperature (Discharge)", "TBD",                                    "°C",   "Thermal"),
+    _p("CELL_STORAGE_TEMP",  "Storage Temperature (6 months)",            "-20 to 35",                                   "°C",   "Thermal"),
+    _p("CELL_DIMENSIONS",    "Cell Dimensions (W × L × H)",               "71.70±0.5 × 174.70±0.5 × 207.11±0.5",         "mm",   "Physical"),
+    _p("CELL_WEIGHT",        "Weight",                                    "5.60 ± 0.20",                                 "kg",   "Physical"),
+    _p("CELL_ENERGY_DENSITY", "Energy Density",                           "≥ 175",                                       "Wh/kg","Physical"),
+]
 
 # ── HiTHIUM ∞Cell 587Ah ──
 _HITHIUM_587 = _cell_base(
