@@ -246,38 +246,67 @@ _GOTION_280 = _cell_base(
     model_no="ESD1331-05P5015",
 )
 
+# ─── HiTHIUM Cells — Custom 19-param spec lists (consistent across 280/314/587) ───
+
+def _hithium_cell(model, capacity, energy, ac_imp, std_chg, max_chg, max_dis,
+                  dimensions, weight, energy_density, cycle_life):
+    return [
+        _p("CELL_TYPE",              "Cell Type",                       "Prismatic",                   "",       "General"),
+        _p("CELL_CHEMISTRY",         "Chemistry",                       "LFP",                         "",       "General"),
+        _p("CELL_MODEL",             "Cell Model",                      model,                         "",       "General"),
+        _p("CELL_NOM_CAPACITY",      "Nominal Capacity",                str(capacity),                 "Ah",     "Electrical"),
+        _p("CELL_NOM_VOLTAGE",       "Nominal Voltage",                 "3.2",                         "V",      "Electrical"),
+        _p("CELL_NOM_ENERGY",        "Nominal Energy",                  str(energy),                   "Wh",     "Electrical"),
+        _p("CELL_OPER_VOLT_RANGE",   "Operating Voltage Range",         "2.5 to 3.65",                 "V",      "Electrical"),
+        _p("CELL_DISCHARGE_CUTOFF",  "Discharge Cutoff Voltage",        "2.5",                         "V",      "Electrical"),
+        _p("CELL_AC_IMPEDANCE",      "AC Impedance",                    ac_imp,                        "mΩ",     "Electrical"),
+        _p("CELL_STD_CHG_CURR",      "Standard Charge Current",         std_chg,                       "A",      "Electrical"),
+        _p("CELL_MAX_CHG_CURR",      "Max Continuous Charge Current",   max_chg,                       "A",      "Electrical"),
+        _p("CELL_MAX_DIS_CURR",      "Max Continuous Discharge Current", max_dis,                      "A",      "Electrical"),
+        _p("CELL_CHG_TEMP",          "Charge Temperature",              "0 to 60",                     "°C",     "Thermal"),
+        _p("CELL_DIS_TEMP",          "Discharge Temperature",           "-30 to 60",                   "°C",     "Thermal"),
+        _p("CELL_STORAGE_TEMP",      "Storage Temperature",             "-20 to 35",                   "°C",     "Thermal"),
+        _p("CELL_DIMENSIONS",        "Dimensions (W × L × H)",          dimensions,                    "mm",     "Physical"),
+        _p("CELL_WEIGHT",            "Weight",                          weight,                        "kg",     "Physical"),
+        _p("CELL_ENERGY_DENSITY",    "Energy Density",                  energy_density,                "Wh/kg",  "Physical"),
+        _p("CELL_CYCLE_LIFE",        "Cycle Life",                      cycle_life,                    "cycles", "Performance"),
+    ]
+
 # ── HiTHIUM 280Ah 1P ──
-_HITHIUM_280_1P = _cell_base(
-    280, 3.2, 896, 2.5, 3.65, 7000, 70, 159.2,
-    0, 60, -30, 60, "IEC 62619",
-    l=174.7, w=71.6, h=207.1, rate="1P",
-    calendar_life=20, rte=94.5,
+_HITHIUM_280_1P = _hithium_cell(
+    model="LF280K (or similar)",
+    capacity=280, energy=896, ac_imp="≤ 0.25",
+    std_chg="140", max_chg="140–280", max_dis="280",
+    dimensions="72 × 174 × 205",
+    weight="~5.4",
+    energy_density="160–170",
+    cycle_life="6000+",
 )
 
-# ── HiTHIUM 314Ah ── (custom spec list, exactly 18 params from datasheet image)
-_HITHIUM_314 = [
-    _p("CELL_TYPE",          "Cell Type",                                 "Prismatic",                                   "",     "General"),
-    _p("CELL_CHEMISTRY",     "Chemistry",                                 "LFP",                                         "",     "General"),
-    _p("CELL_MODEL",         "Cell Model",                                "LFP71173207/314Ah",                           "",     "General"),
-    _p("CELL_NOM_CAPACITY",  "Nominal Capacity",                          "314",                                         "Ah",   "Electrical"),
-    _p("CELL_OPER_VOLT_RANGE", "Operating Voltage Range",                 "2.5 to 3.65 (T > 0°C); 2.0 to 3.65 (T ≤ 0°C)", "V",   "Electrical"),
-    _p("CELL_NOM_VOLTAGE",   "Nominal Voltage",                           "3.2",                                         "V",    "Electrical"),
-    _p("CELL_NOM_ENERGY",    "Nominal Energy",                            "1004.8",                                      "Wh",   "Electrical"),
-    _p("CELL_AC_IMPEDANCE",  "AC-Impedance (27% SOC)",                    "0.20 ± 0.05",                                 "mΩ",   "Electrical"),
-    _p("CELL_MAX_CHG_DIS_CURR", "Maximum Charge/Discharge Current",       "TBD",                                         "A",    "Electrical"),
-    _p("CELL_DIS_END_VOLT",  "Discharge End Voltage",                     "TBD",                                         "V",    "Electrical"),
-    _p("CELL_MAX_OPER_TEMP_CHG", "Maximum Operating Temperature (Charge)", "0 to 60",                                    "°C",   "Thermal"),
-    _p("CELL_MAX_OPER_TEMP_DIS", "Maximum Operating Temperature (Discharge)", "-30 to 60",                              "°C",   "Thermal"),
-    _p("CELL_OPT_OPER_TEMP_CHG", "Optimal Operating Temperature (Charge)", "TBD",                                       "°C",   "Thermal"),
-    _p("CELL_OPT_OPER_TEMP_DIS", "Optimal Operating Temperature (Discharge)", "TBD",                                    "°C",   "Thermal"),
-    _p("CELL_STORAGE_TEMP",  "Storage Temperature (6 months)",            "-20 to 35",                                   "°C",   "Thermal"),
-    _p("CELL_DIMENSIONS",    "Cell Dimensions (W × L × H)",               "71.70±0.5 × 174.70±0.5 × 207.11±0.5",         "mm",   "Physical"),
-    _p("CELL_WEIGHT",        "Weight",                                    "5.60 ± 0.20",                                 "kg",   "Physical"),
-    _p("CELL_ENERGY_DENSITY", "Energy Density",                           "≥ 175",                                       "Wh/kg","Physical"),
-]
+# ── HiTHIUM 314Ah ──
+_HITHIUM_314 = _hithium_cell(
+    model="LFP71173207/314Ah",
+    capacity=314, energy=1004.8, ac_imp="0.20 ± 0.05",
+    std_chg="157", max_chg="157", max_dis="157",
+    dimensions="71.7 × 174.7 × 207.1",
+    weight="5.6 ± 0.2",
+    energy_density="≥ 175",
+    cycle_life="8000+",
+)
 
 # ── HiTHIUM ∞Cell 587Ah ──
-_HITHIUM_587 = _cell_base(
+_HITHIUM_587 = _hithium_cell(
+    model="587Ah LFP",
+    capacity=587, energy=1878.4, ac_imp="≤ 0.18",
+    std_chg="293", max_chg="293–587", max_dis="587",
+    dimensions="90 × 225 × 300",
+    weight="~11.5",
+    energy_density="165–175",
+    cycle_life="10000+",
+)
+
+# ── Old _cell_base 587Ah block (kept for reference, NOT exported) ──
+_HITHIUM_587_LEGACY = _cell_base(
     587, 3.2, 1878, 2.5, 3.65, 11000, 70, 185,
     0, 60, -30, 60, "IEC 62619",
     l=286.0, w=73.5, h=216.3, rate="0.5P",
