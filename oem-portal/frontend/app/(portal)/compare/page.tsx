@@ -163,17 +163,8 @@ export default function ComparePage() {
     return ["All", ...new Set(matrix.rows.map(r => r.section).filter(Boolean))]
   }, [matrix])
 
-  function cellColor(row: MatrixRow, modelId: string) {
-    const val = row.values[modelId]
-    if (!val) return ""
-    if (val.status === "pass") return "bg-emerald-50 text-emerald-700"
-    if (val.status === "fail") return "bg-red-50 text-red-700"
-    if (row.benchmark && typeof val.value === "number") {
-      if (val.value >= row.benchmark.max) return "bg-emerald-50 text-emerald-700 font-bold"
-      if (val.value <= row.benchmark.min) return "bg-red-50 text-red-700"
-    }
-    return ""
-  }
+  // No score/benchmark coloring — plain cells per user request
+  function cellColor(_row: MatrixRow, _modelId: string) { return "" }
 
   const scoreChartData = useMemo(() => {
     if (!matrix) return []
@@ -350,68 +341,58 @@ export default function ComparePage() {
                 </div>
               )}
 
-              {/* Comparison Matrix */}
+              {/* Comparison Matrix — Horizontal layout (each model = one row) */}
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base font-semibold">Specification Comparison</CardTitle>
                   <CardDescription className="text-xs text-slate-500">
-                    {matrix.total_parameters} parameters · {matrix.models.length} models
+                    {matrix.models.length} models · {matrix.total_parameters} parameters
                     {sectionFilter !== "All" && ` · Filtered: ${sectionFilter}`}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto rounded-xl border border-slate-200">
-                    <table className="w-full text-sm border-collapse">
+                    <table className="text-sm border-collapse">
                       <thead className="sticky top-0 z-10">
                         <tr className="bg-slate-50 border-b border-slate-200">
-                          <th className="text-left py-4 px-4 text-xs font-semibold text-slate-600 uppercase tracking-wide min-w-[220px]">
-                            Parameter
+                          <th className="text-left py-4 px-4 text-xs font-semibold text-slate-600 uppercase tracking-wide sticky left-0 bg-slate-50 z-20 min-w-[200px]">
+                            Model
                           </th>
-                          {matrix.models.map(model => {
-                            const info = OEM_INFO[model.oem_name] || { color: "from-slate-500 to-slate-600", logo: model.oem_name[0] }
-                            return (
-                              <th key={model.id} className="text-center py-4 px-4 min-w-[150px]">
-                                <div className="flex items-center justify-center gap-2">
-                                  <div className={cn("w-6 h-6 rounded bg-gradient-to-br flex items-center justify-center text-white text-xs font-bold", info.color)}>
-                                    {info.logo}
-                                  </div>
-                                  <div className="text-left">
-                                    <div className="text-xs font-semibold text-slate-800">{model.oem_name}</div>
-                                    <div className="text-[11px] text-slate-500 font-normal">{model.model_name.split("-").slice(-2).join("-")}</div>
-                                  </div>
-                                </div>
-                              </th>
-                            )
-                          })}
+                          {Array.from(groupedRows.values()).flat().map(row => (
+                            <th key={row.code} className="text-left py-4 px-4 text-xs font-semibold text-slate-600 min-w-[140px] border-l border-slate-100">
+                              <div className="text-slate-700">{row.parameter}</div>
+                              {row.unit && <div className="text-[10px] text-slate-400 font-normal mt-0.5">{row.unit}</div>}
+                            </th>
+                          ))}
                         </tr>
                       </thead>
                       <tbody>
-                        {Array.from(groupedRows.entries()).map(([section, rows]) => (
-                          <>
-                            <tr key={`s-${section}`}>
-                              <td colSpan={matrix.models.length + 1}
-                                className="py-3 px-4 text-xs font-semibold uppercase tracking-wide text-slate-700 bg-slate-100/70 border-t border-b border-slate-200">
-                                {section}
+                        {matrix.models.map(model => {
+                          const info = OEM_INFO[model.oem_name] || { color: "from-slate-500 to-slate-600", logo: model.oem_name[0] }
+                          return (
+                            <tr key={model.id} className="border-b border-slate-100 hover:bg-slate-50/30 transition-colors">
+                              <td className="py-3 px-4 sticky left-0 bg-white border-r border-slate-100 z-10">
+                                <div className="flex items-center gap-2.5">
+                                  <div className={cn("w-7 h-7 rounded bg-gradient-to-br flex items-center justify-center text-white text-xs font-bold flex-shrink-0", info.color)}>
+                                    {info.logo}
+                                  </div>
+                                  <div>
+                                    <div className="text-xs font-semibold text-slate-800">{model.oem_name}</div>
+                                    <div className="text-[11px] text-slate-500">{model.model_name}</div>
+                                  </div>
+                                </div>
                               </td>
+                              {Array.from(groupedRows.values()).flat().map(row => {
+                                const val = row.values[model.id]
+                                return (
+                                  <td key={row.code} className="py-3 px-4 text-sm text-slate-800 border-l border-slate-100">
+                                    {val ? val.display : <span className="text-slate-300">—</span>}
+                                  </td>
+                                )
+                              })}
                             </tr>
-                            {rows.map(row => (
-                              <tr key={row.code} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
-                                <td className="py-3 px-4 text-slate-700">
-                                  <div className="text-sm font-medium">{row.parameter}</div>
-                                  {row.unit && <span className="text-xs text-slate-400">{row.unit}</span>}
-                                </td>
-                                {matrix.models.map(model => {
-                                  const val = row.values[model.id]
-                                  return (
-                                    <td key={model.id} className={cn("py-3 px-4 text-center text-sm text-slate-800", cellColor(row, model.id))}>
-                                      {val ? val.display : <span className="text-slate-300">—</span>}
-                                    </td>
-                                  )
-                                })}
-                              </tr>
-                            ))}
-                          </>
-                        ))}
+                          )
+                        })}
                       </tbody>
                     </table>
                   </div>
