@@ -18,6 +18,10 @@ CELL_OEMS_BASE = [
      "website": "https://www.svolt.cn/en", "contact_email": "ess@svolt.cn"},
     {"id": "oem-rept", "name": "REPT Battero", "country_of_origin": "China", "is_approved": False,
      "website": "https://www.reptbattero.com", "contact_email": "sales@reptbattero.com"},
+    {"id": "oem-cornex", "name": "Cornex", "country_of_origin": "China", "is_approved": False,
+     "website": "https://www.cornexenergy.com", "contact_email": "ess@cornexenergy.com"},
+    {"id": "oem-csi", "name": "CSI Energy Storage", "country_of_origin": "Canada", "is_approved": False,
+     "website": "https://www.csienergystorage.com", "contact_email": "ess@csiestorage.com"},
 ]
 
 # ─── Component Models ───
@@ -107,11 +111,22 @@ CELL_COMPONENTS_BASE = [
      "datasheet_path": "/Users/priyankrajput/Downloads/CELL/Hithium_09.01.26/HiTHIUM corporate presentation_251121.pdf"},
     # ── SVOLT ──
     {"id": "comp-svolt-350", "oem_id": "oem-svolt", "oem_name": "SVOLT",
-        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/SVOLT/Datasheets/SVOLT-LFP-350Ah-Cell-Datasheet.pdf",
-     "model_name": "SVOLT LFP 350Ah", "sku": "CB0S6PFLA", "component_type_name": "Cell",
-     "is_active": True,
-     "datasheet": "SVOLT IEC 62619 Report.pdf",
-     "datasheet_path": "/Users/priyankrajput/Downloads/CELL/SVOLT/IEC 62619/4921702.50-IECTRF.pdf"},
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/SVOLT/Datasheets/SVOLT-LFP-350Ah-Cell-Datasheet.png",
+        "datasheet": "SVOLT-LFP-350Ah-Cell-Datasheet.png",
+     "model_name": "SVOLT LFP 350Ah", "sku": "CB05PFA", "component_type_name": "Cell",
+     "is_active": True},
+    # ── Cornex ──
+    {"id": "comp-cornex-314", "oem_id": "oem-cornex", "oem_name": "Cornex",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/Cornex/Datasheets/Cornex-LFP-314Ah-Cell-Datasheet.png",
+        "datasheet": "Cornex-LFP-314Ah-Cell-Datasheet.png",
+     "model_name": "Cornex LFP 314Ah", "sku": "PF173-314A", "component_type_name": "Cell",
+     "is_active": True},
+    # ── CSI Energy Storage ──
+    {"id": "comp-csi-314", "oem_id": "oem-csi", "oem_name": "CSI Energy Storage",
+        "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/CSI/Datasheets/CSI-LFP-314Ah-Cell-Datasheet.png",
+        "datasheet": "CSI-LFP-314Ah-Cell-Datasheet.png",
+     "model_name": "CSI LFP 314Ah", "sku": "CSI314", "component_type_name": "Cell",
+     "is_active": True},
     # ── REPT Battero ──
     {"id": "comp-rept-280", "oem_id": "oem-rept", "oem_name": "REPT Battero",
         "gdrive_url": "https://minio.unityess.cloud/compliance-docs/CELL/REPT%20Battero_BESS/Datasheets/REPT-LFP-280Ah-Wending-Datasheet.pdf",
@@ -384,14 +399,74 @@ _HITHIUM_NA162 = [
     _p("CELL_CYCLE_LIFE",      "Cycle Life",                      "20000+",               "cycles", "Performance"),
 ]
 
-# ── SVOLT 350Ah ──
-_SVOLT_350 = _cell_19_specs(
-    model="CB0S6PFLA",
-    capacity=350, energy=1120, ac_imp="≤ 0.25",
-    std_chg="175", max_chg="175", max_dis="350",
-    dimensions="500.6 × 215.33 × 26.3", weight="6.45",
-    energy_density="122.5", cycle_life="10500+",
-)
+# ── SVOLT 350Ah (from datasheet screenshot Table 3.x + DNV report) ──
+_SVOLT_350 = [
+    _p("CELL_TYPE",              "Cell Type",                       "Prismatic",                        "",       "General"),
+    _p("CELL_CHEMISTRY",         "Chemistry",                       "LFP",                              "",       "General"),
+    _p("CELL_MODEL",             "Cell Model",                      "CB05PFA",                          "",       "General"),
+    _p("CELL_NOM_CAPACITY",      "Nominal Capacity",                "350",                              "Ah",     "Electrical"),
+    _p("CELL_NOM_VOLTAGE",       "Nominal Voltage",                 "3.2",                              "V",      "Electrical"),
+    _p("CELL_NOM_ENERGY",        "Nominal Energy",                  "≥ 1120",                           "Wh",     "Electrical"),
+    _p("CELL_OPER_VOLT_RANGE",   "Operating Voltage Range",         "2.5 to 3.65 (T≥0°C); 2.0 to 3.65 (T<0°C)", "V", "Electrical"),
+    _p("CELL_DISCHARGE_CUTOFF",  "Discharge Cutoff Voltage",        "2.5",                              "V",      "Electrical"),
+    _p("CELL_AC_IMPEDANCE",      "AC Impedance (1 kHz)",            "≤ 0.4",                            "mΩ",     "Electrical"),
+    _p("CELL_STD_CHG_CURR",      "Standard Charge Current",         "None",                             "A",      "Electrical"),
+    _p("CELL_MAX_CHG_CURR",      "Max Continuous Charge Current",   "175",                              "A",      "Electrical"),
+    _p("CELL_MAX_DIS_CURR",      "Max Continuous Discharge Current","350",                              "A",      "Electrical"),
+    _p("CELL_CHG_TEMP",          "Charge Temperature",              "0 to 60",                          "°C",     "Thermal"),
+    _p("CELL_DIS_TEMP",          "Discharge Temperature",           "-20 to 60",                        "°C",     "Thermal"),
+    _p("CELL_STORAGE_TEMP",      "Storage Temperature",             "None",                             "°C",     "Thermal"),
+    _p("CELL_DIMENSIONS",        "Dimensions (W × L × H)",          "215.33 × 500.6 × 26.3",            "mm",     "Physical"),
+    _p("CELL_WEIGHT",            "Weight",                          "6.45",                             "kg",     "Physical"),
+    _p("CELL_ENERGY_DENSITY",    "Energy Density",                  "None",                             "Wh/kg",  "Physical"),
+    _p("CELL_CYCLE_LIFE",        "Cycle Life",                      "≥ 10500",                          "cycles", "Performance"),
+]
+
+# ── Cornex 314Ah (from DNV Table 3-1) ──
+_CORNEX_314 = [
+    _p("CELL_TYPE",              "Cell Type",                       "Prismatic",                            "",       "General"),
+    _p("CELL_CHEMISTRY",         "Chemistry",                       "Lithium Iron Phosphate (LFP)",         "",       "General"),
+    _p("CELL_MODEL",             "Cell Model",                      "PF173-314A",                           "",       "General"),
+    _p("CELL_NOM_CAPACITY",      "Nominal Capacity",                "314",                                  "Ah",     "Electrical"),
+    _p("CELL_NOM_VOLTAGE",       "Nominal Voltage",                 "3.2",                                  "V",      "Electrical"),
+    _p("CELL_NOM_ENERGY",        "Nominal Energy",                  "1004.8",                               "Wh",     "Electrical"),
+    _p("CELL_OPER_VOLT_RANGE",   "Operating Voltage Range",         "2.5 to 3.65 (T>0°C); 2.0 to 3.65 (T≤0°C)", "V",  "Electrical"),
+    _p("CELL_DISCHARGE_CUTOFF",  "Discharge Cutoff Voltage",        "2.5",                                  "V",      "Electrical"),
+    _p("CELL_AC_IMPEDANCE",      "AC Impedance (1 kHz, 20% SOC)",   "0.16 ± 0.05",                          "mΩ",     "Electrical"),
+    _p("CELL_STD_CHG_CURR",      "Standard Charge Current",         "None",                                 "A",      "Electrical"),
+    _p("CELL_MAX_CHG_CURR",      "Max Continuous Charge Current",   "None",                                 "A",      "Electrical"),
+    _p("CELL_MAX_DIS_CURR",      "Max Continuous Discharge Current","None",                                 "A",      "Electrical"),
+    _p("CELL_CHG_TEMP",          "Charge Temperature",              "0 to 55",                              "°C",     "Thermal"),
+    _p("CELL_DIS_TEMP",          "Discharge Temperature",           "-30 to 55",                            "°C",     "Thermal"),
+    _p("CELL_STORAGE_TEMP",      "Storage Temperature",             "-30 to 55",                            "°C",     "Thermal"),
+    _p("CELL_DIMENSIONS",        "Dimensions (W × L × H)",          "71.7±0.5 × 174.4±0.5 × 207.2±0.5",     "mm",     "Physical"),
+    _p("CELL_WEIGHT",            "Weight",                          "5.65 ± 0.1",                           "kg",     "Physical"),
+    _p("CELL_ENERGY_DENSITY",    "Energy Density",                  "None",                                 "Wh/kg",  "Physical"),
+    _p("CELL_CYCLE_LIFE",        "Cycle Life (25°C, 80% EOL)",      "≥ 6000",                               "cycles", "Performance"),
+]
+
+# ── CSI 314Ah (from DNV Table 3-1) ──
+_CSI_314 = [
+    _p("CELL_TYPE",              "Cell Type",                       "Prismatic",                                "",       "General"),
+    _p("CELL_CHEMISTRY",         "Chemistry",                       "LFP",                                      "",       "General"),
+    _p("CELL_MODEL",             "Cell Model",                      "CSI314",                                   "",       "General"),
+    _p("CELL_NOM_CAPACITY",      "Nominal Capacity",                "314",                                      "Ah",     "Electrical"),
+    _p("CELL_NOM_VOLTAGE",       "Nominal Voltage",                 "3.2",                                      "V",      "Electrical"),
+    _p("CELL_NOM_ENERGY",        "Nominal Energy",                  "1004.8",                                   "Wh",     "Electrical"),
+    _p("CELL_OPER_VOLT_RANGE",   "Operating Voltage Range",         "2.5 to 3.65 (T>0°C); 2.0 to 3.65 (T≤0°C)", "V",      "Electrical"),
+    _p("CELL_DISCHARGE_CUTOFF",  "Discharge Cutoff Voltage",        "2.5 / 2.0",                                "V",      "Electrical"),
+    _p("CELL_AC_IMPEDANCE",      "AC Impedance (@1 kHz)",           "≤ 0.25",                                   "mΩ",     "Electrical"),
+    _p("CELL_STD_CHG_CURR",      "Standard Charge Current (0.5P)",  "None",                                     "A",      "Electrical"),
+    _p("CELL_MAX_CHG_CURR",      "Max Continuous Charge Current",   "314",                                      "A",      "Electrical"),
+    _p("CELL_MAX_DIS_CURR",      "Max Continuous Discharge Current","None",                                     "A",      "Electrical"),
+    _p("CELL_CHG_TEMP",          "Charge Temperature",              "0 to 60",                                  "°C",     "Thermal"),
+    _p("CELL_DIS_TEMP",          "Discharge Temperature",           "-20 to 60",                                "°C",     "Thermal"),
+    _p("CELL_STORAGE_TEMP",      "Storage Temperature (50% SOC)",   "-20 to 45",                                "°C",     "Thermal"),
+    _p("CELL_DIMENSIONS",        "Dimensions (W × L × H)",          "71.8±0.8 × 173.7±0.5 × 204.4±0.5",         "mm",     "Physical"),
+    _p("CELL_WEIGHT",            "Weight",                          "5.66 ± 0.2",                               "kg",     "Physical"),
+    _p("CELL_ENERGY_DENSITY",    "Energy Density (Gravimetric)",    "177.53",                                   "Wh/kg",  "Physical"),
+    _p("CELL_CYCLE_LIFE",        "Cycle Performance (@60% SOH)",    "12000",                                    "cycles", "Performance"),
+]
 
 # ── REPT 280Ah ──
 _REPT_280 = _cell_19_specs(
@@ -462,6 +537,8 @@ CELL_PARAMETERS_BASE = {
     "comp-hithium-1175":   _HITHIUM_1175,
     "comp-hithium-na162":  _HITHIUM_NA162,
     "comp-svolt-350":      _SVOLT_350,
+    "comp-cornex-314":     _CORNEX_314,
+    "comp-csi-314":        _CSI_314,
     "comp-rept-280":       _REPT_280,
     "comp-rept-306":       _REPT_306,
     "comp-rept-314":       _REPT_314,
@@ -486,7 +563,16 @@ EVE_COMPONENTS = [
     {"id":"comp-eve-mb30", "oem_id": "oem-eve-006", "oem_name": "EVE Energy","gdrive_url":"https://minio.unityess.cloud/compliance-docs/CELL/EVE_BESS/Datasheets/EVE-LFP-MB30-306Ah-Cell-Datasheet.pdf","oem_id":"oem-eve-006","oem_name":"EVE Energy","model_name":"EVE MB30 306Ah","sku":"EVE-MB30-306","component_type_name":"Cell","fill_rate":95,"compliance_score":93.2,"is_active":True,"pass":24,"fail":2,"waived":2,"datasheet":"EVE-LFP-MB30-306Ah-Cell-Datasheet.pdf"},
     {"id":"comp-eve-mb31", "oem_id": "oem-eve-006", "oem_name": "EVE Energy","gdrive_url":"https://minio.unityess.cloud/compliance-docs/CELL/EVE_BESS/Datasheets/EVE-LFP-MB31-314Ah-Cell-Datasheet.pdf","oem_id":"oem-eve-006","oem_name":"EVE Energy","model_name":"EVE MB31 314Ah","sku":"EVE-MB31-314","component_type_name":"Cell","fill_rate":96,"compliance_score":94.0,"is_active":True,"pass":25,"fail":1,"waived":2,"datasheet":"EVE-LFP-MB31-314Ah-Cell-Datasheet.pdf"},
 ]
-CALB_COMPONENTS = [{"id":"comp-calb-280", "oem_id": "oem-calb-007", "oem_name": "CALB","gdrive_url":"https://minio.unityess.cloud/compliance-docs/CELL/CALB_BESS/Datasheets/CALB-LFP-280Ah-Cell-Datasheet.pdf","oem_id":"oem-calb-007","oem_name":"CALB","model_name":"CALB LFP 280Ah","sku":"CALB-L280F","component_type_name":"Cell","fill_rate":93,"compliance_score":90.2,"is_active":True,"pass":23,"fail":3,"waived":2,"datasheet":"CALB-LFP-280Ah-Cell-Datasheet.pdf"}]
+CALB_COMPONENTS = [
+    {"id":"comp-calb-280","oem_id":"oem-calb-007","oem_name":"CALB",
+     "gdrive_url":"https://minio.unityess.cloud/compliance-docs/CELL/CALB_BESS/Datasheets/CALB-LFP-280Ah-Cell-Datasheet.pdf",
+     "model_name":"CALB LFP 280Ah","sku":"CALB-L280F","component_type_name":"Cell","is_active":True,
+     "datasheet":"CALB-LFP-280Ah-Cell-Datasheet.pdf"},
+    {"id":"comp-calb-314","oem_id":"oem-calb-007","oem_name":"CALB",
+     "gdrive_url":"https://minio.unityess.cloud/compliance-docs/CELL/CALB_BESS/Datasheets/CALB-LFP-314Ah-Cell-Datasheet.png",
+     "model_name":"CALB LFP 314Ah","sku":"L173F314A","component_type_name":"Cell","is_active":True,
+     "datasheet":"CALB-LFP-314Ah-Cell-Datasheet.png"},
+]
 BYD_COMPONENTS  = [{"id":"comp-byd-302", "oem_id": "oem-byd-008", "oem_name": "BYD","gdrive_url":"https://minio.unityess.cloud/compliance-docs/CELL/BYD_BESS/Datasheets/BYD-LFP-302Ah-Blade-Cell-Datasheet.pdf","oem_id":"oem-byd-008","oem_name":"BYD","model_name":"BYD LFP 302Ah Blade","sku":"BYD-LFP302B","component_type_name":"Cell","fill_rate":98,"compliance_score":94.1,"is_active":True,"pass":25,"fail":1,"waived":2,"datasheet":"BYD-LFP-302Ah-Blade-Cell-Datasheet.pdf"}]
 
 def _mkp(cap,v,e,w,cyc,ir,ed,bis,cert):
@@ -539,6 +625,27 @@ CALB_PARAMETERS = {
         dimensions="N/A", weight="5.50",
         energy_density="162.9", cycle_life="5000+",
     ),
+    "comp-calb-314": [
+        _p("CELL_TYPE",              "Cell Type",                       "Prismatic",                                "",       "General"),
+        _p("CELL_CHEMISTRY",         "Chemistry",                       "LFP",                                      "",       "General"),
+        _p("CELL_MODEL",             "Cell Model",                      "L173F314A",                                "",       "General"),
+        _p("CELL_NOM_CAPACITY",      "Nominal Capacity",                "314",                                      "Ah",     "Electrical"),
+        _p("CELL_NOM_VOLTAGE",       "Nominal Voltage",                 "3.2",                                      "V",      "Electrical"),
+        _p("CELL_NOM_ENERGY",        "Nominal Energy",                  "1004",                                     "Wh",     "Electrical"),
+        _p("CELL_OPER_VOLT_RANGE",   "Operating Voltage Range",         "2.5 to 3.65 (0<T≤55°C); 2.0 to 3.65 (-30≤T≤0°C)", "V", "Electrical"),
+        _p("CELL_DISCHARGE_CUTOFF",  "Discharge Cutoff Voltage",        "2.5 / 2.0",                                "V",      "Electrical"),
+        _p("CELL_AC_IMPEDANCE",      "AC Impedance (1 kHz, 40% SOC)",   "≤ 0.35",                                   "mΩ",     "Electrical"),
+        _p("CELL_STD_CHG_CURR",      "Standard Charge Current",         "None",                                     "A",      "Electrical"),
+        _p("CELL_MAX_CHG_CURR",      "Max Continuous Charge Current",   "None",                                     "A",      "Electrical"),
+        _p("CELL_MAX_DIS_CURR",      "Max Continuous Discharge Current","None",                                     "A",      "Electrical"),
+        _p("CELL_CHG_TEMP",          "Charge Temperature",              "0 to 55",                                  "°C",     "Thermal"),
+        _p("CELL_DIS_TEMP",          "Discharge Temperature",           "-30 to 55",                                "°C",     "Thermal"),
+        _p("CELL_STORAGE_TEMP",      "Storage Temperature",             "5 to 35",                                  "°C",     "Thermal"),
+        _p("CELL_DIMENSIONS",        "Dimensions (W × H × T)",          "174.7±0.8 × 71.7±0.5 × 207.2±0.8",         "mm",     "Physical"),
+        _p("CELL_WEIGHT",            "Weight",                          "5.65 ± 0.30",                              "kg",     "Physical"),
+        _p("CELL_ENERGY_DENSITY",    "Energy Density",                  "None",                                     "Wh/kg",  "Physical"),
+        _p("CELL_CYCLE_LIFE",        "Cycle Life (SOH ≥70%)",           "≥ 8000",                                   "cycles", "Performance"),
+    ],
 }
 BYD_PARAMETERS = {
     "comp-byd-302": _cell_19_specs(
