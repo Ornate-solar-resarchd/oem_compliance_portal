@@ -53,7 +53,6 @@ import {
   Mail,
   Building2,
   CheckCircle2,
-  XCircle,
   X,
   Upload,
   ChevronDown,
@@ -896,10 +895,6 @@ export default function OEMsPage() {
           <span className="text-xs text-slate-400">
             {filteredComponents.length} model{filteredComponents.length !== 1 ? "s" : ""}
           </span>
-          <Button size="sm" variant="outline" className="text-xs h-7 gap-1.5"
-            onClick={() => setDriveModalOpen(true)}>
-            <HardDrive className="h-3 w-3" /> Fetch from Drive
-          </Button>
           {selectedCategory !== "All" && (
             <Button size="sm" variant="outline" className="text-xs h-7 gap-1.5"
               onClick={() => { setUploadCategory(selectedCategory); setUploadOpen(true); }}>
