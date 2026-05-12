@@ -222,59 +222,62 @@ export default function ComparePage() {
               className="pl-10" />
           </div>
 
-          {/* Models grouped by OEM */}
+          {/* Models grouped by OEM — horizontal strip */}
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-slate-700">Select Models</CardTitle>
-              <CardDescription className="text-xs text-slate-500">
-                {selectedIds.size > 0 ? `${selectedIds.size} selected · need 2+ to compare` : "Pick 2 or more models to start"}
-              </CardDescription>
+            <CardHeader className="pb-3 flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-sm font-semibold text-slate-700">Select Models</CardTitle>
+                <CardDescription className="text-xs text-slate-500">
+                  {selectedIds.size > 0 ? `${selectedIds.size} selected · scroll horizontally to see all OEMs` : "Click any model to add it to the comparison"}
+                </CardDescription>
+              </div>
+              {selectedIds.size > 0 && (
+                <Button size="sm" variant="outline" onClick={() => setSelectedIds(new Set())} className="text-xs">
+                  <X className="h-3 w-3 mr-1" /> Clear all
+                </Button>
+              )}
             </CardHeader>
-            <CardContent className="space-y-2 max-h-[520px] overflow-y-auto scrollbar-thin">
-              {Array.from(modelsByOEM.entries()).map(([oem, models]) => {
-                const info = OEM_INFO[oem] || { color: "from-slate-500 to-slate-600", website: "#", country: "—", logo: oem[0] }
-                const isExpanded = expandedOEMs.has(oem)
-                const allSelected = models.every(m => selectedIds.has(m.id))
-                return (
-                  <div key={oem} className="border border-slate-100 rounded-xl overflow-hidden">
-                    <div className="flex items-center gap-2.5 px-3 py-3 bg-slate-50/60 cursor-pointer hover:bg-slate-50 transition-colors"
-                      onClick={() => toggleExpandOEM(oem)}>
-                      {isExpanded ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400" />}
-                      <div className={cn("w-7 h-7 rounded-md bg-gradient-to-br flex items-center justify-center text-white text-xs font-bold", info.color)}>
-                        {info.logo}
+            <CardContent>
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+                {Array.from(modelsByOEM.entries()).map(([oem, models]) => {
+                  const info = OEM_INFO[oem] || { color: "from-slate-500 to-slate-600", website: "#", country: "—", logo: oem[0] }
+                  const allSelected = models.every(m => selectedIds.has(m.id))
+                  return (
+                    <div key={oem} className="flex-shrink-0 w-[210px] border border-slate-200 rounded-xl overflow-hidden bg-white">
+                      <div className="flex items-center gap-2 px-3 py-2.5 bg-slate-50 border-b border-slate-100">
+                        <div className={cn("w-6 h-6 rounded bg-gradient-to-br flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0", info.color)}>
+                          {info.logo}
+                        </div>
+                        <span className="text-xs font-semibold text-slate-800 flex-1 truncate">{oem}</span>
+                        <button onClick={() => selectAllFromOEM(oem)}
+                          className={cn("text-[10px] font-medium px-1.5 py-0.5 rounded transition-colors flex-shrink-0",
+                            allSelected ? "bg-brand/10 text-brand" : "text-slate-500 hover:bg-slate-200")}>
+                          {allSelected ? "Clear" : "All"}
+                        </button>
                       </div>
-                      <span className="text-sm font-semibold text-slate-800 flex-1">{oem}</span>
-                      <span className="text-xs text-slate-400">{models.length}</span>
-                      <button onClick={e => { e.stopPropagation(); selectAllFromOEM(oem) }}
-                        className={cn("text-xs font-medium px-2.5 py-1 rounded-md transition-colors",
-                          allSelected ? "bg-brand/10 text-brand" : "text-slate-500 hover:bg-slate-200")}>
-                        {allSelected ? "Clear" : "All"}
-                      </button>
-                    </div>
-                    {isExpanded && (
-                      <div className="divide-y divide-slate-50">
+                      <div className="max-h-[260px] overflow-y-auto">
                         {models.map(model => {
                           const isSelected = selectedIds.has(model.id)
                           return (
                             <button key={model.id} onClick={() => toggleModel(model.id)}
-                              className={cn("w-full flex items-center gap-3 px-3 py-3 text-left transition-all",
+                              className={cn("w-full flex items-center gap-2 px-3 py-2 text-left transition-all border-b border-slate-50 last:border-0",
                                 isSelected ? "bg-brand-50/40" : "hover:bg-slate-50")}>
-                              <div className={cn("w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0",
+                              <div className={cn("w-3.5 h-3.5 rounded border-2 flex items-center justify-center flex-shrink-0",
                                 isSelected ? "bg-brand border-brand text-white" : "border-slate-300")}>
-                                {isSelected && <Check className="h-2.5 w-2.5" />}
+                                {isSelected && <Check className="h-2 w-2" />}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="text-sm font-medium text-slate-800 truncate">{model.model_name}</div>
-                                <div className="text-xs text-slate-400">{model.sku}</div>
+                                <div className="text-xs font-medium text-slate-800 truncate">{model.model_name}</div>
+                                <div className="text-[10px] text-slate-400 truncate">{model.sku}</div>
                               </div>
                             </button>
                           )
                         })}
                       </div>
-                    )}
-                  </div>
-                )
-              })}
+                    </div>
+                  )
+                })}
+              </div>
             </CardContent>
           </Card>
 
@@ -341,58 +344,68 @@ export default function ComparePage() {
                 </div>
               )}
 
-              {/* Comparison Matrix — Horizontal layout (each model = one row) */}
+              {/* Comparison Matrix — Original vertical layout (params as rows, models as columns) */}
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base font-semibold">Specification Comparison</CardTitle>
                   <CardDescription className="text-xs text-slate-500">
-                    {matrix.models.length} models · {matrix.total_parameters} parameters
+                    {matrix.total_parameters} parameters · {matrix.models.length} models
                     {sectionFilter !== "All" && ` · Filtered: ${sectionFilter}`}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto rounded-xl border border-slate-200">
-                    <table className="text-sm border-collapse">
+                    <table className="w-full text-sm border-collapse">
                       <thead className="sticky top-0 z-10">
                         <tr className="bg-slate-50 border-b border-slate-200">
-                          <th className="text-left py-4 px-4 text-xs font-semibold text-slate-600 uppercase tracking-wide sticky left-0 bg-slate-50 z-20 min-w-[200px]">
-                            Model
+                          <th className="text-left py-4 px-4 text-xs font-semibold text-slate-600 uppercase tracking-wide min-w-[220px]">
+                            Parameter
                           </th>
-                          {Array.from(groupedRows.values()).flat().map(row => (
-                            <th key={row.code} className="text-left py-4 px-4 text-xs font-semibold text-slate-600 min-w-[140px] border-l border-slate-100">
-                              <div className="text-slate-700">{row.parameter}</div>
-                              {row.unit && <div className="text-[10px] text-slate-400 font-normal mt-0.5">{row.unit}</div>}
-                            </th>
-                          ))}
+                          {matrix.models.map(model => {
+                            const info = OEM_INFO[model.oem_name] || { color: "from-slate-500 to-slate-600", logo: model.oem_name[0] }
+                            return (
+                              <th key={model.id} className="text-center py-4 px-4 min-w-[150px]">
+                                <div className="flex items-center justify-center gap-2">
+                                  <div className={cn("w-6 h-6 rounded bg-gradient-to-br flex items-center justify-center text-white text-xs font-bold", info.color)}>
+                                    {info.logo}
+                                  </div>
+                                  <div className="text-left">
+                                    <div className="text-xs font-semibold text-slate-800">{model.oem_name}</div>
+                                    <div className="text-[11px] text-slate-500 font-normal">{model.model_name.split("-").slice(-2).join("-")}</div>
+                                  </div>
+                                </div>
+                              </th>
+                            )
+                          })}
                         </tr>
                       </thead>
                       <tbody>
-                        {matrix.models.map(model => {
-                          const info = OEM_INFO[model.oem_name] || { color: "from-slate-500 to-slate-600", logo: model.oem_name[0] }
-                          return (
-                            <tr key={model.id} className="border-b border-slate-100 hover:bg-slate-50/30 transition-colors">
-                              <td className="py-3 px-4 sticky left-0 bg-white border-r border-slate-100 z-10">
-                                <div className="flex items-center gap-2.5">
-                                  <div className={cn("w-7 h-7 rounded bg-gradient-to-br flex items-center justify-center text-white text-xs font-bold flex-shrink-0", info.color)}>
-                                    {info.logo}
-                                  </div>
-                                  <div>
-                                    <div className="text-xs font-semibold text-slate-800">{model.oem_name}</div>
-                                    <div className="text-[11px] text-slate-500">{model.model_name}</div>
-                                  </div>
-                                </div>
+                        {Array.from(groupedRows.entries()).map(([section, rows]) => (
+                          <>
+                            <tr key={`s-${section}`}>
+                              <td colSpan={matrix.models.length + 1}
+                                className="py-3 px-4 text-xs font-semibold uppercase tracking-wide text-slate-700 bg-slate-100/70 border-t border-b border-slate-200">
+                                {section}
                               </td>
-                              {Array.from(groupedRows.values()).flat().map(row => {
-                                const val = row.values[model.id]
-                                return (
-                                  <td key={row.code} className="py-3 px-4 text-sm text-slate-800 border-l border-slate-100">
-                                    {val ? val.display : <span className="text-slate-300">—</span>}
-                                  </td>
-                                )
-                              })}
                             </tr>
-                          )
-                        })}
+                            {rows.map(row => (
+                              <tr key={row.code} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
+                                <td className="py-3 px-4 text-slate-700">
+                                  <div className="text-sm font-medium">{row.parameter}</div>
+                                  {row.unit && <span className="text-xs text-slate-400">{row.unit}</span>}
+                                </td>
+                                {matrix.models.map(model => {
+                                  const val = row.values[model.id]
+                                  return (
+                                    <td key={model.id} className="py-3 px-4 text-center text-sm text-slate-800">
+                                      {val ? val.display : <span className="text-slate-300">—</span>}
+                                    </td>
+                                  )
+                                })}
+                              </tr>
+                            ))}
+                          </>
+                        ))}
                       </tbody>
                     </table>
                   </div>
