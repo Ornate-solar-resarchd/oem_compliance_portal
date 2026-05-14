@@ -313,7 +313,7 @@ _LISHEN_314 = [
     _p("CELL_DIMENSIONS",        "Dimensions (W × L × H)",            "173.8±0.5 × 71.5±0.5 × 207.2±0.5", "mm",     "Physical"),
     _p("CELL_WEIGHT",            "Weight",                            "5.6 ± 0.20",                       "kg",     "Physical"),
     _p("CELL_ENERGY_DENSITY",    "Energy Density",                    "175.4",                            "Wh/kg",  "Physical"),
-    _p("CELL_CYCLE_LIFE",        "Cycle Life (@70% SOH, 0.5C)",       "8000+",                            "cycles", "Performance"),
+    _p("CELL_CYCLE_LIFE",        "Cycle Life",       "8000+",                            "cycles", "Performance"),
 ]
 
 # ── Gotion 280Ah ──
@@ -450,7 +450,7 @@ _CORNEX_314 = [
     _p("CELL_DIMENSIONS",        "Dimensions (W × L × H)",          "71.7±0.5 × 174.4±0.5 × 207.2±0.5",     "mm",     "Physical"),
     _p("CELL_WEIGHT",            "Weight",                          "5.65 ± 0.1",                           "kg",     "Physical"),
     _p("CELL_ENERGY_DENSITY",    "Energy Density",                  "None",                                 "Wh/kg",  "Physical"),
-    _p("CELL_CYCLE_LIFE",        "Cycle Life (25°C, 80% EOL)",      "≥ 6000",                               "cycles", "Performance"),
+    _p("CELL_CYCLE_LIFE",        "Cycle Life",      "≥ 6000",                               "cycles", "Performance"),
 ]
 
 # ── CSI 314Ah (from DNV Table 3-1) ──
@@ -473,7 +473,7 @@ _CSI_314 = [
     _p("CELL_DIMENSIONS",        "Dimensions (W × L × H)",          "71.8±0.8 × 173.7±0.5 × 204.4±0.5",         "mm",     "Physical"),
     _p("CELL_WEIGHT",            "Weight",                          "5.66 ± 0.2",                               "kg",     "Physical"),
     _p("CELL_ENERGY_DENSITY",    "Energy Density (Gravimetric)",    "177.53",                                   "Wh/kg",  "Physical"),
-    _p("CELL_CYCLE_LIFE",        "Cycle Performance (@60% SOH)",    "12000",                                    "cycles", "Performance"),
+    _p("CELL_CYCLE_LIFE",        "Cycle Life",    "12000",                                    "cycles", "Performance"),
 ]
 
 # ── TrinaStorage 587Ah (from PDF datasheet) ──
@@ -608,7 +608,7 @@ CALB_COMPONENTS = [
 BYD_COMPONENTS  = [{"id":"comp-byd-302", "oem_id": "oem-byd-008", "oem_name": "BYD","gdrive_url":"https://minio.unityess.cloud/compliance-docs/CELL/BYD_BESS/Datasheets/BYD-LFP-302Ah-Blade-Cell-Datasheet.pdf","oem_id":"oem-byd-008","oem_name":"BYD","model_name":"BYD LFP 302Ah Blade","sku":"BYD-LFP302B","component_type_name":"Cell","fill_rate":98,"compliance_score":94.1,"is_active":True,"pass":25,"fail":1,"waived":2,"datasheet":"BYD-LFP-302Ah-Blade-Cell-Datasheet.pdf"}]
 
 def _mkp(cap,v,e,w,cyc,ir,ed,bis,cert):
-    return [{"code":"CELL_CAPACITY_AH","name":"Nominal Capacity","value":str(cap),"unit":"Ah","section":"Electrical","status":"pass","confidence":0.97},{"code":"CELL_VOLTAGE_V","name":"Nominal Voltage","value":str(v),"unit":"V","section":"Electrical","status":"pass","confidence":0.99},{"code":"CELL_ENERGY_WH","name":"Energy","value":str(e),"unit":"Wh","section":"Electrical","status":"pass","confidence":0.95},{"code":"CELL_IR_MOHM","name":"Internal Resistance","value":str(ir),"unit":"mohm","section":"Electrical","status":"pass","confidence":0.92},{"code":"CELL_CYCLE_LIFE","name":"Cycle Life","value":str(cyc),"unit":"cycles","section":"Electrical","status":"pass","confidence":0.94},{"code":"CELL_WEIGHT_KG","name":"Weight","value":str(w),"unit":"kg","section":"Physical","status":"pass","confidence":0.98},{"code":"CELL_ENERGY_DENSITY","name":"Energy Density","value":str(ed),"unit":"Wh/kg","section":"Physical","status":"pass","confidence":0.91},{"code":"CELL_CHEMISTRY","name":"Chemistry","value":"LFP","unit":"","section":"Safety","status":"pass","confidence":0.99},{"code":"CELL_CERTIFICATIONS","name":"Certifications","value":cert,"unit":"","section":"Safety","status":"pass","confidence":0.95},{"code":"CELL_BIS_CERT","name":"BIS Certified","value":bis,"unit":"","section":"Safety","status":"pass" if bis=="Yes" else "fail","confidence":0.92},{"code":"CELL_UN383","name":"UN38.3","value":"Yes","unit":"","section":"Safety","status":"pass","confidence":0.97}]
+    return [{"code":"CELL_CAPACITY_AH","name":"Nominal Capacity","value":str(cap),"unit":"Ah","section":"Electrical","status":"pass","confidence":0.97},{"code":"CELL_VOLTAGE_V","name":"Nominal Voltage","value":str(v),"unit":"V","section":"Electrical","status":"pass","confidence":0.99},{"code":"CELL_ENERGY_WH","name":"Energy","value":str(e),"unit":"Wh","section":"Electrical","status":"pass","confidence":0.95},{"code":"CELL_IR_MOHM","name":"Internal Resistance","value":str(ir),"unit":"mohm","section":"Electrical","status":"pass","confidence":0.92},{"code":"CELL_CYCLE_LIFE","Cycle Life":"Cycle Life","value":str(cyc),"unit":"cycles","section":"Electrical","status":"pass","confidence":0.94},{"code":"CELL_WEIGHT_KG","name":"Weight","value":str(w),"unit":"kg","section":"Physical","status":"pass","confidence":0.98},{"code":"CELL_ENERGY_DENSITY","name":"Energy Density","value":str(ed),"unit":"Wh/kg","section":"Physical","status":"pass","confidence":0.91},{"code":"CELL_CHEMISTRY","name":"Chemistry","value":"LFP","unit":"","section":"Safety","status":"pass","confidence":0.99},{"code":"CELL_CERTIFICATIONS","name":"Certifications","value":cert,"unit":"","section":"Safety","status":"pass","confidence":0.95},{"code":"CELL_BIS_CERT","name":"BIS Certified","value":bis,"unit":"","section":"Safety","status":"pass" if bis=="Yes" else "fail","confidence":0.92},{"code":"CELL_UN383","name":"UN38.3","value":"Yes","unit":"","section":"Safety","status":"pass","confidence":0.97}]
 
 NEW_CATL_PARAMETERS = {
     "comp-catl-302": _cell_19_specs(
@@ -676,7 +676,7 @@ CALB_PARAMETERS = {
         _p("CELL_DIMENSIONS",        "Dimensions (W × H × T)",          "174.7±0.8 × 71.7±0.5 × 207.2±0.8",         "mm",     "Physical"),
         _p("CELL_WEIGHT",            "Weight",                          "5.65 ± 0.30",                              "kg",     "Physical"),
         _p("CELL_ENERGY_DENSITY",    "Energy Density",                  "None",                                     "Wh/kg",  "Physical"),
-        _p("CELL_CYCLE_LIFE",        "Cycle Life (SOH ≥70%)",           "≥ 8000",                                   "cycles", "Performance"),
+        _p("CELL_CYCLE_LIFE",        "Cycle Life",           "≥ 8000",                                   "cycles", "Performance"),
     ],
 }
 BYD_PARAMETERS = {

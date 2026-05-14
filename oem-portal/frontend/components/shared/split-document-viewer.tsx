@@ -97,6 +97,10 @@ export function SplitDocumentViewer({
 
   const isPdf = localFile?.type === "application/pdf" || fileName?.toLowerCase().endsWith(".pdf")
   const isExcel = fileName?.toLowerCase().endsWith(".xlsx") || fileName?.toLowerCase().endsWith(".xls")
+  const isImage =
+    (localFile?.type?.startsWith("image/") ?? false) ||
+    /\.(png|jpe?g|webp|gif|bmp|tiff?)$/i.test(fileName ?? "")
+  const imageSrc = isImage ? (localBlobUrl || gdriveUrl || "") : ""
 
   const totalParams = parameters.length
   const passCount = summary?.pass ?? parameters.filter(p => p.verified !== false).length
@@ -157,6 +161,16 @@ export function SplitDocumentViewer({
             title="Document Preview"
             allow="autoplay"
           />
+        ) : isImage && imageSrc ? (
+          <div className="flex-1 flex items-center justify-center bg-slate-100 p-4 overflow-auto">
+            { }
+            <img
+              src={imageSrc}
+              alt={fileName || "Uploaded image"}
+              className="max-w-full max-h-full object-contain rounded-md shadow-md bg-white cursor-zoom-in"
+              onClick={() => window.open(imageSrc, "_blank")}
+            />
+          </div>
         ) : isExcel ? (
           <div className="flex-1 flex items-center justify-center text-slate-400">
             <div className="text-center">

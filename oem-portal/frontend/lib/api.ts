@@ -85,6 +85,7 @@ export const editComponentParam = (id: string, code: string, body: { name?: stri
   patch(`/components/${id}/parameters/${code}`, body)
 export const deleteComponentParam = (id: string, code: string) =>
   del(`/components/${id}/parameters/${code}`)
+export const deleteComponent = (id: string) => del(`/components/${id}`)
 export const uploadDatasheet = (file: File, oemName: string, modelName: string, category: string = "Cell") => {
   const fd = new FormData()
   fd.append("file", file)

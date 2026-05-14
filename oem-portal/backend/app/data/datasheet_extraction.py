@@ -998,24 +998,39 @@ def _normalize_to_cell_19(raw_results: list) -> list:
 
 def extract_from_datasheet(contents: bytes, filename: str, category: str) -> list:
     """Extract specs from datasheet. For category=Cell, always returns exactly
-    the 19 standard parameters; missing values are filled with 'N/A'."""
+    the 19 standard parameters; missing values are filled with 'N/A'.
+    Uses Gemini AI for Cell (accurate values); falls back to keyword regex."""
     text = extract_text_from_file(contents, filename)
     if not text:
-        # Even on failure, return the 19-param skeleton for Cell
         return _normalize_to_cell_19([]) if category == "Cell" else []
 
-    print(f"[Datasheet] Keyword extraction for {category} ({len(text)} chars)...")
-    results = extract_specs_keyword(text, category)
-
     if category == "Cell":
-        # Strict 19-param schema (no extras, fill missing with N/A)
-        results = _normalize_to_cell_19(results)
-        print(f"[Datasheet] Cell normalized: {len(results)} specs (always 19); "
+        # Try AI extraction first (accurate values from datasheet)
+        gemini_key = os.environ.get("GEMINI_API_KEY", "").strip()
+        ai_results: list = []
+        if gemini_key:
+            try:
+                print(f"[Datasheet] AI extraction (Gemini) for Cell ({len(text)} chars)...")
+                ai_results = extract_specs_with_gemini(text, "Cell", gemini_key)
+                print(f"[Datasheet] Gemini returned {len(ai_results)} raw specs")
+            except Exception as e:
+                print(f"[Datasheet] Gemini extraction failed: {e}")
+
+        if not ai_results:
+            # Fallback to keyword regex
+            print(f"[Datasheet] Falling back to keyword extraction for Cell ({len(text)} chars)...")
+            ai_results = extract_specs_keyword(text, "Cell")
+
+        # Either way, normalize to exactly the 19 standard params
+        results = _normalize_to_cell_19(ai_results)
+        print(f"[Datasheet] Cell normalized: 19 specs; "
               f"{sum(1 for r in results if r.get('verified'))} found, "
               f"{sum(1 for r in results if not r.get('verified'))} N/A")
         return results
 
-    # For non-Cell categories, keep the exhaustive behavior
+    # For non-Cell categories, keep the exhaustive keyword behavior
+    print(f"[Datasheet] Keyword extraction for {category} ({len(text)} chars)...")
+    results = extract_specs_keyword(text, category)
     results = _check_compliance(results, category)
     results = _add_missing_required(results, category)
     verified = sum(1 for p in results if p.get("verified"))
